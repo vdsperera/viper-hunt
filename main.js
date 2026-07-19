@@ -194,8 +194,13 @@ async function bootstrap() {
             
             await updateHighScore(selectedProfile, finalScore);
             
-            uiTitle.innerText = "Game Over";
-            uiMsg.innerText = `${selectedProfile}'s Final Score: ${finalScore}`;
+            if (gameLoop.victory) {
+                uiTitle.innerText = "Victory!";
+                uiMsg.innerText = `Congratulations, ${selectedProfile}! You captured all targets.\nFinal Score: ${finalScore}`;
+            } else {
+                uiTitle.innerText = "Game Over";
+                uiMsg.innerText = `${selectedProfile}'s Final Score: ${finalScore}`;
+            }
             startBtn.innerText = "Play Again";
             startBtn.disabled = false;
             startBtn.onclick = () => window.location.reload(); 
