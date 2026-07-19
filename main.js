@@ -106,6 +106,31 @@ async function bootstrap() {
 
     firebaseService = new FirebaseService(firebaseSdk, firebaseConfig);
 
+    const defaultRules = {
+        fps: 12,
+        targetsPerLevel: 5,
+        maxSimultaneousTargets: 3,
+        growthLow: 1,
+        growthMedium: 2,
+        growthHigh: 3,
+        growthElite: 4
+    };
+
+    let gameRules = { ...defaultRules };
+    try {
+        const cloudRules = await firebaseService.getGameRules();
+        if (cloudRules) {
+            Object.keys(cloudRules).forEach(key => {
+                if (cloudRules[key] !== undefined) {
+                    gameRules[key] = cloudRules[key];
+                }
+            });
+            console.log("[main] Game rules successfully loaded from Firestore:", gameRules);
+        }
+    } catch (e) {
+        console.warn("[main] Failed to load rules from Firestore. Using local defaults.", e);
+    }
+
     // TASK-012: Network integration (using fallback file as default since we have no live CSV setup)
     const registryService = new RegistryService(null, 'data/fallback_registry.json');
     
@@ -143,6 +168,7 @@ async function bootstrap() {
         
         // 1280x720 canvas with 32px cells = 40x22 grid
         const gridState = new GridState(40, 22);
+        gridState.setGrowthRules(gameRules); // Set custom growth-tier segments rules
         gridState.setHunter(new HunterEntity({
             HeadCoordinate: { x: 20, y: 11 },
             BodySegments: [],
@@ -155,11 +181,17 @@ async function bootstrap() {
         const targetManager = new TargetManager(gridState, registryService);
         const scoreManager = new ScoreManager();
 
-        gameLoop = new GameLoop(12, {
+        gameLoop = new GameLoop(gameRules.fps, {
             inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager
         });
 
-        const levelManager = new LevelManager(gridState, targetManager, gameLoop);
+        const levelManager = new LevelManager(
+            gridState, 
+            targetManager, 
+            gameLoop,
+            gameRules.targetsPerLevel,
+            gameRules.maxSimultaneousTargets
+        );
         gameLoop.levelManager = levelManager;
 
         // HUD Update Loop

@@ -179,4 +179,56 @@ test('FirebaseService Test Suite', async (t) => {
         assert.ok(updatedData);
         assert.strictEqual(updatedData.highScore, 50);
     });
+
+    await t.test('getGameRules fetches and returns rules from Firestore', async () => {
+        const mockSdk = {
+            initializeApp: () => ({}),
+            getFirestore: () => ({}),
+            doc: (db, col, id) => {
+                assert.strictEqual(col, 'configs');
+                assert.strictEqual(id, 'gameRules');
+                return { col, id };
+            },
+            getDoc: async (docRef) => {
+                return {
+                    exists: () => true,
+                    data: () => ({
+                        fps: 15,
+                        targetsPerLevel: 8,
+                        maxSimultaneousTargets: 4,
+                        growthLow: 2
+                    })
+                };
+            }
+        };
+        const config = { apiKey: "real-key", projectId: "real-project" };
+        const service = new FirebaseService(mockSdk, config);
+        
+        const rules = await service.getGameRules();
+        assert.ok(rules);
+        assert.strictEqual(rules.fps, 15);
+        assert.strictEqual(rules.targetsPerLevel, 8);
+        assert.strictEqual(rules.maxSimultaneousTargets, 4);
+        assert.strictEqual(rules.growthLow, 2);
+        assert.strictEqual(rules.growthElite, undefined);
+    });
+
+    await t.test('getGameRules returns null when configs doc does not exist', async () => {
+        const mockSdk = {
+            initializeApp: () => ({}),
+            getFirestore: () => ({}),
+            doc: (db, col, id) => ({ col, id }),
+            getDoc: async (docRef) => {
+                return {
+                    exists: () => false,
+                    data: () => null
+                };
+            }
+        };
+        const config = { apiKey: "real-key", projectId: "real-project" };
+        const service = new FirebaseService(mockSdk, config);
+        
+        const rules = await service.getGameRules();
+        assert.strictEqual(rules, null);
+    });
 });

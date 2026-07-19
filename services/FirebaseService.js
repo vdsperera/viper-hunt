@@ -146,6 +146,39 @@ export class FirebaseService {
         }
     }
 
+    /**
+     * Fetches custom game rules from Firestore.
+     * @returns {Promise<Object|null>} The rules object or null if not found/uninitialized
+     */
+    async getGameRules() {
+        if (!this.isInitialized) {
+            return null;
+        }
+
+        try {
+            const docRef = this.sdk.doc(this.db, 'configs', 'gameRules');
+            const docSnap = await this.sdk.getDoc(docRef);
+            if (docSnap && docSnap.exists()) {
+                const data = docSnap.data();
+                if (data) {
+                    return {
+                        fps: typeof data.fps === 'number' ? data.fps : undefined,
+                        targetsPerLevel: typeof data.targetsPerLevel === 'number' ? data.targetsPerLevel : undefined,
+                        maxSimultaneousTargets: typeof data.maxSimultaneousTargets === 'number' ? data.maxSimultaneousTargets : undefined,
+                        growthLow: typeof data.growthLow === 'number' ? data.growthLow : undefined,
+                        growthMedium: typeof data.growthMedium === 'number' ? data.growthMedium : undefined,
+                        growthHigh: typeof data.growthHigh === 'number' ? data.growthHigh : undefined,
+                        growthElite: typeof data.growthElite === 'number' ? data.growthElite : undefined
+                    };
+                }
+            }
+            return null;
+        } catch (error) {
+            console.warn("[FirebaseService] Firestore getGameRules failed.", error);
+            return null;
+        }
+    }
+
     // --- Local Fallback Helpers ---
 
     getLocalProfiles() {

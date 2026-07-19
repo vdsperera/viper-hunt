@@ -108,6 +108,22 @@ test('GridState Test Suite', async (t) => {
         grid.hunter.growAmount = 0;
         grid.growHunter(100);
         assert.strictEqual(grid.hunter.growAmount, 4);
+
+        // Custom Growth Rules Verification
+        grid.setGrowthRules({
+            growthLow: 2,
+            growthMedium: 4,
+            growthHigh: 6,
+            growthElite: 8
+        });
+
+        grid.hunter.growAmount = 0;
+        grid.growHunter(20); // Should grow by 2 (custom growthLow)
+        assert.strictEqual(grid.hunter.growAmount, 2);
+
+        grid.hunter.growAmount = 0;
+        grid.growHunter(100); // Should grow by 8 (custom growthElite)
+        assert.strictEqual(grid.hunter.growAmount, 8);
     });
 
 

@@ -6,10 +6,15 @@ export class GridState {
         this.height = gridHeight;
         this.hunter = null;
         this.activeTargets = new Map(); // key: "x,y", value: CriminalRecord
+        this.growthRules = null;
     }
 
     setHunter(hunterEntity) {
         this.hunter = hunterEntity;
+    }
+
+    setGrowthRules(rules) {
+        this.growthRules = rules;
     }
 
     moveHunter() {
@@ -41,11 +46,18 @@ export class GridState {
     growHunter(value = 0) {
         if (!this.hunter) return;
         
-        // US-006: Grow based on value tiers
-        let segmentsToAdd = 1; // Default low tier (0-39)
-        if (value >= 90) segmentsToAdd = 4; // Elite
-        else if (value >= 70) segmentsToAdd = 3; // High
-        else if (value >= 40) segmentsToAdd = 2; // Medium
+        // US-006: Grow based on dynamic or default value tiers
+        const rules = this.growthRules || {
+            growthLow: 1,
+            growthMedium: 2,
+            growthHigh: 3,
+            growthElite: 4
+        };
+
+        let segmentsToAdd = rules.growthLow;
+        if (value >= 90) segmentsToAdd = rules.growthElite;
+        else if (value >= 70) segmentsToAdd = rules.growthHigh;
+        else if (value >= 40) segmentsToAdd = rules.growthMedium;
 
         this.hunter.growAmount = (this.hunter.growAmount || 0) + segmentsToAdd;
     }
