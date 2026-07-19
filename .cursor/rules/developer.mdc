@@ -1,0 +1,71 @@
+---
+description: Developer agent — coding standards for all source files
+globs: src/**/*.ts, src/**/*.js, src/**/*.py, src/**/*.go
+alwaysApply: false
+---
+
+# Developer Agent Rules
+
+You are a Developer agent. Implement exactly the task scope — nothing more, nothing less. If the task is ambiguous or contradicts the architecture, produce a BLOCKER REPORT instead of guessing.
+
+## Naming & readability
+- Names state intent, not implementation — `getUserByEmail` not `dbQuery1`
+- Functions do one thing — if it needs a comment to explain what it does, rename or split it
+- Boolean names are questions: `isActive`, `hasPermission`, `canRetry`
+- Constants are named and uppercased — no magic numbers or strings inline
+- No unexplained abbreviations
+
+## Error handling
+- All I/O operations (DB, network, file, queue) wrapped in typed error handling
+- No bare `catch(e)` that swallows silently — errors must be typed and specific
+- Error messages include context: what was attempted, with what input, what failed
+- Warn for recoverable failures, error for unrecoverable
+- Never expose internal error details (stack traces, query strings) to external callers
+- Never use exceptions for control flow
+
+## Input validation
+- Validate all external input at the entry point: type, shape, length, range, format
+- Return structured validation errors: field name, constraint violated, expected vs received
+- Sanitise before storing or passing to any downstream system
+- Never trust data that crosses a component boundary, even from internal services
+
+## Retries & resilience
+- Retry only idempotent operations — never retry operations that may have partially succeeded
+- Exponential backoff with jitter — never fixed-interval retries under load
+- Maximum retry count and timeout — retries must terminate
+- Circuit breaker for dependencies called more than once per request cycle
+- Log each retry: attempt number, delay, error reason
+- Never retry on 4xx client errors
+
+## Security
+- Parameterised queries — never concatenate user input into SQL or commands
+- Never log credentials, tokens, PII, or secrets — mask before logging
+- Secrets from environment or secrets manager — never hardcode
+- Least privilege — request only permissions actually needed
+- Auth enforced at function level, not only route level
+- Never roll your own crypto
+
+## Logging & observability
+- Structured JSON logs with: timestamp, level, component, operation, correlation ID
+- Every significant operation: started, succeeded, failed — with duration
+- Emit a metric or event for every business-significant outcome
+- No `console.log` in production paths — use the project logger
+
+## Unit tests — ship with every task
+- Cover: happy path + at least one failure path + at least one edge case
+- Independent — no shared mutable state between test cases
+- Mock all external dependencies — no real networks, databases, or clocks
+- Test names describe behaviour: `returns 401 when token is expired`
+- Test observable behaviour, not implementation details
+
+## Self-review before every handoff
+- [ ] Every external call has error handling
+- [ ] Every external input validated
+- [ ] No secrets or PII in logs or errors
+- [ ] No hardcoded secrets or magic values
+- [ ] Retries use backoff with termination condition
+- [ ] Auth enforced at function level
+- [ ] Tests cover happy, failure, and edge cases
+- [ ] Acceptance condition verifiably met
+- [ ] No logic added beyond task scope
+- [ ] Handoff note written

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viper Hunt</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="hud" class="hidden">
+            <span id="hud-player">Player: ---</span>
+            <span id="hud-level">Level: 1</span>
+            <span id="hud-score">Score: 0</span>
+        </div>
+        <canvas id="game-canvas" width="1280" height="720"></canvas>
+        <div id="overlay-ui" class="overlay">
+            <h1 id="overlay-title">Loading Registry...</h1>
+            <p id="overlay-message">Please wait</p>
+            
+            <div id="profile-section" class="hidden">
+                <div class="profile-create">
+                    <input type="text" id="new-profile-name" placeholder="Enter new player name">
+                    <button id="create-profile-btn">Create Profile</button>
+                </div>
+                <div class="profile-select">
+                    <select id="profile-dropdown">
+                        <option value="">-- Select Player --</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="start-btn" disabled>Start Session</button>
+        </div>
+    </div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>

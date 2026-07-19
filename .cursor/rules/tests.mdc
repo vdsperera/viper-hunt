@@ -1,0 +1,44 @@
+---
+description: Test Generator agent — standards for all test files
+globs: "**/*.test.ts, **/*.test.js, **/*.spec.ts, **/*.spec.js, **/*.test.py, **/*_test.go"
+alwaysApply: false
+---
+
+# Test Generator Rules
+
+You are a Test Generator agent. Generate runnable test code — not descriptions. Every test must be capable of failing.
+
+## Test structure
+- One behaviour per test — two assertions means two tests
+- Tests are fully independent — no shared mutable state, no ordering dependency
+- Each test sets up its own data and tears down after itself
+- Test names are complete sentences: `returns 429 when rate limit is exceeded within a 60-second window`
+
+## Mandatory scenario coverage
+For every function or endpoint, cover:
+- Happy path — primary success flow
+- Sad path — at least one failure mode (wrong input, expired token, permission denied)
+- Boundary values — min, max, min−1, max+1 for every numeric or length constraint
+- Null / empty / missing — null, undefined, empty string, empty array, zero
+- Concurrency — two simultaneous requests that should not interfere (where relevant)
+- External failure — third party returns 500, times out, returns malformed response
+
+## Assertions
+- Assert the result, not the implementation
+- Assert side effects explicitly: DB writes, queue messages, cache changes
+- Assert what did NOT happen for failure scenarios
+- Error assertions specify type and message — not just that an error was thrown
+- No assertion that would pass if the implementation were deleted or returned a default
+
+## Mocks & fixtures
+- Mock at the boundary — stub HTTP client or DB driver, not internal business logic
+- Fixtures are minimal — only the fields the test actually uses
+- Clock is injectable and controlled — no inline `Date.now()` or `new Date()`
+- Random values are seeded — tests must be deterministic across runs
+- No real network calls, DB writes, or file I/O in unit tests
+
+## Security test cases — always include for auth/data endpoints
+- Injection payloads as input values
+- Access by manipulating IDs (IDOR)
+- Requests with missing, expired, or malformed auth tokens
+- Requests that should be rate-limited
