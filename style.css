@@ -1,0 +1,106 @@
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background-color: #000;
+}
+
+.overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    z-index: 10;
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+#start-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    font-family: inherit;
+    cursor: pointer;
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #666;
+}
+
+#start-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    z-index: 5;
+    pointer-events: none;
+}
+
+#hud.hidden {
+    display: none !important;
+}
+
+#profile-section {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+#profile-section.hidden {
+    display: none;
+}
+
+.profile-create, .profile-select {
+    display: flex;
+    gap: 10px;
+}
+
+input, select, button {
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    background: #222;
+    color: white;
+    border: 1px solid #555;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: #888;
+}

@@ -1,0 +1,41 @@
+name: CI/CD Build and Deploy
+
+on:
+  push:
+    branches:
+      - main # Runs whenever you push code to the main branch
+
+permissions:
+  contents: write # Needed to allow the deploy action to write to the gh-pages branch
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pull down the code from repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # 3. Install packages
+      - name: Install Dependencies
+        run: npm install
+
+      # 4. Run tests (Continuous Integration gate)
+      - name: Run Tests
+        run: npm test
+
+      # 5. Deploy to GitHub Pages (Continuous Deployment)
+      - name: Deploy to GitHub Pages
+        if: success() # Only runs if all tests passed
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: . # Deploys the root folder
+          branch: gh-pages # Deploys the code to a gh-pages hosting branch
