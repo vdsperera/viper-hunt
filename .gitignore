@@ -2,7 +2,7 @@
 node_modules/
 
 # Local configuration files containing credentials
-firebase-config.js
+
 
 # OS files
 .DS_Store
