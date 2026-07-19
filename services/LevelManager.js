@@ -75,7 +75,10 @@ export class LevelManager {
         
         if (!spawnedAny) {
             // Session complete, no registry data left
-            if (this.gameLoop) this.gameLoop.stop();
+            if (this.gameLoop) {
+                this.gameLoop.victory = true;
+                this.gameLoop.stop();
+            }
         }
     }
 }
