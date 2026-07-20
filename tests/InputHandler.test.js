@@ -161,4 +161,13 @@ test('InputHandler Test Suite', async (t) => {
         assert.strictEqual(handler.inputQueue.length, 3);
     });
 
+    await t.test('TC-040: injectDirection enqueues valid touch/D-Pad input', () => {
+        const handler = new InputHandler();
+        handler.getCurrentDirection(Direction.RIGHT);
+        
+        handler.injectDirection(Direction.UP);
+        const nextDir = handler.getCurrentDirection(Direction.RIGHT);
+        assert.strictEqual(nextDir, Direction.UP);
+    });
+
 });
