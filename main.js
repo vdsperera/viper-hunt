@@ -164,7 +164,7 @@ async function bootstrap() {
         // Hide UI
         uiOverlay.classList.add('hidden');
         hud.classList.remove('hidden');
-        hudPlayer.innerText = `Player: ${selectedProfile}`;
+        hudPlayer.innerText = selectedProfile;
         
         // 1280x720 canvas with 32px cells = 40x22 grid
         const gridState = new GridState(40, 22);
@@ -199,13 +199,13 @@ async function bootstrap() {
         const originalAdvanceLevel = levelManager.advanceLevel.bind(levelManager);
         levelManager.advanceLevel = () => {
             currentLevel++;
-            hudLevel.innerText = `Level: ${currentLevel}`;
+            hudLevel.innerText = currentLevel;
             originalAdvanceLevel();
         };
 
         hudInterval = setInterval(() => {
             if (gameLoop.running) {
-                hudScore.innerText = `Score: ${scoreManager.getSessionScore()}`;
+                hudScore.innerText = scoreManager.getSessionScore();
             }
         }, 100);
 
@@ -241,7 +241,7 @@ async function bootstrap() {
         // Bootstrap the first level and commence tick
         levelManager.advanceLevel(); 
         currentLevel = 1; // Reset to 1 after advanceLevel increments it initially
-        hudLevel.innerText = `Level: 1`;
+        hudLevel.innerText = '1';
         gameLoop.start();
     });
 }
