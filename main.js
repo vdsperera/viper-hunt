@@ -29,6 +29,7 @@ const hud = document.getElementById('hud');
 const hudPlayer = document.getElementById('hud-player');
 const hudLevel = document.getElementById('hud-level');
 const hudScore = document.getElementById('hud-score');
+const dpadControls = document.getElementById('dpad-controls');
 
 let selectedProfile = '';
 let firebaseService = null;
@@ -164,6 +165,7 @@ async function bootstrap() {
         // Hide UI
         uiOverlay.classList.add('hidden');
         hud.classList.remove('hidden');
+        if (dpadControls) dpadControls.classList.remove('hidden');
         hudPlayer.innerText = selectedProfile;
         
         // 1280x720 canvas with 32px cells = 40x22 grid
@@ -176,6 +178,9 @@ async function bootstrap() {
         }));
 
         const inputHandler = new InputHandler();
+        if (dpadControls) inputHandler.bindDpadControls(dpadControls);
+        inputHandler.bindTouchSwipe(document.getElementById('game-container'));
+
         const collisionDetector = new CollisionDetector();
         const renderer = new Renderer('game-canvas', 32);
         const targetManager = new TargetManager(gridState, registryService);
@@ -214,6 +219,7 @@ async function bootstrap() {
         gameLoop.stop = async () => {
             originalStop();
             clearInterval(hudInterval);
+            if (dpadControls) dpadControls.classList.add('hidden');
             
             const finalScore = scoreManager.getSessionScore();
             

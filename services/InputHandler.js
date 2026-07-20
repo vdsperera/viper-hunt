@@ -8,15 +8,104 @@ export class InputHandler {
     }
 
     _bindEvents() {
-        window.addEventListener('keydown', (e) => {
-            const dir = this._mapToDirection(e.key);
-            if (dir) {
-                this._enqueueDirection(dir);
+        if (typeof window !== 'undefined') {
+            window.addEventListener('keydown', (e) => {
+                const dir = this._mapToDirection(e.key);
+                if (dir) {
+                    this._enqueueDirection(dir);
+                }
+            });
+        }
+    }
+
+    /**
+     * Public method to allow external controllers (virtual D-Pad, touch swipes) to enqueue direction
+     * @param {string} dir - One of Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT
+     */
+    injectDirection(dir) {
+        if (Object.values(Direction).includes(dir)) {
+            this._enqueueDirection(dir);
+        }
+    }
+
+    /**
+     * Binds touch swipe listeners on a DOM element (canvas or container)
+     * @param {HTMLElement} element
+     */
+    bindTouchSwipe(element) {
+        if (!element || typeof element.addEventListener !== 'function') return;
+
+        let startX = 0;
+        let startY = 0;
+        const minSwipeDistance = 20;
+
+        element.addEventListener('touchstart', (e) => {
+            if (e.touches && e.touches.length > 0) {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
             }
-        });
+        }, { passive: true });
+
+        element.addEventListener('touchend', (e) => {
+            if (!e.changedTouches || e.changedTouches.length === 0) return;
+
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+
+            if (Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
+                return; // Tap, not a swipe
+            }
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                // Horizontal Swipe
+                if (deltaX > 0) {
+                    this.injectDirection(Direction.RIGHT);
+                } else {
+                    this.injectDirection(Direction.LEFT);
+                }
+            } else {
+                // Vertical Swipe
+                if (deltaY > 0) {
+                    this.injectDirection(Direction.DOWN);
+                } else {
+                    this.injectDirection(Direction.UP);
+                }
+            }
+        }, { passive: true });
+    }
+
+    /**
+     * Binds virtual D-Pad buttons for touch/pointer input
+     * @param {Object} buttonMap - { upEl, downEl, leftEl, rightEl } or DOM container
+     */
+    bindDpadControls(dpadContainer) {
+        if (!dpadContainer) return;
+
+        const upBtn = dpadContainer.querySelector ? dpadContainer.querySelector('#dpad-up') : dpadContainer.upBtn;
+        const downBtn = dpadContainer.querySelector ? dpadContainer.querySelector('#dpad-down') : dpadContainer.downBtn;
+        const leftBtn = dpadContainer.querySelector ? dpadContainer.querySelector('#dpad-left') : dpadContainer.leftBtn;
+        const rightBtn = dpadContainer.querySelector ? dpadContainer.querySelector('#dpad-right') : dpadContainer.rightBtn;
+
+        const bindBtn = (btn, dir) => {
+            if (!btn) return;
+            const handler = (e) => {
+                if (e.cancelable) e.preventDefault();
+                this.injectDirection(dir);
+            };
+            btn.addEventListener('pointerdown', handler);
+            btn.addEventListener('touchstart', handler, { passive: false });
+        };
+
+        bindBtn(upBtn, Direction.UP);
+        bindBtn(downBtn, Direction.DOWN);
+        bindBtn(leftBtn, Direction.LEFT);
+        bindBtn(rightBtn, Direction.RIGHT);
     }
 
     _mapToDirection(key) {
+        if (!key) return null;
         switch (key.toLowerCase()) {
             case 'w':
             case 'arrowup':

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Viper Hunt - Cyberpunk Tactical Arcade</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,6 +28,17 @@
         </div>
 
         <canvas id="game-canvas" width="1280" height="720"></canvas>
+
+        <!-- Virtual Touch D-Pad for Mobile -->
+        <div id="dpad-controls" class="hidden">
+            <button id="dpad-up" class="dpad-btn up" aria-label="Up"><span>▲</span></button>
+            <div class="dpad-middle-row">
+                <button id="dpad-left" class="dpad-btn left" aria-label="Left"><span>◄</span></button>
+                <div class="dpad-center-stub"></div>
+                <button id="dpad-right" class="dpad-btn right" aria-label="Right"><span>►</span></button>
+            </div>
+            <button id="dpad-down" class="dpad-btn down" aria-label="Down"><span>▼</span></button>
+        </div>
 
         <!-- Glassmorphism Overlay UI -->
         <div id="overlay-ui" class="overlay">
