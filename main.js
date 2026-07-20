@@ -75,7 +75,7 @@ async function bootstrap() {
     let firebaseSdk = null;
 
     try {
-        const configModule = await import('./firebase-config.js');
+        const configModule = await import('./firebase-config.js?t=' + Date.now());
         firebaseConfig = configModule.firebaseConfig;
 
         const isPlaceholder = !firebaseConfig ||
