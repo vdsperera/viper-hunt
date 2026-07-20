@@ -3,34 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viper Hunt</title>
+    <title>Viper Hunt - Cyberpunk Tactical Arcade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
+        <!-- Modern Cyberpunk HUD -->
         <div id="hud" class="hidden">
-            <span id="hud-player">Player: ---</span>
-            <span id="hud-level">Level: 1</span>
-            <span id="hud-score">Score: 0</span>
-        </div>
-        <canvas id="game-canvas" width="1280" height="720"></canvas>
-        <div id="overlay-ui" class="overlay">
-            <h1 id="overlay-title">Loading Registry...</h1>
-            <p id="overlay-message">Please wait</p>
-            
-            <div id="profile-section" class="hidden">
-                <div class="profile-create">
-                    <input type="text" id="new-profile-name" placeholder="Enter new player name">
-                    <button id="create-profile-btn">Create Profile</button>
-                </div>
-                <div class="profile-select">
-                    <select id="profile-dropdown">
-                        <option value="">-- Select Player --</option>
-                    </select>
-                </div>
+            <div class="hud-badge player-badge">
+                <span class="hud-label">PLAYER</span>
+                <span id="hud-player" class="hud-value">---</span>
             </div>
+            <div class="hud-badge level-badge">
+                <span class="hud-label">LEVEL</span>
+                <span id="hud-level" class="hud-value">1</span>
+            </div>
+            <div class="hud-badge score-badge">
+                <span class="hud-label">SCORE</span>
+                <span id="hud-score" class="hud-value">0</span>
+            </div>
+        </div>
 
-            <button id="start-btn" disabled>Start Session</button>
+        <canvas id="game-canvas" width="1280" height="720"></canvas>
+
+        <!-- Glassmorphism Overlay UI -->
+        <div id="overlay-ui" class="overlay">
+            <div class="overlay-card">
+                <div class="logo-container">
+                    <h1 id="overlay-title">VIPER HUNT</h1>
+                    <div class="cyber-line"></div>
+                </div>
+                <p id="overlay-message">Loading Registry...</p>
+                
+                <div id="profile-section" class="hidden">
+                    <div class="profile-card-group">
+                        <div class="profile-create">
+                            <input type="text" id="new-profile-name" placeholder="Enter player callsign..." maxlength="16" autocomplete="off">
+                            <button id="create-profile-btn" class="cyber-btn secondary"><span>+ CREATE</span></button>
+                        </div>
+                        <div class="profile-select">
+                            <select id="profile-dropdown">
+                                <option value="">-- Select Callsign --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="start-btn" class="cyber-btn primary" disabled><span>START SESSION</span></button>
+            </div>
         </div>
     </div>
     <script type="module" src="main.js"></script>
