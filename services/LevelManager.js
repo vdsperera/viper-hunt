@@ -16,13 +16,6 @@ export class LevelManager {
         this.capturedThisLevel++;
         if (this.capturedThisLevel >= this.targetsPerLevel) {
             this.advanceLevel();
-        } else {
-            // Spawn next target to keep the active count at maxSimultaneousTargets
-            // (Only if there are still enough targets left in the level)
-            const remainingToCapture = this.targetsPerLevel - this.capturedThisLevel;
-            if (this.gridState.activeTargets.size < Math.min(this.maxSimultaneousTargets, remainingToCapture)) {
-                this.targetManager.spawnTarget();
-            }
         }
     }
 
