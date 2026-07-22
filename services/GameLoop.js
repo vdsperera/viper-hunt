@@ -62,16 +62,19 @@ export class GameLoop {
         const nextDir = this.inputHandler.getCurrentDirection(currentDir);
         this.gridState.hunter.Direction = nextDir;
 
-        // 2. Move Hunter
+        // 2. Move Hunter & Boss
         this.gridState.moveHunter();
+        if (Math.random() < 0.3) {
+            this.gridState.moveBoss?.();
+        }
 
         // 3. Collision Check
         const head = this.gridState.hunter.HeadCoordinate;
         const body = this.gridState.hunter.BodySegments;
         const bounds = { width: this.gridState.width, height: this.gridState.height };
 
-        if (this.collisionDetector.checkCollision(head, bounds, body)) {
-            // Trigger GameOver (TASK-017 overlays will integrate here)
+        if (this.collisionDetector.checkCollision(head, bounds, body, this.gridState.bossPosition)) {
+            // Trigger GameOver
             this.stop();
             return;
         }
