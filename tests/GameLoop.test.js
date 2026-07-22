@@ -114,4 +114,13 @@ test('GameLoop Test Suite', async (t) => {
         assert.strictEqual(grew, true);
     });
 
+    await t.test('TC-048b: playMode defaults to mode1 and can be customized via deps', () => {
+        const loop1 = new GameLoop(60, deps);
+        assert.strictEqual(loop1.playMode, 'mode1');
+
+        const depsWithMode = { ...deps, playMode: 'mode2' };
+        const loop2 = new GameLoop(60, depsWithMode);
+        assert.strictEqual(loop2.playMode, 'mode2');
+    });
+
 });
