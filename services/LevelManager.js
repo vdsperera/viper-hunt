@@ -59,9 +59,9 @@ export class LevelManager {
         // Clear any uncaptured targets from previous level
         this.gridState.activeTargets.clear();
 
-        // Spawn targets for the next level
+        // Spawn all configured targets for this level up front
         let spawnedAny = false;
-        for (let i = 0; i < Math.min(this.maxSimultaneousTargets, this.targetsPerLevel); i++) {
+        for (let i = 0; i < this.targetsPerLevel; i++) {
             const newTarget = this.targetManager.spawnTarget();
             if (newTarget) spawnedAny = true;
         }
