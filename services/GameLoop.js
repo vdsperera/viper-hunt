@@ -13,6 +13,7 @@ export class GameLoop {
         this.targetManager = deps.targetManager;
         this.renderer = deps.renderer;
         this.scoreManager = deps.scoreManager;
+        this.playMode = deps.playMode || 'mode1';
     }
 
     start() {

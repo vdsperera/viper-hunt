@@ -154,4 +154,11 @@ test('GridState Test Suite', async (t) => {
         assert.strictEqual(grid.isCellOccupied(0, 0), false); // Empty
     });
 
+    await t.test('TC-042b: playMode can be set and defaults to mode1', () => {
+        const grid = new GridState(10, 10);
+        assert.strictEqual(grid.playMode, 'mode1');
+        grid.setPlayMode('mode2');
+        assert.strictEqual(grid.playMode, 'mode2');
+    });
+
 });

@@ -7,6 +7,11 @@ export class GridState {
         this.hunter = null;
         this.activeTargets = new Map(); // key: "x,y", value: CriminalRecord
         this.growthRules = null;
+        this.playMode = 'mode1';
+    }
+
+    setPlayMode(mode) {
+        this.playMode = mode;
     }
 
     setHunter(hunterEntity) {

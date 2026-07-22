@@ -49,7 +49,7 @@ export class Renderer {
         if (gridState.activeTargets) {
             for (const [coordKey, record] of gridState.activeTargets.entries()) {
                 const [x, y] = coordKey.split(',').map(Number);
-                this._drawTarget(x, y, record);
+                this._drawTarget(x, y, record, gridState.playMode);
             }
         }
 
@@ -222,28 +222,36 @@ export class Renderer {
     /**
      * Draws Target with Pulsing Aura, Avatar Frame, and Badge
      */
-    _drawTarget(x, y, record) {
+    _drawTarget(x, y, record, playMode = 'mode1') {
         const px = x * this.cellSize;
         const py = y * this.cellSize;
         const cs = this.cellSize;
         const centerX = px + cs / 2;
         const centerY = py + cs / 2;
 
-        // Determine aura color based on Growth Tier
-        const tier = (record.Growth_Tier || '').toLowerCase();
+        // Determine growth tier & colors
+        const val = record.Computed_Value || 10;
+        let tier = (record.Growth_Tier || '').toLowerCase();
+        if (!tier) {
+            if (val >= 90) tier = 'elite';
+            else if (val >= 70) tier = 'high';
+            else if (val >= 40) tier = 'medium';
+            else tier = 'low';
+        }
+
         let auraColor = 'rgba(0, 240, 255, 0.6)';
         let badgeBg = 'rgba(0, 240, 255, 0.2)';
         
         if (tier === 'low') {
-            auraColor = 'rgba(205, 127, 50, 0.7)';
+            auraColor = 'rgba(205, 127, 50, 0.7)'; // Bronze
         } else if (tier === 'medium') {
-            auraColor = 'rgba(0, 240, 255, 0.7)';
+            auraColor = 'rgba(192, 192, 192, 0.8)'; // Silver
         } else if (tier === 'high') {
-            auraColor = 'rgba(255, 215, 0, 0.8)';
+            auraColor = 'rgba(255, 215, 0, 0.9)'; // Gold
             badgeBg = 'rgba(255, 215, 0, 0.3)';
         } else if (tier === 'elite') {
-            auraColor = 'rgba(255, 0, 127, 0.9)';
-            badgeBg = 'rgba(255, 0, 127, 0.4)';
+            auraColor = 'rgba(0, 240, 255, 1.0)'; // Diamond Cyan
+            badgeBg = 'rgba(0, 240, 255, 0.4)';
         }
 
         // 1. Draw Pulsing Radial Glow
@@ -260,7 +268,63 @@ export class Renderer {
             this.ctx.restore();
         }
 
-        // 2. Fetch or Load Avatar
+        // 2. Treasure Vault Mode (Mode 2) - Instant Visual Legibility
+        if (playMode === 'mode2') {
+            this.ctx.save?.();
+            this.ctx.shadowBlur = 10;
+            this.ctx.shadowColor = auraColor;
+
+            if (tier === 'low') {
+                // Bronze Coin (Circle)
+                this.ctx.fillStyle = '#cd7f32';
+                this.ctx.strokeStyle = '#ffe4b5';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.arc(centerX, centerY, cs * 0.35, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+            } else if (tier === 'medium') {
+                // Silver Bar (Rounded Rect)
+                this.ctx.fillStyle = '#c0c0c0';
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = 2;
+                const w = cs * 0.7;
+                const h = cs * 0.4;
+                this.ctx.beginPath();
+                this.ctx.roundRect ? this.ctx.roundRect(centerX - w / 2, centerY - h / 2, w, h, 3) : this.ctx.rect(centerX - w / 2, centerY - h / 2, w, h);
+                this.ctx.fill();
+                this.ctx.stroke();
+            } else if (tier === 'high') {
+                // Gold Bar (Trapezoid / Chamfered Gold Bar)
+                this.ctx.fillStyle = '#ffd700';
+                this.ctx.strokeStyle = '#fff8dc';
+                this.ctx.lineWidth = 2;
+                const w = cs * 0.7;
+                const h = cs * 0.45;
+                this.ctx.beginPath();
+                this.ctx.roundRect ? this.ctx.roundRect(centerX - w / 2, centerY - h / 2, w, h, 4) : this.ctx.rect(centerX - w / 2, centerY - h / 2, w, h);
+                this.ctx.fill();
+                this.ctx.stroke();
+            } else {
+                // Diamond (Rotated Diamond Shape)
+                this.ctx.fillStyle = '#00f0ff';
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = 2;
+                const r = cs * 0.4;
+                this.ctx.beginPath();
+                this.ctx.moveTo(centerX, centerY - r);
+                this.ctx.lineTo(centerX + r, centerY);
+                this.ctx.lineTo(centerX, centerY + r);
+                this.ctx.lineTo(centerX - r, centerY);
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.stroke();
+            }
+            this.ctx.restore?.();
+            return;
+        }
+
+        // 3. Criminal Bounty Mode (Mode 1) - Avatar & Text
         let img = this.imageCache.get(record.ID);
         if (!img) {
             img = new Image();
@@ -270,7 +334,6 @@ export class Renderer {
             this.imageCache.set(record.ID, img);
         }
 
-        // 3. Render Avatar Frame / Content
         this.ctx.save?.();
         const margin = 2;
         const size = cs - margin * 2;
@@ -287,7 +350,7 @@ export class Renderer {
             }
             this.ctx.drawImage?.(img, px + margin, py + margin, size, size);
         } else {
-            // Sleek fallback diamond target icon
+            // Sleek fallback target icon
             this.ctx.fillStyle = badgeBg;
             this.ctx.strokeStyle = auraColor;
             this.ctx.lineWidth = 2;
@@ -306,7 +369,7 @@ export class Renderer {
         }
         this.ctx.restore?.();
 
-        // 4. Value Tag Overlay
+        // Value Tag Overlay (Criminal Mode only)
         this.ctx.save?.();
         this.ctx.fillStyle = '#ffffff';
         this.ctx.font = '700 11px Rajdhani';

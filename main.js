@@ -24,6 +24,7 @@ const profileSection = document.getElementById('profile-section');
 const newProfileName = document.getElementById('new-profile-name');
 const createProfileBtn = document.getElementById('create-profile-btn');
 const profileDropdown = document.getElementById('profile-dropdown');
+const modeDropdown = document.getElementById('mode-dropdown');
 
 const hud = document.getElementById('hud');
 const hudPlayer = document.getElementById('hud-player');
@@ -32,9 +33,10 @@ const hudScore = document.getElementById('hud-score');
 const dpadControls = document.getElementById('dpad-controls');
 
 let selectedProfile = '';
+let selectedMode = '';
 let firebaseService = null;
 
-async function loadProfiles() {
+async function loadProfiles(autoSelectName = '') {
     if (!firebaseService) return;
     
     // Disable inputs while performing async fetching
@@ -48,6 +50,9 @@ async function loadProfiles() {
         const opt = document.createElement('option');
         opt.value = p.name;
         opt.innerText = `${p.name} (High Score: ${p.highScore})`;
+        if (autoSelectName && p.name === autoSelectName) {
+            opt.selected = true;
+        }
         profileDropdown.appendChild(opt);
     });
     
@@ -55,14 +60,15 @@ async function loadProfiles() {
     createProfileBtn.disabled = false;
     
     selectedProfile = profileDropdown.value;
-    startBtn.disabled = !selectedProfile;
+    updateStartBtnState();
 }
 
 async function saveProfile(name) {
     if (!name || !name.trim()) return;
+    const trimmed = name.trim();
     createProfileBtn.disabled = true;
-    await firebaseService.saveProfile(name);
-    await loadProfiles();
+    await firebaseService.saveProfile(trimmed);
+    await loadProfiles(trimmed);
 }
 
 async function updateHighScore(name, score) {
@@ -141,10 +147,15 @@ async function bootstrap() {
         uiMsg.innerText = "Registry Loaded. Select a profile.";
         
         profileSection.classList.remove('hidden');
-        await loadProfiles();
+        try {
+            await loadProfiles();
+        } catch (profErr) {
+            console.warn("[main] Failed to load profiles, proceeding with empty profile dropdown:", profErr);
+        }
     } catch (e) {
+        console.error("[main] Unexpected failure during registry load:", e);
         uiTitle.innerText = "Fatal Error";
-        uiMsg.innerText = "Failed to load registry data.";
+        uiMsg.innerText = "Failed to load registry data: " + (e.message || e);
         return;
     }
 
@@ -155,8 +166,17 @@ async function bootstrap() {
 
     profileDropdown.addEventListener('change', (e) => {
         selectedProfile = e.target.value;
-        startBtn.disabled = !selectedProfile;
+        updateStartBtnState();
     });
+
+    modeDropdown.addEventListener('change', (e) => {
+        selectedMode = e.target.value;
+        updateStartBtnState();
+    });
+
+    function updateStartBtnState() {
+        startBtn.disabled = !selectedProfile || !selectedMode;
+    }
 
     let gameLoop;
     let hudInterval;
@@ -170,6 +190,7 @@ async function bootstrap() {
         
         // 1280x720 canvas with 32px cells = 40x22 grid
         const gridState = new GridState(40, 22);
+        gridState.setPlayMode(selectedMode);
         gridState.setGrowthRules(gameRules); // Set custom growth-tier segments rules
         gridState.setHunter(new HunterEntity({
             HeadCoordinate: { x: 20, y: 11 },
@@ -187,7 +208,7 @@ async function bootstrap() {
         const scoreManager = new ScoreManager();
 
         gameLoop = new GameLoop(gameRules.fps, {
-            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager
+            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, playMode: selectedMode
         });
 
         const levelManager = new LevelManager(
