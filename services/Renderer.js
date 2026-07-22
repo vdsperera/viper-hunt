@@ -53,12 +53,17 @@ export class Renderer {
             }
         }
 
-        // 4. Draw Hunter (Snake) with Neon Glow & Direction Eyes
+        // 4. Draw Criminal Big Boss (if active in mode1)
+        if (gridState.playMode === 'mode1' && gridState.bossPosition) {
+            this._drawBoss(gridState.bossPosition);
+        }
+
+        // 5. Draw Hunter (Snake) with Neon Glow & Direction Eyes
         if (gridState.hunter) {
             this._drawHunter(gridState.hunter);
         }
 
-        // 5. Update & Draw FX (Particles & Floating Score Texts)
+        // 6. Update & Draw FX (Particles & Floating Score Texts)
         this._updateAndDrawParticles();
         this._updateAndDrawFloatingTexts();
     }
@@ -217,6 +222,65 @@ export class Renderer {
         this.ctx.arc(eye1X, eye1Y, radius, 0, Math.PI * 2);
         this.ctx.arc(eye2X, eye2Y, radius, 0, Math.PI * 2);
         this.ctx.fill?.();
+    }
+
+    /**
+     * Renders Criminal Big Boss Threat Figure
+     */
+    _drawBoss(bossPos) {
+        const cs = this.cellSize;
+        const px = bossPos.x * cs;
+        const py = bossPos.y * cs;
+        const centerX = px + cs / 2;
+        const centerY = py + cs / 2;
+
+        this.ctx.save?.();
+
+        // Pulsing Crimson Aura
+        const pulse = Math.sin(this.pulseAngle * 4) * 3;
+        const radius = (cs / 2) + pulse;
+
+        if (this.ctx.createRadialGradient && this.ctx.beginPath) {
+            const rad = this.ctx.createRadialGradient(centerX, centerY, 2, centerX, centerY, radius + 8);
+            rad.addColorStop(0, 'rgba(255, 0, 55, 0.9)');
+            rad.addColorStop(1, 'rgba(255, 0, 55, 0)');
+            this.ctx.fillStyle = rad;
+            this.ctx.beginPath();
+            this.ctx.arc(centerX, centerY, radius + 8, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Threat Boss Symbol (Crimson Diamond with Skull/Cross motif)
+        this.ctx.fillStyle = '#ff0037';
+        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.lineWidth = 2;
+        this.ctx.shadowBlur = 15;
+        this.ctx.shadowColor = '#ff0037';
+
+        const r = cs * 0.42;
+        this.ctx.beginPath();
+        this.ctx.moveTo(centerX, centerY - r);
+        this.ctx.lineTo(centerX + r, centerY);
+        this.ctx.lineTo(centerX, centerY + r);
+        this.ctx.lineTo(centerX - r, centerY);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        // Boss Eyes (Glowing Threat Eyes)
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.beginPath();
+        this.ctx.arc(centerX - 5, centerY - 2, 2.5, 0, Math.PI * 2);
+        this.ctx.arc(centerX + 5, centerY - 2, 2.5, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Boss Label
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = '900 10px Rajdhani';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('BOSS', centerX, py + cs - 2);
+
+        this.ctx.restore?.();
     }
 
     /**

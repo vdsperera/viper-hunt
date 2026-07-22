@@ -65,6 +65,11 @@ export class LevelManager {
             const newTarget = this.targetManager.spawnTarget();
             if (newTarget) spawnedAny = true;
         }
+
+        // Spawn Criminal Big Boss threat figure in Criminal mode (mode1)
+        if (this.gridState.playMode === 'mode1') {
+            this.gridState.spawnBoss();
+        }
         
         if (!spawnedAny) {
             // Session complete, no registry data left

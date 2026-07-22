@@ -73,6 +73,43 @@ export class GridState {
         for (const seg of this.hunter.BodySegments) {
             if (seg.x === x && seg.y === y) return true;
         }
+        if (this.bossPosition && this.bossPosition.x === x && this.bossPosition.y === y) return true;
         return false;
+    }
+
+    spawnBoss() {
+        let spawned = false;
+        let attempts = 0;
+        const pos = { x: 0, y: 0 };
+
+        while (!spawned && attempts < 1000) {
+            pos.x = Math.floor(Math.random() * this.width);
+            pos.y = Math.floor(Math.random() * this.height);
+            if (!this.isCellOccupied(pos.x, pos.y)) {
+                spawned = true;
+            }
+            attempts++;
+        }
+        this.bossPosition = spawned ? pos : null;
+    }
+
+    moveBoss() {
+        if (!this.bossPosition || this.playMode !== 'mode1') return;
+
+        const dirs = [
+            { x: 0, y: -1 },
+            { x: 0, y: 1 },
+            { x: -1, y: 0 },
+            { x: 1, y: 0 }
+        ];
+
+        // Random valid step
+        const validDirs = dirs.map(d => ({ x: this.bossPosition.x + d.x, y: this.bossPosition.y + d.y }))
+            .filter(p => p.x >= 0 && p.x < this.width && p.y >= 0 && p.y < this.height && !this.activeTargets.has(`${p.x},${p.y}`));
+
+        if (validDirs.length > 0) {
+            const nextPos = validDirs[Math.floor(Math.random() * validDirs.length)];
+            this.bossPosition = nextPos;
+        }
     }
 }
