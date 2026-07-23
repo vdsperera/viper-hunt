@@ -1,135 +1,105 @@
-# AI Dev Pipeline
+# Viper Hunt 🐍⚡
 
-A professional AI-assisted development setup using 8 specialised agents across Claude.ai and Cursor.
+A cyberpunk-themed browser-based arcade snake game with bounty hunting targets, treasure vault loot extraction, roaming boss hazards, mobile virtual D-Pad controls, and cloud/local persistence.
 
-## Folder structure
+Built using native **HTML5 Canvas 2D**, **ES6+ Vanilla JavaScript**, **CSS3**, and **Firebase Firestore** with local storage fallbacks.
 
+---
+
+## Key Features
+
+- 🎮 **Dual Play Modes:**
+  - **Mode 1 — Viper Bounty Hunter:** Capture criminal targets loaded via Google Sheets CSV API or local JSON fallback.
+  - **Mode 2 — Treasure Vault:** Extract glowing vector loot items (chests, gems, ingots) with custom visual shapes.
+- 👾 **Roaming Criminal Big Boss Hazard:** Autonomous boss figures spawning on level progression with custom collision hazards.
+- 📱 **Mobile Virtual D-Pad:** Responsive touch-based directional control overlay for mobile web browsers.
+- 💥 **Cyberpunk Glowing UI & FX:** Neon vector rendering engine, dynamic canvas scaling, and particle explosion animations on captures.
+- ☁️ **Cloud & Offline Local Persistence:** Firebase Firestore profile sync with transparent `localStorage` fallback.
+- 🛡️ **XSS Protection:** Input sanitization on remote CSV fields and canvas-level safe image rendering.
+
+---
+
+## Quick Start
+
+### 1. Run Locally
+Serve the repository root directory with any local static HTTP server (e.g. VS Code Live Server, `npx serve`, or `python -m http.server 8000`):
+
+```bash
+npx serve .
+# Open http://localhost:3000 in your web browser
 ```
-.
-├── .cursorrules                    # Global architecture context — Cursor reads this on every request
-├── .cursor/
-│   └── rules/
-│       ├── developer.mdc           # Agent 5 coding standards (auto-applies to src/**)
-│       └── tests.mdc               # Agent 8 test standards (auto-applies to *.test.*)
-├── prompts/                        # Source of truth for all agent system prompts
-│   ├── 01-requirements-analyst.md
-│   ├── 02-user-story-writer.md
-│   ├── 03-architect.md
-│   ├── 04-task-planner.md
-│   ├── 05-developer.md
-│   ├── 06-code-reviewer.md
-│   ├── 07-security-reviewer.md
-│   └── 08-test-generator.md
-└── docs/                           # Living project documents (agent outputs)
-    ├── requirements.md             # Agent 1 output
-    ├── user-stories.md             # Agent 2 output
-    ├── architecture.md             # Agent 3 output
-    └── tasks.md                    # Agent 4 output — your task backlog
+
+### 2. Run Test Suite
+Execute unit and integration tests using Node.js native test runner:
+
+```bash
+npm test
+```
+
+### 3. Database Initialization (Optional)
+Seed or update Firestore cloud rules and collections:
+
+```bash
+node init-db.js
 ```
 
 ---
 
-## Setup
+## Controls
 
-### 1. Cursor (one-time per project)
-
-Cursor reads `.cursorrules` and `.cursor/rules/*.mdc` automatically.
-
-1. Copy this entire folder into your project root
-2. Fill in `.cursorrules` with your architecture context (paste Agent 3 output here)
-3. Cursor now has your architecture and coding standards on every request — nothing else needed
-
-### 2. Claude.ai Projects (one-time, reusable across projects)
-
-Create one Project per agent. The projects are reusable — you don't recreate them per project.
-
-| Agent | Claude Project name | System prompt source |
-|-------|--------------------|--------------------|
-| 1 | Requirements Analyst | `prompts/01-requirements-analyst.md` |
-| 2 | User Story Writer | `prompts/02-user-story-writer.md` |
-| 3 | Architect | `prompts/03-architect.md` |
-| 4 | Task Planner | `prompts/04-task-planner.md` |
-| 6 | Code Reviewer | `prompts/06-code-reviewer.md` |
-| 7 | Security Reviewer | `prompts/07-security-reviewer.md` |
-| 8 | Test Generator | `prompts/08-test-generator.md` |
-
-**Steps:**
-1. Go to [claude.ai](https://claude.ai) → Projects → New Project
-2. Name it e.g. `Agent 1 — Requirements Analyst`
-3. Open Project Instructions → paste the contents of the matching `prompts/*.md` file
-4. Done — every conversation in this project behaves as that agent automatically
+- **Desktop Keyboard:**
+  - Directional Movement: `Arrow Keys` or `W`, `A`, `S`, `D`
+- **Mobile Touch Devices:**
+  - Directional Movement: Tap Virtual D-Pad buttons on screen overlay (`▲`, `▼`, `◄`, `►`)
 
 ---
 
-## Workflow
-
-### Starting a new project (run once)
+## Repository Structure
 
 ```
-Your idea
-    ↓ paste into Agent 1 (Claude web)
-requirements.md
-    ↓ paste into Agent 2 (Claude web)
-user-stories.md
-    ↓ paste into Agent 3 (Claude web)
-architecture.md  →  also paste into .cursorrules
-    ↓ paste into Agent 4 (Claude web)
-tasks.md  ← your backlog
-```
-
-### Each task (repeat per task)
-
-```
-Pick TASK-NNN from tasks.md
-    ↓
-Cursor Agent mode: "Implement TASK-NNN. Context in .cursorrules."
-    ↓ Cursor writes files
-Copy the generated code
-    ↓ paste into Agent 6 (Claude web)
-Code review findings
-    ↓ paste into Cursor: "Fix these findings"
-    ↓ (if touches auth/payments/PII)
-Paste fixed code into Agent 7 (Claude web)
-Security findings → Cursor fixes
-    ↓
-Paste code into Agent 8 (Claude web)
-Generated tests → paste into Cursor: "Create these test files and run them"
-    ↓
-Mark TASK-NNN done in tasks.md
+viper-hunt/
+├── index.html                   # Game HTML shell, mode overlay, start/game-over screens, virtual D-Pad
+├── main.js                      # Core entry point, mode selection, Firebase init, UI event wiring
+├── style.css                    # Cyberpunk design system, glowing UI, responsive overlays, mobile D-Pad
+├── init-db.js                   # Firestore initial database seed script
+├── firebase-config.js           # Live Firebase configuration parameters
+├── firebase-config.example.js   # Example configuration template
+├── assets/                      # Graphic assets (avatars, icons, audio)
+├── data/                        # Local fallback data (fallback_registry.json)
+├── models/                      # Domain entities (CriminalRecord, HunterEntity)
+├── services/                    # Game engine services
+│   ├── CollisionDetector.js     # Grid boundary, self, and boss collision detection
+│   ├── FirebaseService.js       # Firestore cloud sync & local storage persistence
+│   ├── GameLoop.js              # Fixed delta requestAnimationFrame loop orchestrator
+│   ├── GridState.js             # Spatial grid matrix, hunter segments, targets, boss position
+│   ├── InputHandler.js          # WASD / Arrow key queueing & Virtual D-Pad touch controls
+│   ├── LevelManager.js          # Target spawning, level progression, boss activation, recentering
+│   ├── RegistryService.js       # Google Sheets CSV fetcher, XSS sanitizer, play mode provider
+│   ├── Renderer.js              # Canvas 2D renderer, cyberpunk glow FX, particle explosions, loot shapes
+│   ├── ScoreManager.js          # Level & session score calculators with time bonuses
+│   └── TargetManager.js         # Random unoccupied grid cell target spawner
+├── tests/                       # Unit & integration test suites
+├── docs/                        # Living project documents (requirements, user-stories, architecture, tasks)
+└── prompts/                     # Source prompts for AI development pipeline
 ```
 
 ---
 
-## When to use each tool
+## AI Development Pipeline
 
-| Situation | Use |
-|-----------|-----|
-| Vague idea, not sure what to build | Agent 1 (Claude web) |
-| Have requirements, need stories | Agent 2 (Claude web) |
-| Need to design the system | Agent 3 (Claude web) |
-| Need to break design into tasks | Agent 4 (Claude web) |
-| Implementing a task | Cursor Agent mode |
-| Code review | Agent 6 (Claude web) |
-| Auth, payments, or PII code | Agent 7 (Claude web) |
-| Need tests written | Agent 8 (Claude web) |
-| Quick simple change | Cursor directly, skip agents |
+This project is built following an 8-agent AI development workflow:
 
----
+```
+prompts/
+├── 01-requirements-analyst.md
+├── 02-user-story-writer.md
+├── 03-architect.md
+├── 04-task-planner.md
+├── 05-developer.md
+├── 06-code-reviewer.md
+├── 07-security-reviewer.md
+└── 08-test-generator.md
+```
 
-## Updating prompts
+Documentation files in `docs/` (`requirements.md`, `user-stories.md`, `architecture.md`, `tasks.md`, `deployment.md`) are kept strictly in sync with codebase features and task completions.
 
-Prompts are files — improve them like code.
-
-1. Edit the relevant file in `prompts/`
-2. Commit the change with a message explaining why: `improve: tighten input validation rules in developer agent`
-3. Update the matching Claude Project Instructions by pasting the new version
-4. For `.mdc` files, Cursor picks up the change automatically on the next request
-
----
-
-## Tips
-
-- **Keep `.cursorrules` updated** — paste the latest architecture doc here whenever components change
-- **One task per Cursor session** — don't pile multiple tasks into one Agent conversation
-- **Save agent outputs to `docs/`** — they become context for later agents
-- **The review agents are optional for simple tasks** — use them when the code touches security, shared state, or complex business logic
