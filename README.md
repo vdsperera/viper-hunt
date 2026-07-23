@@ -79,7 +79,7 @@ viper-hunt/
 │   ├── ScoreManager.js          # Level & session score calculators with time bonuses
 │   └── TargetManager.js         # Random unoccupied grid cell target spawner
 ├── tests/                       # Unit & integration test suites
-├── docs/                        # Living project documents (requirements, user-stories, architecture, tasks)
+├── docs/                        # Living project documents (01-requirements, 02-user-stories, 03-architecture, 04-tasks, 05-deployment)
 └── prompts/                     # Source prompts for AI development pipeline
 ```
 
@@ -101,5 +101,6 @@ prompts/
 └── 08-test-generator.md
 ```
 
-Documentation files in `docs/` (`requirements.md`, `user-stories.md`, `architecture.md`, `tasks.md`, `deployment.md`) are kept strictly in sync with codebase features and task completions.
+Documentation files in `docs/` (`01-requirements.md`, `02-user-stories.md`, `03-architecture.md`, `04-tasks.md`, `05-deployment.md`) are kept strictly in sync with codebase features and task completions.
+
 

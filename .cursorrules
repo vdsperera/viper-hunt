@@ -39,8 +39,9 @@ viper-hunt/
 │   ├── ScoreManager.js          # Level & session score calculators with time bonuses
 │   └── TargetManager.js         # Random unoccupied grid cell target spawner
 ├── tests/                       # Unit & integration test suites
-└── docs/                        # Project documentation (requirements, user stories, architecture, tasks)
+└── docs/                        # Project documentation (01-requirements, 02-user-stories, 03-architecture, 04-tasks, 05-deployment)
 ```
+
 
 ## Components and Responsibilities
 - **RegistryService** — Fetches CSV target data or fallback JSON; manages play mode definitions (`mode1` Viper Bounty Hunter, `mode2` Treasure Vault).
