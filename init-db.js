@@ -49,7 +49,10 @@ async function init() {
             growthLow: { integerValue: "1" },
             growthMedium: { integerValue: "2" },
             growthHigh: { integerValue: "3" },
-            growthElite: { integerValue: "4" }
+            growthElite: { integerValue: "4" },
+            bossMoveChance: { doubleValue: 0.4 },
+            bossAggressiveness: { doubleValue: 0.6 },
+            bossMoveRange: { integerValue: "1" }
         }
     };
 

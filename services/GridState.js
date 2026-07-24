@@ -77,6 +77,10 @@ export class GridState {
         return false;
     }
 
+    setBossRules(rules) {
+        this.bossRules = rules;
+    }
+
     spawnBoss() {
         let spawned = false;
         let attempts = 0;
@@ -93,8 +97,15 @@ export class GridState {
         this.bossPosition = spawned ? pos : null;
     }
 
-    moveBoss() {
+    moveBoss(overrideRules = null) {
         if (!this.bossPosition || this.playMode !== 'mode1') return;
+
+        const rules = overrideRules || this.bossRules || {};
+        const chance = typeof rules.bossMoveChance === 'number' ? rules.bossMoveChance : 0.4;
+        const aggressiveness = typeof rules.bossAggressiveness === 'number' ? rules.bossAggressiveness : 0.6;
+        const moveRange = typeof rules.bossMoveRange === 'number' ? rules.bossMoveRange : 1;
+
+        if (Math.random() > chance) return;
 
         const dirs = [
             { x: 0, y: -1 },
@@ -103,13 +114,31 @@ export class GridState {
             { x: 1, y: 0 }
         ];
 
-        // Random valid step
-        const validDirs = dirs.map(d => ({ x: this.bossPosition.x + d.x, y: this.bossPosition.y + d.y }))
-            .filter(p => p.x >= 0 && p.x < this.width && p.y >= 0 && p.y < this.height && !this.activeTargets.has(`${p.x},${p.y}`));
+        for (let step = 0; step < moveRange; step++) {
+            if (!this.bossPosition) break;
 
-        if (validDirs.length > 0) {
-            const nextPos = validDirs[Math.floor(Math.random() * validDirs.length)];
-            this.bossPosition = nextPos;
+            const validPositions = dirs
+                .map(d => ({ x: this.bossPosition.x + d.x, y: this.bossPosition.y + d.y }))
+                .filter(p => p.x >= 0 && p.x < this.width && p.y >= 0 && p.y < this.height && !this.activeTargets.has(`${p.x},${p.y}`));
+
+            if (validPositions.length === 0) break;
+
+            const isAggressiveMove = this.hunter && Math.random() < aggressiveness;
+
+            if (isAggressiveMove) {
+                const targetHead = this.hunter.HeadCoordinate;
+                // Sort candidate moves by Manhattan distance to hunter's head coordinate
+                validPositions.sort((a, b) => {
+                    const distA = Math.abs(a.x - targetHead.x) + Math.abs(a.y - targetHead.y);
+                    const distB = Math.abs(b.x - targetHead.x) + Math.abs(b.y - targetHead.y);
+                    return distA - distB;
+                });
+                this.bossPosition = validPositions[0];
+            } else {
+                // Random wander
+                const nextPos = validPositions[Math.floor(Math.random() * validPositions.length)];
+                this.bossPosition = nextPos;
+            }
         }
     }
 }
