@@ -114,6 +114,9 @@ async function bootstrap() {
     firebaseService = new FirebaseService(firebaseSdk, firebaseConfig);
 
     const defaultRules = {
+        // Set useCloudConfig to false for local testing (uses local default rules directly),
+        // or true to fetch and sync live rules with Firebase Firestore.
+        useCloudConfig: false,
         fps: 12,
         targetsPerLevel: 5,
         maxSimultaneousTargets: 3,
@@ -130,18 +133,24 @@ async function bootstrap() {
     };
 
     let gameRules = { ...defaultRules };
-    try {
-        const cloudRules = await firebaseService.getGameRules();
-        if (cloudRules) {
-            Object.keys(cloudRules).forEach(key => {
-                if (cloudRules[key] !== undefined) {
-                    gameRules[key] = cloudRules[key];
-                }
-            });
-            console.log("[main] Game rules successfully loaded from Firestore:", gameRules);
+    const allowCloud = firebaseConfig?.useCloudConfig !== false && defaultRules.useCloudConfig !== false;
+
+    if (allowCloud) {
+        try {
+            const cloudRules = await firebaseService.getGameRules();
+            if (cloudRules) {
+                Object.keys(cloudRules).forEach(key => {
+                    if (cloudRules[key] !== undefined) {
+                        gameRules[key] = cloudRules[key];
+                    }
+                });
+                console.log("[main] Game rules successfully loaded from Firestore:", gameRules);
+            }
+        } catch (e) {
+            console.warn("[main] Failed to load rules from Firestore. Using local defaults.", e);
         }
-    } catch (e) {
-        console.warn("[main] Failed to load rules from Firestore. Using local defaults.", e);
+    } else {
+        console.log("[main] Local testing mode active (useCloudConfig: false). Using local default rules directly:", gameRules);
     }
 
     // TASK-012: Network integration (using fallback file as default since we have no live CSV setup)
