@@ -34,6 +34,14 @@ export class LevelManager {
      * Seamless level transition logic.
      */
     advanceLevel() {
+        if (this.gameLoop && this.gameLoop.scoreManager) {
+            // Only apply level completion score if we actually played a level (not on initial bootstrap)
+            if (this.levelStartTime) {
+                const elapsed = (performance.now() - this.levelStartTime) / 1000;
+                this.gameLoop.scoreManager.completeLevel(undefined, elapsed);
+            }
+        }
+
         this.currentLevelIndex++;
 
         if (this.currentLevelIndex > this.maxLevels) {
@@ -44,13 +52,6 @@ export class LevelManager {
             return;
         }
 
-        if (this.gameLoop && this.gameLoop.scoreManager) {
-            // Only apply level completion score if we actually played a level (not on initial bootstrap)
-            if (this.levelStartTime) {
-                const elapsed = (performance.now() - this.levelStartTime) / 1000;
-                this.gameLoop.scoreManager.completeLevel(undefined, elapsed);
-            }
-        }
         this.levelStartTime = performance.now();
         this.capturedThisLevel = 0;
         
