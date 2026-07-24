@@ -36,6 +36,12 @@ let selectedProfile = '';
 let selectedMode = '';
 let firebaseService = null;
 
+function updateStartBtnState() {
+    if (startBtn) {
+        startBtn.disabled = !selectedProfile || !selectedMode;
+    }
+}
+
 async function loadProfiles(autoSelectName = '') {
     if (!firebaseService) return;
 
@@ -191,10 +197,6 @@ async function bootstrap() {
         selectedMode = e.target.value;
         updateStartBtnState();
     });
-
-    function updateStartBtnState() {
-        startBtn.disabled = !selectedProfile || !selectedMode;
-    }
 
     let gameLoop;
     let hudInterval;

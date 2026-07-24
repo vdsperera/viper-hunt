@@ -20,8 +20,21 @@ jobs:
       # 1.5 Write Firebase Configuration from GitHub secrets
       - name: Create Firebase Config
         run: |
-          echo "${{ secrets.FIREBASE_CONFIG }}" > firebase-config.js
-          node -e "const fs = require('fs'); const gitignore = fs.readFileSync('.gitignore', 'utf8'); fs.writeFileSync('.gitignore', gitignore.replace('firebase-config.js', ''));"
+          node -e '
+            const fs = require("fs");
+            const secret = process.env.FIREBASE_SECRET || "";
+            let content = secret.trim();
+            if (content.startsWith("{")) {
+              content = "export const firebaseConfig = " + content + ";";
+            } else if (!content.includes("export const firebaseConfig")) {
+              content = "export const firebaseConfig = " + content + ";";
+            }
+            fs.writeFileSync("firebase-config.js", content);
+            const gitignore = fs.readFileSync(".gitignore", "utf8");
+            fs.writeFileSync(".gitignore", gitignore.replace("firebase-config.js", ""));
+          '
+        env:
+          FIREBASE_SECRET: ${{ secrets.FIREBASE_CONFIG }}
 
 
       # 2. Set up Node.js environment
