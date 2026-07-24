@@ -122,7 +122,7 @@ async function bootstrap() {
         maxSimultaneousTargets: 3,
         maxLevels: 1,
         levelTargetSpecs: [
-            { level: 1, targetValues: [20, 20, 50, 70, 100] },
+            { level: 1, targetValues: [20] },
             { level: 2, targetValues: [30, 40, 60, 80, 100] },
             { level: 3, targetValues: [50, 60, 75, 90, 100] }
         ],

@@ -25,7 +25,8 @@ export class LevelManager {
      */
     handleCapture() {
         this.capturedThisLevel++;
-        if (this.capturedThisLevel >= this.targetsPerLevel) {
+        const targetGoal = this.activeTargetsPerLevel || this.targetsPerLevel;
+        if (this.capturedThisLevel >= targetGoal) {
             this.advanceLevel();
         }
     }
@@ -54,6 +55,7 @@ export class LevelManager {
 
         this.levelStartTime = performance.now();
         this.capturedThisLevel = 0;
+        let activeCount = this.targetsPerLevel;
         
         // Allocate deterministic level target pool for maximum scoring fairness
         if (this.targetManager && this.targetManager.registryService && typeof this.targetManager.registryService.getRecordsForLevel === 'function') {
@@ -64,8 +66,10 @@ export class LevelManager {
             );
             if (recordsForLevel && recordsForLevel.length > 0) {
                 this.targetManager.setLevelPool(recordsForLevel);
+                activeCount = recordsForLevel.length;
             }
         }
+        this.activeTargetsPerLevel = activeCount;
 
         if (this.gridState.hunter) {
             // Seamlessly snap Hunter head back to mathematical center of the grid
@@ -95,7 +99,8 @@ export class LevelManager {
 
         // Spawn all configured targets for this level up front
         let spawnedAny = false;
-        for (let i = 0; i < this.targetsPerLevel; i++) {
+        const countToSpawn = this.activeTargetsPerLevel || this.targetsPerLevel;
+        for (let i = 0; i < countToSpawn; i++) {
             const newTarget = this.targetManager.spawnTarget();
             if (newTarget) spawnedAny = true;
         }
