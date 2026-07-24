@@ -24,10 +24,15 @@ export class FirebaseService {
             return;
         }
 
+        if (this.config.useCloudConfig === false || this.config.useLocalOnly === true) {
+            console.log("[FirebaseService] Cloud config disabled (useCloudConfig: false). Running in LOCAL-ONLY mode.");
+            return;
+        }
+
         // Check for placeholder keys
         const isPlaceholder = !this.config.apiKey ||
-                              this.config.apiKey.includes("YOUR_") ||
-                              this.config.projectId.includes("YOUR_");
+            this.config.apiKey.includes("YOUR_") ||
+            this.config.projectId.includes("YOUR_");
 
         if (isPlaceholder) {
             console.warn("[FirebaseService] Firebase configuration contains placeholder keys. Running in LOCAL fallback mode.");
@@ -66,7 +71,7 @@ export class FirebaseService {
                     });
                 }
             });
-            
+
             // Sync local storage so it has the latest offline copy
             if (typeof localStorage !== 'undefined') {
                 localStorage.setItem('viperHuntProfiles', JSON.stringify(profiles));

@@ -41,6 +41,21 @@ test('FirebaseService Test Suite', async (t) => {
         assert.strictEqual(service.isInitialized, false);
     });
 
+    await t.test('Should remain in local-only mode when useCloudConfig is false', async () => {
+        const mockSdk = {
+            initializeApp: () => assert.fail("Should not call initializeApp"),
+            getFirestore: () => assert.fail("Should not call getFirestore")
+        };
+        const localOnlyConfig = {
+            useCloudConfig: false,
+            apiKey: "real-key",
+            projectId: "real-project"
+        };
+        
+        const service = new FirebaseService(mockSdk, localOnlyConfig);
+        assert.strictEqual(service.isInitialized, false);
+    });
+
     await t.test('Should initialize correctly with valid config', async () => {
         const mockSdk = {
             initializeApp: (cfg) => {
