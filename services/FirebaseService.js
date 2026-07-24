@@ -24,11 +24,6 @@ export class FirebaseService {
             return;
         }
 
-        if (this.config.useCloudConfig === false || this.config.useLocalOnly === true) {
-            console.log("[FirebaseService] Cloud config disabled (useCloudConfig: false). Running in LOCAL-ONLY mode.");
-            return;
-        }
-
         // Check for placeholder keys
         const isPlaceholder = !this.config.apiKey ||
             this.config.apiKey.includes("YOUR_") ||
@@ -156,7 +151,7 @@ export class FirebaseService {
      * @returns {Promise<Object|null>} The rules object or null if not found/uninitialized
      */
     async getGameRules() {
-        if (!this.isInitialized) {
+        if (!this.isInitialized || (this.config && this.config.useCloudConfig === false)) {
             return null;
         }
 

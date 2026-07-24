@@ -83,7 +83,10 @@ async function bootstrap() {
 
     try {
         const configModule = await import('./firebase-config.js?t=' + Date.now());
-        firebaseConfig = configModule.firebaseConfig;
+        const rawConfig = configModule.firebaseConfig || configModule.default || configModule;
+        if (rawConfig && rawConfig.apiKey) {
+            firebaseConfig = rawConfig;
+        }
 
         const isPlaceholder = !firebaseConfig ||
             !firebaseConfig.apiKey ||
@@ -122,7 +125,7 @@ async function bootstrap() {
         maxSimultaneousTargets: 3,
         maxLevels: 1,
         levelTargetSpecs: [
-            { level: 1, targetValues: [20] },
+            { level: 1, targetValues: [20, 20, 50, 70, 100] },
             { level: 2, targetValues: [30, 40, 60, 80, 100] },
             { level: 3, targetValues: [50, 60, 75, 90, 100] }
         ],
