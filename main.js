@@ -33,7 +33,7 @@ const hudScore = document.getElementById('hud-score');
 const dpadControls = document.getElementById('dpad-controls');
 
 let selectedProfile = '';
-let selectedMode = '';
+let selectedMode = modeDropdown ? (modeDropdown.value || 'mode1') : 'mode1';
 let firebaseService = null;
 
 function updateStartBtnState() {
@@ -66,6 +66,7 @@ async function loadProfiles(autoSelectName = '') {
     createProfileBtn.disabled = false;
 
     selectedProfile = profileDropdown.value;
+    selectedMode = modeDropdown ? (modeDropdown.value || 'mode1') : 'mode1';
     updateStartBtnState();
 }
 
