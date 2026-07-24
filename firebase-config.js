@@ -1,6 +1,8 @@
-// Firebase configuration example
-// Copy this file to  and fill in your actual settings from the Firebase Console.
+// Firebase configuration
 export const firebaseConfig = {
+    // Set useCloudConfig to false for local testing (uses local default rules directly),
+    // or true to fetch and sync live rules with Firebase Firestore.
+    useCloudConfig: true,
     apiKey: AIzaSyCzJ5ARWXXG3PQXnz_6zs-9OZxw9jzvUqE,
     authDomain: viper-hunt.firebaseapp.com,
     projectId: viper-hunt,
