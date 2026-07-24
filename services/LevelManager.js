@@ -1,12 +1,23 @@
 export class LevelManager {
-    constructor(gridState, targetManager, gameLoop, targetsPerLevel = 5, maxSimultaneousTargets = 3) {
+    constructor(
+        gridState, 
+        targetManager, 
+        gameLoop, 
+        targetsPerLevel = 5, 
+        maxSimultaneousTargets = 3, 
+        maxLevels = 3,
+        levelTargetSpecs = null
+    ) {
         this.gridState = gridState;
         this.targetManager = targetManager;
         this.gameLoop = gameLoop;
         
         this.targetsPerLevel = targetsPerLevel;
         this.maxSimultaneousTargets = maxSimultaneousTargets;
+        this.maxLevels = maxLevels;
+        this.levelTargetSpecs = levelTargetSpecs;
         this.capturedThisLevel = 0;
+        this.currentLevelIndex = 0;
     }
 
     /**
@@ -23,6 +34,16 @@ export class LevelManager {
      * Seamless level transition logic.
      */
     advanceLevel() {
+        this.currentLevelIndex++;
+
+        if (this.currentLevelIndex > this.maxLevels) {
+            if (this.gameLoop) {
+                this.gameLoop.victory = true;
+                this.gameLoop.stop();
+            }
+            return;
+        }
+
         if (this.gameLoop && this.gameLoop.scoreManager) {
             // Only apply level completion score if we actually played a level (not on initial bootstrap)
             if (this.levelStartTime) {
@@ -33,6 +54,18 @@ export class LevelManager {
         this.levelStartTime = performance.now();
         this.capturedThisLevel = 0;
         
+        // Allocate deterministic level target pool for maximum scoring fairness
+        if (this.targetManager && this.targetManager.registryService && typeof this.targetManager.registryService.getRecordsForLevel === 'function') {
+            const recordsForLevel = this.targetManager.registryService.getRecordsForLevel(
+                this.currentLevelIndex, 
+                this.targetsPerLevel,
+                this.levelTargetSpecs
+            );
+            if (recordsForLevel && recordsForLevel.length > 0) {
+                this.targetManager.setLevelPool(recordsForLevel);
+            }
+        }
+
         if (this.gridState.hunter) {
             // Seamlessly snap Hunter head back to mathematical center of the grid
             const newHead = { 

@@ -2,11 +2,23 @@ export class TargetManager {
     constructor(gridState, registryService) {
         this.gridState = gridState;
         this.registryService = registryService;
+        this.currentLevelPool = null;
+    }
+
+    /**
+     * Sets the dedicated target pool for the active level.
+     * @param {Array<CriminalRecord>} records
+     */
+    setLevelPool(records) {
+        this.currentLevelPool = Array.isArray(records) ? [...records] : null;
     }
 
     spawnTarget() {
-        const pool = this.registryService.getUnspawnedRecords();
-        if (pool.length === 0) return null; // Session complete, no targets left
+        let pool = this.currentLevelPool;
+        if (!pool || pool.length === 0) {
+            pool = this.registryService ? this.registryService.getUnspawnedRecords() : [];
+        }
+        if (!pool || pool.length === 0) return null; // Session complete, no targets left
 
         // Select random target and safely remove from pool
         const targetIndex = Math.floor(Math.random() * pool.length);
@@ -32,7 +44,7 @@ export class TargetManager {
             return record;
         }
         
-        // Push target back to unspawned pool if grid is fully saturated
+        // Push target back to pool if grid is fully saturated
         pool.push(record);
         return null; 
     }

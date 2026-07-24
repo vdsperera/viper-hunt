@@ -176,4 +176,39 @@ test('RegistryService Test Suite', async (t) => {
         assert.strictEqual(records.length, 2);
     });
 
+    await t.test('TC-006: getRecordsForLevel returns deterministic target subset for fairness across sessions', async () => {
+        const service = new RegistryService(null, 'dummy.json');
+        await service.loadRegistry();
+
+        const level1RecordsA = service.getRecordsForLevel(1, 3);
+        const level1RecordsB = service.getRecordsForLevel(1, 3);
+
+        assert.strictEqual(level1RecordsA.length, 3);
+        assert.strictEqual(level1RecordsB.length, 3);
+
+        const sumA = level1RecordsA.reduce((sum, r) => sum + r.Computed_Value, 0);
+        const sumB = level1RecordsB.reduce((sum, r) => sum + r.Computed_Value, 0);
+
+        assert.strictEqual(sumA, sumB); // Guarantees identical level target value sum
+        assert.deepStrictEqual(level1RecordsA.map(r => r.ID), level1RecordsB.map(r => r.ID));
+    });
+
+    await t.test('TC-007: getRecordsForLevel respects custom levelTargetSpecs target values and count distribution', async () => {
+        const service = new RegistryService(null, 'dummy.json');
+        await service.loadRegistry();
+
+        const customSpecs = [
+            { level: 1, targetValues: [20, 50, 100] },
+            { level: 2, targets: [{ value: 75, count: 2 }, { value: 90, count: 1 }] }
+        ];
+
+        const lvl1 = service.getRecordsForLevel(1, 3, customSpecs);
+        assert.strictEqual(lvl1.length, 3);
+        assert.deepStrictEqual(lvl1.map(r => r.Computed_Value), [20, 50, 100]);
+
+        const lvl2 = service.getRecordsForLevel(2, 3, customSpecs);
+        assert.strictEqual(lvl2.length, 3);
+        assert.deepStrictEqual(lvl2.map(r => r.Computed_Value), [75, 75, 90]);
+    });
+
 });

@@ -132,4 +132,33 @@ test('ScoreManager Test Suite', async (t) => {
         assert.strictEqual(scoreManager.getSessionScore(), 396);
     });
 
+    await t.test('TC-030: generates complete score breakdown including completed levels and partial level', () => {
+        const scoreManager = new ScoreManager();
+        scoreManager.addCaptureValue(100);
+        scoreManager.addCaptureValue(100);
+        scoreManager.completeLevel(undefined, 60, 300, 0.6, 0.4); // Level 1: valueScore 120, timeBonus 96 -> 216
+
+        scoreManager.addCaptureValue(50); // Partial level 2 capture
+
+        const breakdown = scoreManager.getScoreBreakdown();
+        assert.strictEqual(breakdown.levelHistory.length, 1);
+        assert.strictEqual(breakdown.levelHistory[0].level, 1);
+        assert.strictEqual(breakdown.levelHistory[0].targetsCaptured, 2);
+        assert.strictEqual(breakdown.levelHistory[0].capturedSum, 200);
+        assert.strictEqual(breakdown.levelHistory[0].valueScore, 120);
+        assert.strictEqual(breakdown.levelHistory[0].timeBonus, 96);
+        assert.strictEqual(breakdown.levelHistory[0].levelScore, 216);
+
+        assert.notStrictEqual(breakdown.partialLevel, null);
+        assert.strictEqual(breakdown.partialLevel.level, 2);
+        assert.strictEqual(breakdown.partialLevel.targetsCaptured, 1);
+        assert.strictEqual(breakdown.partialLevel.capturedSum, 50);
+        assert.strictEqual(breakdown.partialLevel.valueScore, 30);
+
+        assert.strictEqual(breakdown.summary.finalScore, 246); // 216 + 30
+        assert.strictEqual(breakdown.summary.totalTargetValueSum, 250);
+        assert.strictEqual(breakdown.summary.totalTargetScore, 150);
+        assert.strictEqual(breakdown.summary.totalTimeBonus, 96);
+    });
+
 });

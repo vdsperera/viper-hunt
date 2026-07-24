@@ -94,4 +94,35 @@ test('LevelManager Test Suite', async (t) => {
         assert.strictEqual(evenGrid.hunter.HeadCoordinate.y, 5);
     });
 
+    await t.test('TC-046: triggers victory and stops game when maxLevels is reached', () => {
+        let gameLoopStopped = false;
+        let victoryTriggered = false;
+        const testGameLoop = {
+            stop: () => { gameLoopStopped = true; },
+            victory: false
+        };
+
+        const levelManager = new LevelManager(
+            mockGridState, 
+            mockTargetManager, 
+            testGameLoop, 
+            1, // targetsPerLevel
+            3, // maxSimultaneousTargets
+            2  // maxLevels = 2
+        );
+
+        levelManager.advanceLevel(); // Level 1
+        assert.strictEqual(levelManager.currentLevelIndex, 1);
+        assert.strictEqual(gameLoopStopped, false);
+
+        levelManager.advanceLevel(); // Level 2
+        assert.strictEqual(levelManager.currentLevelIndex, 2);
+        assert.strictEqual(gameLoopStopped, false);
+
+        levelManager.advanceLevel(); // Exceeds maxLevels (Level 3) -> Victory
+        assert.strictEqual(levelManager.currentLevelIndex, 3);
+        assert.strictEqual(testGameLoop.victory, true);
+        assert.strictEqual(gameLoopStopped, true);
+    });
+
 });
