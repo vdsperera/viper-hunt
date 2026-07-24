@@ -37,6 +37,9 @@ let selectedMode = modeDropdown ? (modeDropdown.value || 'mode1') : 'mode1';
 let firebaseService = null;
 
 function updateStartBtnState() {
+    if (!selectedMode || selectedMode === '') {
+        selectedMode = (modeDropdown && modeDropdown.value) ? modeDropdown.value : 'mode1';
+    }
     if (startBtn) {
         startBtn.disabled = !selectedProfile || !selectedMode;
     }
