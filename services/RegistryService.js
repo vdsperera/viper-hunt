@@ -16,6 +16,7 @@ const DEFAULT_FALLBACK_DATA = [
 export class RegistryService {
     constructor(csvUrl, fallbackUrl) {
         this._unspawnedRecords = [];
+        this._masterRecords = [];
         this.csvUrl = csvUrl;
         this.fallbackUrl = fallbackUrl || 'data/fallback_registry.json';
     }
@@ -26,6 +27,7 @@ export class RegistryService {
     async loadRegistry() {
         if (!this.csvUrl) {
             await this._loadFallback();
+            this._sortAndSyncMaster();
             return this._unspawnedRecords;
         }
 
@@ -52,7 +54,89 @@ export class RegistryService {
             this._unspawnedRecords = DEFAULT_FALLBACK_DATA.map(data => new CriminalRecord(data));
         }
 
+        this._sortAndSyncMaster();
         return this._unspawnedRecords;
+    }
+
+    _sortAndSyncMaster() {
+        // Sort deterministically by ID so every session allocates exact same records per level
+        this._masterRecords = [...this._unspawnedRecords].sort((a, b) => (a.ID || '').localeCompare(b.ID || ''));
+        this._unspawnedRecords = [...this._masterRecords];
+    }
+
+    /**
+     * Resets active session pool back to full master records
+     */
+    resetSessionPool() {
+        this._unspawnedRecords = [...this._masterRecords];
+    }
+
+    /**
+     * Returns a deterministic subset of target records allocated for a specific level.
+     * Guarantees identical total target value sum and target count distribution for that level across all sessions.
+     * @param {number} levelNumber
+     * @param {number} targetsPerLevel
+     * @param {Array<Object>|Object} levelTargetSpecs Configurable per-level target values and counts
+     * @returns {Array<CriminalRecord>}
+     */
+    getRecordsForLevel(levelNumber = 1, targetsPerLevel = 5, levelTargetSpecs = null) {
+        if (!this._masterRecords || this._masterRecords.length === 0) {
+            this._sortAndSyncMaster();
+        }
+
+        // Check if custom per-level target specifications are provided
+        let targetValuesConfig = null;
+        if (Array.isArray(levelTargetSpecs)) {
+            const spec = levelTargetSpecs.find(s => s.level === levelNumber);
+            if (spec) {
+                if (Array.isArray(spec.targetValues)) {
+                    targetValuesConfig = spec.targetValues;
+                } else if (Array.isArray(spec.targets)) {
+                    targetValuesConfig = [];
+                    spec.targets.forEach(t => {
+                        const cnt = t.count || 1;
+                        for (let i = 0; i < cnt; i++) targetValuesConfig.push(t.value);
+                    });
+                }
+            }
+        } else if (levelTargetSpecs && typeof levelTargetSpecs === 'object') {
+            const spec = levelTargetSpecs[levelNumber] || levelTargetSpecs[`level_${levelNumber}`];
+            if (Array.isArray(spec)) {
+                targetValuesConfig = spec;
+            } else if (spec && Array.isArray(spec.targetValues)) {
+                targetValuesConfig = spec.targetValues;
+            }
+        }
+
+        if (targetValuesConfig && targetValuesConfig.length > 0) {
+            const levelPool = [];
+            const availableMaster = [...this._masterRecords];
+
+            targetValuesConfig.forEach((val, idx) => {
+                const matchIndex = availableMaster.findIndex(r => r.Computed_Value === val);
+                if (matchIndex !== -1) {
+                    levelPool.push(availableMaster.splice(matchIndex, 1)[0]);
+                } else {
+                    // Synthesize record with exact requested Computed_Value if not in master pool
+                    levelPool.push(new CriminalRecord({
+                        ID: `cfg-lvl${levelNumber}-${idx}`,
+                        Name: `Target ${val}pts`,
+                        Avatar_Asset_Path: 'assets/avatars/placeholder.png',
+                        Interpol_Red_Notice: val >= 80,
+                        FBI_Most_Wanted: val >= 50,
+                        Conviction_Status: true,
+                        Computed_Value: val
+                    }));
+                }
+            });
+
+            return levelPool;
+        }
+
+        // Fallback to default deterministic slicing of master pool
+        const start = (levelNumber - 1) * targetsPerLevel;
+        const end = start + targetsPerLevel;
+        return this._masterRecords.slice(start, end);
     }
 
     async _loadFallback() {

@@ -15,6 +15,37 @@ async function init() {
             fps: { integerValue: "12" },
             targetsPerLevel: { integerValue: "5" },
             maxSimultaneousTargets: { integerValue: "3" },
+            maxLevels: { integerValue: "3" },
+            levelTargetSpecs: {
+                arrayValue: {
+                    values: [
+                        {
+                            mapValue: {
+                                fields: {
+                                    level: { integerValue: "1" },
+                                    targetValues: { arrayValue: { values: [ { integerValue: "20" }, { integerValue: "20" }, { integerValue: "50" }, { integerValue: "70" }, { integerValue: "100" } ] } }
+                                }
+                            }
+                        },
+                        {
+                            mapValue: {
+                                fields: {
+                                    level: { integerValue: "2" },
+                                    targetValues: { arrayValue: { values: [ { integerValue: "30" }, { integerValue: "40" }, { integerValue: "60" }, { integerValue: "80" }, { integerValue: "100" } ] } }
+                                }
+                            }
+                        },
+                        {
+                            mapValue: {
+                                fields: {
+                                    level: { integerValue: "3" },
+                                    targetValues: { arrayValue: { values: [ { integerValue: "50" }, { integerValue: "60" }, { integerValue: "75" }, { integerValue: "90" }, { integerValue: "100" } ] } }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
             growthLow: { integerValue: "1" },
             growthMedium: { integerValue: "2" },
             growthHigh: { integerValue: "3" },

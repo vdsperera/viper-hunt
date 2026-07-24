@@ -165,6 +165,8 @@ export class FirebaseService {
                         fps: typeof data.fps === 'number' ? data.fps : undefined,
                         targetsPerLevel: typeof data.targetsPerLevel === 'number' ? data.targetsPerLevel : undefined,
                         maxSimultaneousTargets: typeof data.maxSimultaneousTargets === 'number' ? data.maxSimultaneousTargets : undefined,
+                        maxLevels: typeof data.maxLevels === 'number' ? data.maxLevels : undefined,
+                        levelTargetSpecs: Array.isArray(data.levelTargetSpecs) ? data.levelTargetSpecs : (typeof data.levelTargetSpecs === 'object' ? data.levelTargetSpecs : undefined),
                         growthLow: typeof data.growthLow === 'number' ? data.growthLow : undefined,
                         growthMedium: typeof data.growthMedium === 'number' ? data.growthMedium : undefined,
                         growthHigh: typeof data.growthHigh === 'number' ? data.growthHigh : undefined,

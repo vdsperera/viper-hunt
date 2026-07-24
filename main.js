@@ -38,13 +38,13 @@ let firebaseService = null;
 
 async function loadProfiles(autoSelectName = '') {
     if (!firebaseService) return;
-    
+
     // Disable inputs while performing async fetching
     profileDropdown.disabled = true;
     createProfileBtn.disabled = true;
-    
+
     const profiles = await firebaseService.getProfiles();
-    
+
     profileDropdown.innerHTML = '<option value="">-- Select Player --</option>';
     profiles.forEach(p => {
         const opt = document.createElement('option');
@@ -55,10 +55,10 @@ async function loadProfiles(autoSelectName = '') {
         }
         profileDropdown.appendChild(opt);
     });
-    
+
     profileDropdown.disabled = false;
     createProfileBtn.disabled = false;
-    
+
     selectedProfile = profileDropdown.value;
     updateStartBtnState();
 }
@@ -86,9 +86,9 @@ async function bootstrap() {
         firebaseConfig = configModule.firebaseConfig;
 
         const isPlaceholder = !firebaseConfig ||
-                              !firebaseConfig.apiKey ||
-                              firebaseConfig.apiKey.includes("YOUR_") ||
-                              firebaseConfig.projectId.includes("YOUR_");
+            !firebaseConfig.apiKey ||
+            firebaseConfig.apiKey.includes("YOUR_") ||
+            firebaseConfig.projectId.includes("YOUR_");
 
         if (firebaseConfig && !isPlaceholder) {
             // Load Firebase modules dynamically
@@ -117,6 +117,12 @@ async function bootstrap() {
         fps: 12,
         targetsPerLevel: 5,
         maxSimultaneousTargets: 3,
+        maxLevels: 1,
+        levelTargetSpecs: [
+            { level: 1, targetValues: [20, 20, 50, 70, 100] },
+            { level: 2, targetValues: [30, 40, 60, 80, 100] },
+            { level: 3, targetValues: [50, 60, 75, 90, 100] }
+        ],
         growthLow: 1,
         growthMedium: 2,
         growthHigh: 3,
@@ -140,12 +146,12 @@ async function bootstrap() {
 
     // TASK-012: Network integration (using fallback file as default since we have no live CSV setup)
     const registryService = new RegistryService(null, 'data/fallback_registry.json');
-    
+
     try {
         await registryService.loadRegistry();
         uiTitle.innerText = "Viper Hunt";
         uiMsg.innerText = "Registry Loaded. Select a profile.";
-        
+
         profileSection.classList.remove('hidden');
         try {
             await loadProfiles();
@@ -187,7 +193,7 @@ async function bootstrap() {
         hud.classList.remove('hidden');
         if (dpadControls) dpadControls.classList.remove('hidden');
         hudPlayer.innerText = selectedProfile;
-        
+
         // 1280x720 canvas with 32px cells = 40x22 grid
         const gridState = new GridState(40, 22);
         gridState.setPlayMode(selectedMode);
@@ -212,11 +218,13 @@ async function bootstrap() {
         });
 
         const levelManager = new LevelManager(
-            gridState, 
-            targetManager, 
+            gridState,
+            targetManager,
             gameLoop,
             gameRules.targetsPerLevel,
-            gameRules.maxSimultaneousTargets
+            gameRules.maxSimultaneousTargets,
+            gameRules.maxLevels,
+            gameRules.levelTargetSpecs
         );
         gameLoop.levelManager = levelManager;
 
@@ -235,38 +243,118 @@ async function bootstrap() {
             }
         }, 100);
 
+        const scoreBreakdownContainer = document.getElementById('score-breakdown-container');
+        const overlayCard = document.querySelector('.overlay-card');
+
+        function renderScoreBreakdown(container, breakdown) {
+            if (!container || !breakdown) return;
+
+            if (overlayCard) overlayCard.classList.add('has-breakdown');
+
+            const { levelHistory, partialLevel, summary } = breakdown;
+
+            let rowsHtml = '';
+
+            levelHistory.forEach(lvl => {
+                rowsHtml += `
+            <tr>
+                <td>Lvl ${lvl.level}</td>
+                <td>${lvl.targetsCaptured}</td>
+                <td>${lvl.capturedSum} <span class="cyan-text">(+${lvl.valueScore})</span></td>
+                <td>${lvl.elapsedSeconds}s <span class="gold-text">(+${lvl.timeBonus})</span></td>
+                <td class="green-text">${lvl.levelScore}</td>
+            </tr>
+        `;
+            });
+
+            if (partialLevel) {
+                rowsHtml += `
+            <tr class="partial-row">
+                <td>Lvl ${partialLevel.level}<span class="badge-tag">PARTIAL</span></td>
+                <td>${partialLevel.targetsCaptured}</td>
+                <td>${partialLevel.capturedSum} <span class="cyan-text">(+${partialLevel.valueScore})</span></td>
+                <td>-- <span class="gold-text">(+0)</span></td>
+                <td class="green-text">${partialLevel.levelScore}</td>
+            </tr>
+        `;
+            }
+
+            container.innerHTML = `
+        <div class="score-formula-badge">
+            <div class="formula-title">SCORE CALCULATION FORMULA</div>
+            <div class="formula-desc">Target Values × 60% + Remaining Time Bonus × 40%</div>
+        </div>
+        <div class="breakdown-table-wrapper">
+            <table class="cyber-breakdown-table">
+                <thead>
+                    <tr>
+                        <th>LEVEL</th>
+                        <th>TARGETS</th>
+                        <th>TARGET VAL (60%)</th>
+                        <th>TIME BONUS (40%)</th>
+                        <th>SCORE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml.length > 0 ? rowsHtml : '<tr><td colspan="5">No level activity recorded</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+        <div class="score-summary-card">
+            <div class="summary-row">
+                <span>Total Target Value Points:</span>
+                <strong class="cyan-text">${summary.totalTargetValueSum} pts (${summary.totalTargetScore} score)</strong>
+            </div>
+            <div class="summary-row">
+                <span>Total Level Time Bonus:</span>
+                <strong class="pink-text">+${summary.totalTimeBonus} score</strong>
+            </div>
+            <div class="summary-row highlight">
+                <span>FINAL CALCULATED SCORE:</span>
+                <strong class="green-text">${summary.finalScore}</strong>
+            </div>
+        </div>
+    `;
+
+            container.classList.remove('hidden');
+        }
+
         // Intercept GameLoop stop to show Game Over UI (TASK-017)
         const originalStop = gameLoop.stop.bind(gameLoop);
         gameLoop.stop = async () => {
             originalStop();
             clearInterval(hudInterval);
             if (dpadControls) dpadControls.classList.add('hidden');
-            
+
             const finalScore = scoreManager.getSessionScore();
-            
+            const breakdown = scoreManager.getScoreBreakdown();
+
             // Show saving/updating state
             uiOverlay.classList.remove('hidden');
             profileSection.classList.add('hidden');
             uiTitle.innerText = "Saving Score...";
             uiMsg.innerText = "Please wait";
             startBtn.disabled = true;
-            
+
             await updateHighScore(selectedProfile, finalScore);
-            
+
             if (gameLoop.victory) {
                 uiTitle.innerText = "Victory!";
-                uiMsg.innerText = `Congratulations, ${selectedProfile}! You captured all targets.\nFinal Score: ${finalScore}`;
+                uiMsg.innerText = `Congratulations, ${selectedProfile}! You captured all targets.`;
             } else {
                 uiTitle.innerText = "Game Over";
-                uiMsg.innerText = `${selectedProfile}'s Final Score: ${finalScore}`;
+                uiMsg.innerText = `${selectedProfile}'s Tactical Session Concluded.`;
             }
+
+            renderScoreBreakdown(scoreBreakdownContainer, breakdown);
+
             startBtn.innerText = "Play Again";
             startBtn.disabled = false;
-            startBtn.onclick = () => window.location.reload(); 
+            startBtn.onclick = () => window.location.reload();
         };
 
         // Bootstrap the first level and commence tick
-        levelManager.advanceLevel(); 
+        levelManager.advanceLevel();
         currentLevel = 1; // Reset to 1 after advanceLevel increments it initially
         hudLevel.innerText = '1';
         gameLoop.start();
