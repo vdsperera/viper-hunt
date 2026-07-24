@@ -125,7 +125,7 @@ async function bootstrap() {
     const defaultRules = {
         // Set useCloudConfig to false for local testing (uses local default rules directly),
         // or true to fetch and sync live rules with Firebase Firestore.
-        useCloudConfig: false,
+        useCloudConfig: true,
         fps: 12,
         targetsPerLevel: 5,
         maxSimultaneousTargets: 3,
