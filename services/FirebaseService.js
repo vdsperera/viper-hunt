@@ -170,7 +170,10 @@ export class FirebaseService {
                         growthLow: typeof data.growthLow === 'number' ? data.growthLow : undefined,
                         growthMedium: typeof data.growthMedium === 'number' ? data.growthMedium : undefined,
                         growthHigh: typeof data.growthHigh === 'number' ? data.growthHigh : undefined,
-                        growthElite: typeof data.growthElite === 'number' ? data.growthElite : undefined
+                        growthElite: typeof data.growthElite === 'number' ? data.growthElite : undefined,
+                        bossMoveChance: typeof data.bossMoveChance === 'number' ? data.bossMoveChance : undefined,
+                        bossAggressiveness: typeof data.bossAggressiveness === 'number' ? data.bossAggressiveness : undefined,
+                        bossMoveRange: typeof data.bossMoveRange === 'number' ? data.bossMoveRange : undefined
                     };
                 }
             }

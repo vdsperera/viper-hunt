@@ -64,9 +64,7 @@ export class GameLoop {
 
         // 2. Move Hunter & Boss
         this.gridState.moveHunter();
-        if (Math.random() < 0.3) {
-            this.gridState.moveBoss?.();
-        }
+        this.gridState.moveBoss?.();
 
         // 3. Collision Check
         const head = this.gridState.hunter.HeadCoordinate;

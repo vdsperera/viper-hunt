@@ -138,7 +138,10 @@ async function bootstrap() {
         growthLow: 1,
         growthMedium: 2,
         growthHigh: 3,
-        growthElite: 4
+        growthElite: 4,
+        bossMoveChance: 0.4,
+        bossAggressiveness: 0.6,
+        bossMoveRange: 1
     };
 
     let gameRules = { ...defaultRules };
@@ -212,6 +215,7 @@ async function bootstrap() {
         const gridState = new GridState(40, 22);
         gridState.setPlayMode(selectedMode);
         gridState.setGrowthRules(gameRules); // Set custom growth-tier segments rules
+        gridState.setBossRules(gameRules); // Set custom boss aggressiveness & speed rules
         gridState.setHunter(new HunterEntity({
             HeadCoordinate: { x: 20, y: 11 },
             BodySegments: [],
