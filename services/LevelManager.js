@@ -6,7 +6,8 @@ export class LevelManager {
         targetsPerLevel = 5, 
         maxSimultaneousTargets = 3, 
         maxLevels = 3,
-        levelTargetSpecs = null
+        levelTargetSpecs = null,
+        emotionalQuestions = null
     ) {
         this.gridState = gridState;
         this.targetManager = targetManager;
@@ -16,8 +17,38 @@ export class LevelManager {
         this.maxSimultaneousTargets = maxSimultaneousTargets;
         this.maxLevels = maxLevels;
         this.levelTargetSpecs = levelTargetSpecs;
+        this.emotionalQuestions = emotionalQuestions || [
+            {
+                level: 1,
+                question: "What gives you strength when facing despair?",
+                answers: [
+                    { text: "Unwavering Hope", value: 50 },
+                    { text: "Fiery Passion", value: 70 },
+                    { text: "Silent Resilience", value: 90 }
+                ]
+            },
+            {
+                level: 2,
+                question: "What is your greatest vulnerability?",
+                answers: [
+                    { text: "Blind Trust", value: 40 },
+                    { text: "Fear of Failure", value: 60 },
+                    { text: "Solitude", value: 80 }
+                ]
+            },
+            {
+                level: 3,
+                question: "What guides your ultimate destiny?",
+                answers: [
+                    { text: "Duty & Honor", value: 60 },
+                    { text: "Free Will", value: 85 },
+                    { text: "Courage", value: 100 }
+                ]
+            }
+        ];
         this.capturedThisLevel = 0;
         this.currentLevelIndex = 0;
+        this.currentQuestion = "";
     }
 
     /**
@@ -25,7 +56,8 @@ export class LevelManager {
      */
     handleCapture() {
         this.capturedThisLevel++;
-        const targetGoal = this.activeTargetsPerLevel || this.targetsPerLevel;
+        // Mode 3: Player can only take down one chosen target answer per level
+        const targetGoal = (this.gridState.playMode === 'mode3') ? 1 : (this.activeTargetsPerLevel || this.targetsPerLevel);
         if (this.capturedThisLevel >= targetGoal) {
             this.advanceLevel();
         }
@@ -57,8 +89,54 @@ export class LevelManager {
         this.capturedThisLevel = 0;
         let activeCount = this.targetsPerLevel;
         
-        // Allocate deterministic level target pool for maximum scoring fairness
-        if (this.targetManager && this.targetManager.registryService && typeof this.targetManager.registryService.getRecordsForLevel === 'function') {
+        // Allocate level target pool based on mode
+        if (this.gridState.playMode === 'mode3') {
+            const qList = this.emotionalQuestions || [];
+            const qConfig = qList.find(q => q.level === this.currentLevelIndex) || qList[(this.currentLevelIndex - 1) % (qList.length || 1)];
+            this.currentQuestion = qConfig ? qConfig.question : "Choose your path...";
+
+            // Update UI HUD if available
+            const eqTextElem = typeof document !== 'undefined' ? document.getElementById('eq-question-text') : null;
+            if (eqTextElem) eqTextElem.innerText = this.currentQuestion;
+
+            const optionLabels = ['A', 'B', 'C', 'D', 'E'];
+            const colorMap = ['#00f0ff', '#ff00aa', '#ffd700', '#00ff88', '#ff7700'];
+            const answers = qConfig?.answers || [
+                { text: "Option A", value: 50 },
+                { text: "Option B", value: 70 }
+            ];
+            
+            const recordsForLevel = answers.map((ans, idx) => ({
+                ID: `eq-lvl${this.currentLevelIndex}-ans${idx}`,
+                Name: ans.text,
+                Answer_Text: ans.text,
+                Option_Label: optionLabels[idx] || `${idx + 1}`,
+                Color: colorMap[idx % colorMap.length],
+                Computed_Value: ans.value || 50,
+                Avatar_Asset_Path: 'assets/avatars/placeholder.png'
+            }));
+
+            // Populate Legend Pills in HUD container if document is available
+            const eqAnswersElem = typeof document !== 'undefined' ? document.getElementById('eq-answers-container') : null;
+            if (eqAnswersElem) {
+                let html = '';
+                recordsForLevel.forEach(r => {
+                    html += `
+                        <div class="eq-answer-pill">
+                            <span class="eq-badge-letter" style="--pill-color: ${r.Color};">${r.Option_Label}</span>
+                            <span class="eq-answer-text">${r.Answer_Text}</span>
+                            <span class="eq-answer-pts">+${r.Computed_Value}</span>
+                        </div>
+                    `;
+                });
+                eqAnswersElem.innerHTML = html;
+            }
+
+            if (this.targetManager) {
+                this.targetManager.setLevelPool(recordsForLevel);
+            }
+            activeCount = recordsForLevel.length;
+        } else if (this.targetManager && this.targetManager.registryService && typeof this.targetManager.registryService.getRecordsForLevel === 'function') {
             const recordsForLevel = this.targetManager.registryService.getRecordsForLevel(
                 this.currentLevelIndex, 
                 this.targetsPerLevel,
@@ -105,8 +183,8 @@ export class LevelManager {
             if (newTarget) spawnedAny = true;
         }
 
-        // Spawn Criminal Big Boss threat figure in Criminal mode (mode1)
-        if (this.gridState.playMode === 'mode1') {
+        // Spawn threat figure in Criminal mode (mode1) and Emotional Death mode (mode3)
+        if (this.gridState.playMode === 'mode1' || this.gridState.playMode === 'mode3') {
             this.gridState.spawnBoss();
         }
         

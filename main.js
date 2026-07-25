@@ -145,7 +145,36 @@ async function bootstrap() {
         growthElite: 4,
         bossMoveChance: 0.4,
         bossAggressiveness: 0.6,
-        bossMoveRange: 1
+        bossMoveRange: 1,
+        emotionalQuestions: [
+            {
+                level: 1,
+                question: "What gives you strength when facing despair?",
+                answers: [
+                    { text: "Unwavering Hope", value: 50 },
+                    { text: "Fiery Passion", value: 70 },
+                    { text: "Silent Resilience", value: 90 }
+                ]
+            },
+            {
+                level: 2,
+                question: "What is your greatest vulnerability?",
+                answers: [
+                    { text: "Blind Trust", value: 40 },
+                    { text: "Fear of Failure", value: 60 },
+                    { text: "Solitude", value: 80 }
+                ]
+            },
+            {
+                level: 3,
+                question: "What guides your ultimate destiny?",
+                answers: [
+                    { text: "Duty & Honor", value: 60 },
+                    { text: "Free Will", value: 85 },
+                    { text: "Courage", value: 100 }
+                ]
+            }
+        ]
     };
 
     let gameRules = { ...defaultRules };
@@ -215,6 +244,15 @@ async function bootstrap() {
         if (dpadControls) dpadControls.classList.remove('hidden');
         hudPlayer.innerText = selectedProfile;
 
+        const eqHud = document.getElementById('emotional-question-hud');
+        if (eqHud) {
+            if (selectedMode === 'mode3') {
+                eqHud.classList.remove('hidden');
+            } else {
+                eqHud.classList.add('hidden');
+            }
+        }
+
         // 1280x720 canvas with 32px cells = 40x22 grid
         const gridState = new GridState(40, 22);
         gridState.setPlayMode(selectedMode);
@@ -246,7 +284,8 @@ async function bootstrap() {
             gameRules.targetsPerLevel,
             gameRules.maxSimultaneousTargets,
             gameRules.maxLevels,
-            gameRules.levelTargetSpecs
+            gameRules.levelTargetSpecs,
+            gameRules.emotionalQuestions
         );
         gameLoop.levelManager = levelManager;
 
@@ -347,6 +386,8 @@ async function bootstrap() {
             originalStop();
             clearInterval(hudInterval);
             if (dpadControls) dpadControls.classList.add('hidden');
+            const eqHud = document.getElementById('emotional-question-hud');
+            if (eqHud) eqHud.classList.add('hidden');
 
             const finalScore = scoreManager.getSessionScore();
             const breakdown = scoreManager.getScoreBreakdown();
@@ -361,11 +402,21 @@ async function bootstrap() {
             await updateHighScore(selectedProfile, finalScore);
 
             if (gameLoop.victory) {
-                uiTitle.innerText = "Victory!";
-                uiMsg.innerText = `Congratulations, ${selectedProfile}! You captured all targets.`;
+                if (selectedMode === 'mode3') {
+                    uiTitle.innerText = "SOUL ASCENDED!";
+                    uiMsg.innerText = `Congratulations, ${selectedProfile}! You answered all questions of the soul and conquered death.`;
+                } else {
+                    uiTitle.innerText = "Victory!";
+                    uiMsg.innerText = `Congratulations, ${selectedProfile}! You captured all targets.`;
+                }
             } else {
-                uiTitle.innerText = "Game Over";
-                uiMsg.innerText = `${selectedProfile}'s Tactical Session Concluded.`;
+                if (selectedMode === 'mode3') {
+                    uiTitle.innerText = "FATE SEALED";
+                    uiMsg.innerText = `Sorry mate, you faced death before you found your answers...`;
+                } else {
+                    uiTitle.innerText = "Game Over";
+                    uiMsg.innerText = `${selectedProfile}'s Tactical Session Concluded.`;
+                }
             }
 
             renderScoreBreakdown(scoreBreakdownContainer, breakdown);

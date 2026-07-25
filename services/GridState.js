@@ -98,7 +98,7 @@ export class GridState {
     }
 
     moveBoss(overrideRules = null) {
-        if (!this.bossPosition || this.playMode !== 'mode1') return;
+        if (!this.bossPosition || (this.playMode !== 'mode1' && this.playMode !== 'mode3')) return;
 
         const rules = overrideRules || this.bossRules || {};
         const chance = typeof rules.bossMoveChance === 'number' ? rules.bossMoveChance : 0.4;

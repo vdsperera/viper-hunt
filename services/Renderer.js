@@ -53,9 +53,9 @@ export class Renderer {
             }
         }
 
-        // 4. Draw Criminal Big Boss (if active in mode1)
-        if (gridState.playMode === 'mode1' && gridState.bossPosition) {
-            this._drawBoss(gridState.bossPosition);
+        // 4. Draw Criminal Big Boss / Death threat figure (if active in mode1 or mode3)
+        if ((gridState.playMode === 'mode1' || gridState.playMode === 'mode3') && gridState.bossPosition) {
+            this._drawBoss(gridState.bossPosition, gridState.playMode);
         }
 
         // 5. Draw Hunter (Snake) with Neon Glow & Direction Eyes
@@ -225,9 +225,9 @@ export class Renderer {
     }
 
     /**
-     * Renders Criminal Big Boss Threat Figure
+     * Renders Criminal Big Boss / Death Threat Figure
      */
-    _drawBoss(bossPos) {
+    _drawBoss(bossPos, playMode = 'mode1') {
         const cs = this.cellSize;
         const px = bossPos.x * cs;
         const py = bossPos.y * cs;
@@ -236,26 +236,33 @@ export class Renderer {
 
         this.ctx.save?.();
 
-        // Pulsing Crimson Aura
+        const isDeath = playMode === 'mode3';
+
+        // Pulsing Crimson/Spectral Aura
         const pulse = Math.sin(this.pulseAngle * 4) * 3;
         const radius = (cs / 2) + pulse;
 
         if (this.ctx.createRadialGradient && this.ctx.beginPath) {
             const rad = this.ctx.createRadialGradient(centerX, centerY, 2, centerX, centerY, radius + 8);
-            rad.addColorStop(0, 'rgba(255, 0, 55, 0.9)');
-            rad.addColorStop(1, 'rgba(255, 0, 55, 0)');
+            if (isDeath) {
+                rad.addColorStop(0, 'rgba(180, 0, 255, 0.95)');
+                rad.addColorStop(1, 'rgba(100, 0, 150, 0)');
+            } else {
+                rad.addColorStop(0, 'rgba(255, 0, 55, 0.9)');
+                rad.addColorStop(1, 'rgba(255, 0, 55, 0)');
+            }
             this.ctx.fillStyle = rad;
             this.ctx.beginPath();
             this.ctx.arc(centerX, centerY, radius + 8, 0, Math.PI * 2);
             this.ctx.fill();
         }
 
-        // Threat Boss Symbol (Crimson Diamond with Skull/Cross motif)
-        this.ctx.fillStyle = '#ff0037';
+        // Threat Symbol (Diamond / Grim Motif)
+        this.ctx.fillStyle = isDeath ? '#8a2be2' : '#ff0037';
         this.ctx.strokeStyle = '#ffffff';
         this.ctx.lineWidth = 2;
         this.ctx.shadowBlur = 15;
-        this.ctx.shadowColor = '#ff0037';
+        this.ctx.shadowColor = isDeath ? '#b15eff' : '#ff0037';
 
         const r = cs * 0.42;
         this.ctx.beginPath();
@@ -267,18 +274,18 @@ export class Renderer {
         this.ctx.fill();
         this.ctx.stroke();
 
-        // Boss Eyes (Glowing Threat Eyes)
-        this.ctx.fillStyle = '#ffffff';
+        // Eyes (Glowing Threat Eyes)
+        this.ctx.fillStyle = isDeath ? '#00f0ff' : '#ffffff';
         this.ctx.beginPath();
         this.ctx.arc(centerX - 5, centerY - 2, 2.5, 0, Math.PI * 2);
         this.ctx.arc(centerX + 5, centerY - 2, 2.5, 0, Math.PI * 2);
         this.ctx.fill();
 
-        // Boss Label
+        // Label
         this.ctx.fillStyle = '#ffffff';
         this.ctx.font = '900 10px Rajdhani';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('BOSS', centerX, py + cs - 2);
+        this.ctx.fillText(isDeath ? 'DEATH' : 'BOSS', centerX, py + cs - 2);
 
         this.ctx.restore?.();
     }
@@ -332,7 +339,44 @@ export class Renderer {
             this.ctx.restore();
         }
 
-        // 2. Treasure Vault Mode (Mode 2) - Instant Visual Legibility
+        // 2. Emotional Question Mode (Mode 3) - Choice Cards with Matching Theme Color
+        if (playMode === 'mode3') {
+            this.ctx.save?.();
+            const choiceColor = record.Color || '#00f0ff';
+            this.ctx.shadowBlur = 14;
+            this.ctx.shadowColor = choiceColor;
+
+            const margin = 2;
+            const w = cs - margin * 2;
+            const h = cs - margin * 2;
+
+            // Card body
+            this.ctx.fillStyle = 'rgba(12, 16, 32, 0.92)';
+            this.ctx.strokeStyle = choiceColor;
+            this.ctx.lineWidth = 2.5;
+            this.ctx.beginPath();
+            this.ctx.roundRect ? this.ctx.roundRect(px + margin, py + margin, w, h, 6) : this.ctx.rect(px + margin, py + margin, w, h);
+            this.ctx.fill();
+            this.ctx.stroke();
+
+            // Badge Letter (A, B, C...)
+            const label = record.Option_Label || '?';
+            this.ctx.fillStyle = choiceColor;
+            this.ctx.font = '900 13px Orbitron';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(label, centerX, centerY - 1);
+
+            // Point Value
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.font = '700 9px Rajdhani';
+            const valueText = `+${record.Computed_Value}`;
+            this.ctx.fillText(valueText, centerX, centerY + 10);
+
+            this.ctx.restore?.();
+            return;
+        }
+
+        // 3. Treasure Vault Mode (Mode 2) - Instant Visual Legibility
         if (playMode === 'mode2') {
             this.ctx.save?.();
             this.ctx.shadowBlur = 10;
