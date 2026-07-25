@@ -679,3 +679,100 @@ select option {
     font-size: 1.3rem;
 }
 
+/* ==========================================================================
+   Mode 3: Emotional Question HUD Banner
+   ========================================================================== */
+#emotional-question-hud {
+    position: absolute;
+    top: 54px;
+    left: 20px;
+    right: 20px;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.eq-badge {
+    background: rgba(18, 10, 36, 0.85);
+    border: 1px solid rgba(180, 0, 255, 0.6);
+    box-shadow: 0 0 16px rgba(180, 0, 255, 0.35);
+    border-radius: 8px;
+    padding: 8px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 80%;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.eq-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #d8b4fe;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+}
+
+.eq-value {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(216, 180, 254, 0.8);
+    margin-bottom: 6px;
+}
+
+.eq-answers-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.eq-answer-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(10, 15, 30, 0.9);
+    border: 1px solid rgba(0, 240, 255, 0.5);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.eq-badge-letter {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 900;
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: #000000;
+    background: var(--pill-color, #00f0ff);
+    box-shadow: 0 0 8px var(--pill-color, #00f0ff);
+}
+
+.eq-answer-text {
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.eq-answer-pts {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #38bdf8;
+}
+
+
+

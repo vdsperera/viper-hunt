@@ -27,6 +27,15 @@
             </div>
         </div>
 
+        <!-- Emotional Question HUD Banner for Mode 3 -->
+        <div id="emotional-question-hud" class="hidden">
+            <div class="eq-badge">
+                <span class="eq-label">EMOTIONAL QUEST</span>
+                <span id="eq-question-text" class="eq-value">Loading question...</span>
+                <div id="eq-answers-container" class="eq-answers-list"></div>
+            </div>
+        </div>
+
         <canvas id="game-canvas" width="1280" height="720"></canvas>
 
         <!-- Virtual Touch D-Pad for Mobile -->
@@ -64,6 +73,7 @@
                             <select id="mode-dropdown">
                                 <option value="mode1" selected>Criminal Bounty Mode (Default)</option>
                                 <option value="mode2">Treasure Vault Mode</option>
+                                <option value="mode3">Emotional Death Quest Mode</option>
                             </select>
                         </div>
                     </div>
