@@ -181,6 +181,11 @@ async function bootstrap() {
             { id: 'caging', key: '2', name: 'Caged Animal', pastAction: 'Caged Like an Animal', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
             { id: 'shooting', key: '3', name: 'Shot Down', pastAction: 'Shot Down in Action', icon: '🎯', multiplier: 1.5, uses: 3, color: '#ff0055' },
             { id: 'butchering', key: '4', name: 'Ruthlessly Butchered', pastAction: 'Ruthlessly Butchered', icon: '🪓', multiplier: 2.0, uses: 2, color: '#aa00ff' }
+        ],
+        levelHazards: [
+            { level: 1, hazards: [ { type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 } ] },
+            { level: 2, hazards: [ { type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 } ] },
+            { level: 3, hazards: [ { type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 } ] }
         ]
     };
 
@@ -352,7 +357,8 @@ async function bootstrap() {
             gameRules.maxSimultaneousTargets,
             gameRules.maxLevels,
             gameRules.levelTargetSpecs,
-            gameRules.emotionalQuestions
+            gameRules.emotionalQuestions,
+            gameRules.levelHazards
         );
         gameLoop.levelManager = levelManager;
 
@@ -558,8 +564,9 @@ async function bootstrap() {
                     uiTitle.innerText = "FATE SEALED";
                     uiMsg.innerText = `Sorry mate, you faced death before you found your answers...`;
                 } else {
+                    const cause = gameLoop.lastCollisionReason ? ` (${gameLoop.lastCollisionReason})` : '';
                     uiTitle.innerText = "Game Over";
-                    uiMsg.innerText = `${selectedProfile}'s Tactical Session Concluded.`;
+                    uiMsg.innerText = `${selectedProfile}'s Tactical Session Concluded${cause}.`;
                 }
             }
 

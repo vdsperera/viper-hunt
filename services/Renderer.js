@@ -53,9 +53,13 @@ export class Renderer {
             }
         }
 
-        // 4. Draw Criminal Big Boss / Death threat figure (if active in mode1 or mode3)
-        if ((gridState.playMode === 'mode1' || gridState.playMode === 'mode3') && gridState.bossPosition) {
-            this._drawBoss(gridState.bossPosition, gridState.playMode);
+        // 4. Draw Criminal Hazards / Boss threat figures (if active in mode1 or mode3)
+        if (gridState.playMode === 'mode1' || gridState.playMode === 'mode3') {
+            if (Array.isArray(gridState.hazards) && gridState.hazards.length > 0) {
+                gridState.hazards.forEach(hazard => this._drawHazard(hazard, gridState.playMode));
+            } else if (gridState.bossPosition) {
+                this._drawBoss(gridState.bossPosition, gridState.playMode);
+            }
         }
 
         // 5. Draw Hunter (Snake) with Neon Glow & Direction Eyes
@@ -286,6 +290,84 @@ export class Renderer {
         this.ctx.font = '900 10px Rajdhani';
         this.ctx.textAlign = 'center';
         this.ctx.fillText(isDeath ? 'DEATH' : 'BOSS', centerX, py + cs - 2);
+
+        this.ctx.restore?.();
+    }
+
+    /**
+     * Draws individual Hazard Entity with unique aura, icon motif, and label badge
+     */
+    _drawHazard(hazard, playMode = 'mode1') {
+        if (!hazard || typeof hazard.x !== 'number' || typeof hazard.y !== 'number') return;
+
+        const x = hazard.x;
+        const y = hazard.y;
+        const type = hazard.type || 'crime_boss';
+        const name = hazard.name || (type === 'police_patrol' ? 'POLICE' : type === 'death_reaper' ? 'DEATH' : 'BOSS');
+        const icon = hazard.icon || (type === 'police_patrol' ? '🚔' : type === 'death_reaper' ? '💀' : '🦹');
+        const color = hazard.color || (type === 'police_patrol' ? '#0088ff' : type === 'death_reaper' ? '#aa00ff' : '#ff0055');
+
+        const px = x * this.cellSize;
+        const py = y * this.cellSize;
+        const cs = this.cellSize;
+        const centerX = px + cs / 2;
+        const centerY = py + cs / 2;
+
+        this.ctx.save?.();
+
+        // Pulsing Aura
+        const pulse = Math.sin(this.pulseAngle * 4) * 3;
+        const radius = (cs / 2) + pulse;
+
+        if (this.ctx.createRadialGradient && this.ctx.beginPath) {
+            const rad = this.ctx.createRadialGradient(centerX, centerY, 2, centerX, centerY, radius + 8);
+            if (type === 'police_patrol') {
+                const flashBlue = Math.sin(this.pulseAngle * 12) > 0;
+                rad.addColorStop(0, flashBlue ? 'rgba(0, 136, 255, 0.95)' : 'rgba(255, 0, 50, 0.95)');
+                rad.addColorStop(1, 'rgba(0, 100, 255, 0)');
+            } else if (type === 'death_reaper') {
+                rad.addColorStop(0, 'rgba(170, 0, 255, 0.95)');
+                rad.addColorStop(1, 'rgba(80, 0, 120, 0)');
+            } else {
+                rad.addColorStop(0, 'rgba(255, 0, 55, 0.9)');
+                rad.addColorStop(1, 'rgba(255, 0, 55, 0)');
+            }
+            this.ctx.fillStyle = rad;
+            this.ctx.beginPath();
+            this.ctx.arc(centerX, centerY, radius + 8, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Threat Symbol Diamond Container
+        this.ctx.fillStyle = color;
+        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.shadowBlur = 12;
+        this.ctx.shadowColor = color;
+
+        const r = cs * 0.4;
+        this.ctx.beginPath();
+        this.ctx.moveTo(centerX, centerY - r);
+        this.ctx.lineTo(centerX + r, centerY);
+        this.ctx.lineTo(centerX, centerY + r);
+        this.ctx.lineTo(centerX - r, centerY);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        // Icon inside Threat Symbol
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = '12px sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(icon, centerX, centerY - 1);
+
+        // Label Badge
+        this.ctx.font = '900 9px Rajdhani';
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'bottom';
+        this.ctx.fillText(name.toUpperCase(), centerX, py + cs - 1);
 
         this.ctx.restore?.();
     }
