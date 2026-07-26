@@ -1,6 +1,6 @@
 export const DEFAULT_ATTACK_TYPES = [
     { id: 'police', key: '1', name: 'Police Custody', pastAction: 'Handed to Police', icon: '👮', multiplier: 1.0, uses: -1, color: '#00f0ff' },
-    { id: 'caging', key: '2', name: 'Caged Animal', pastAction: 'Caged Like an Animal', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
+    { id: 'caging', key: '2', name: 'Brutally Caged', pastAction: 'Brutally Caged', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
     { id: 'shooting', key: '3', name: 'Shot Down', pastAction: 'Shot Down in Action', icon: '🎯', multiplier: 1.5, uses: 3, color: '#ff0055' },
     { id: 'butchering', key: '4', name: 'Ruthlessly Butchered', pastAction: 'Ruthlessly Butchered', icon: '🪓', multiplier: 2.0, uses: 2, color: '#aa00ff' }
 ];

@@ -178,14 +178,14 @@ async function bootstrap() {
         ],
         attackTypes: [
             { id: 'police', key: '1', name: 'Police Custody', pastAction: 'Handed to Police', icon: '👮', multiplier: 1.0, uses: -1, color: '#00f0ff' },
-            { id: 'caging', key: '2', name: 'Caged Animal', pastAction: 'Caged Like an Animal', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
+            { id: 'caging', key: '2', name: 'Brutally Caged', pastAction: 'Brutally Caged', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
             { id: 'shooting', key: '3', name: 'Shot Down', pastAction: 'Shot Down in Action', icon: '🎯', multiplier: 1.5, uses: 3, color: '#ff0055' },
             { id: 'butchering', key: '4', name: 'Ruthlessly Butchered', pastAction: 'Ruthlessly Butchered', icon: '🪓', multiplier: 2.0, uses: 2, color: '#aa00ff' }
         ],
         levelHazards: [
-            { level: 1, hazards: [ { type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 } ] },
-            { level: 2, hazards: [ { type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 } ] },
-            { level: 3, hazards: [ { type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 } ] }
+            { level: 1, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }] },
+            { level: 2, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }] },
+            { level: 3, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }] }
         ]
     };
 

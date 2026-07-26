@@ -13,7 +13,7 @@ Built using native **HTML5 Canvas 2D**, **ES6+ Vanilla JavaScript**, **CSS3**, a
   - **Mode 2 — Treasure Vault:** Extract glowing vector loot items (chests, gems, ingots) with custom visual shapes.
   - **Mode 3 — Emotional Death Quest:** Answer philosophical soul questions while evading the Death entity.
 - 🎯 **Target Identity Badges & Wanted Roster:** Floating canvas name badges above targets and a live Wanted Targets Roster HUD bar.
-- ⚔️ **Configurable Attack & Punishment System:** Select tactical attack methods using keys `1`-`4` (`Handed to Police`, `Caged Like an Animal`, `Shot Down in Action`, `Ruthlessly Butchered`) with score multipliers and limited inventory.
+- ⚔️ **Configurable Attack & Punishment System:** Select tactical attack methods using keys `1`-`4` (`Handed to Police`, `Brutally Caged`, `Shot Down in Action`, `Ruthlessly Butchered`) with score multipliers and limited inventory.
 - 🚨 **Configurable Multi-Hazard Engine:** Escalating per-level risk featuring 🦹 Crime Bosses, 🚔 Police Patrols (flashing lights), and 💀 Death Reapers, complete with specific cause of death tracking.
 - 📋 **End-of-Game Criminal Punishment Log:** Post-game breakdown modal presenting an itemized summary card table of every criminal captured, punishment used, and bounty payout.
 - 📱 **Mobile Virtual D-Pad & Unobscured Layout:** Responsive touch controls with transparent auto-dimming HUD elements for clear target visibility.
