@@ -342,7 +342,7 @@ TASK-001 → TASK-004 → TASK-007 → TASK-013 → TASK-014 → TASK-015 → TA
 - **Linked component:** AttackManager, InputHandler, GameLoop, Renderer, CSS
 - **Depends on:** TASK-009, TASK-013, TASK-015
 - **Input:** Attack/punishment rules & keyboard shortcut specification
-- **Output:** `AttackManager` service, number key listeners (`1`-`9`), Attack Selector HUD bar, score multipliers, and story action phrasing (`Handed to Police`, `Caged Like an Animal`, `Shot Down in Action`, `Ruthlessly Butchered`).
+- **Output:** `AttackManager` service, number key listeners (`1`-`9`), Attack Selector HUD bar, score multipliers, and story action phrasing (`Handed to Police`, `Brutally Caged`, `Shot Down in Action`, `Ruthlessly Butchered`).
 - **Acceptance condition:** Pressing keys 1-4 selects active attack method, applies score multipliers, decrements inventory, and displays popups.
 - **Size:** M
 - **Status:** [x] Done

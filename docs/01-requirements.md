@@ -156,7 +156,7 @@ _Last updated: 2026-07-23_
 
 - **14.1 [REFINED]** Players can select active attack/punishment methods using keyboard number keys `1`-`9` or HUD buttons.
 - **14.2 [REFINED]** Attack definitions support custom score multipliers, limited inventory counts, and auto-fallback to default infinite attacks when depleted.
-- **14.3 [REFINED]** Attack actions use narrative story phrasing (`Handed to Police`, `Caged Like an Animal`, `Shot Down in Action`, `Ruthlessly Butchered`).
+- **14.3 [REFINED]** Attack actions use narrative story phrasing (`Handed to Police`, `Brutally Caged`, `Shot Down in Action`, `Ruthlessly Butchered`).
 
 ### 15. Configurable Multi-Hazard Engine & Cause of Death
 
