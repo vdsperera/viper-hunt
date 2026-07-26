@@ -10,6 +10,11 @@ export class InputHandler {
     _bindEvents() {
         if (typeof window !== 'undefined') {
             window.addEventListener('keydown', (e) => {
+                if (e.key >= '1' && e.key <= '9') {
+                    if (typeof this.onAttackSelect === 'function') {
+                        this.onAttackSelect(e.key);
+                    }
+                }
                 const dir = this._mapToDirection(e.key);
                 if (dir) {
                     this._enqueueDirection(dir);

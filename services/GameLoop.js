@@ -14,6 +14,7 @@ export class GameLoop {
         this.renderer = deps.renderer;
         this.scoreManager = deps.scoreManager;
         this.playMode = deps.playMode || 'mode1';
+        this.attackManager = deps.attackManager;
     }
 
     start() {
@@ -82,9 +83,32 @@ export class GameLoop {
         if (this.gridState.activeTargets.has(headKey)) {
             const capturedTarget = this.targetManager.handleCapture(headKey);
             this.gridState.growHunter(capturedTarget.Computed_Value);
+
+            let addedScore = capturedTarget.Computed_Value;
+            let popupText = `+${addedScore}`;
+            let popupColor = '#00ff88';
+
+            if (this.playMode === 'mode1' && this.attackManager) {
+                const attackResult = this.attackManager.consumeActiveAttack(capturedTarget.Computed_Value);
+                addedScore = attackResult.finalValue;
+                popupText = `+${addedScore} (${attackResult.attackName.toUpperCase()})`;
+                popupColor = attackResult.color || '#00ff88';
+            }
             
             if (this.scoreManager) {
-                this.scoreManager.addCaptureValue(capturedTarget.Computed_Value);
+                this.scoreManager.addCaptureValue(addedScore);
+            }
+
+            if (this.renderer) {
+                const cs = this.renderer.cellSize || 32;
+                const px = head.x * cs + cs / 2;
+                const py = head.y * cs;
+                if (typeof this.renderer.emitSparks === 'function') {
+                    this.renderer.emitSparks(px, py + cs / 2, popupColor, 18);
+                }
+                if (typeof this.renderer.addFloatingText === 'function') {
+                    this.renderer.addFloatingText(px, py, popupText, popupColor);
+                }
             }
 
             if (this.levelManager) {

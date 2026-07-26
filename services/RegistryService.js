@@ -10,7 +10,8 @@ const DEFAULT_FALLBACK_DATA = [
     { ID: "fb-007", Name: "Gordon Gekko", Avatar_Asset_Path: "assets/avatars/gekko.png", Interpol_Red_Notice: false, FBI_Most_Wanted: true, Conviction_Status: true, Computed_Value: 50 },
     { ID: "fb-008", Name: "Hans Gruber", Avatar_Asset_Path: "assets/avatars/gruber.png", Interpol_Red_Notice: true, FBI_Most_Wanted: false, Conviction_Status: false, Computed_Value: 75 },
     { ID: "fb-009", Name: "Ernst Stavro Blofeld", Avatar_Asset_Path: "assets/avatars/blofeld.png", Interpol_Red_Notice: true, FBI_Most_Wanted: false, Conviction_Status: false, Computed_Value: 85 },
-    { ID: "fb-010", Name: "Lex Luthor", Avatar_Asset_Path: "assets/avatars/luthor.png", Interpol_Red_Notice: false, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 70 }
+    { ID: "fb-010", Name: "Lex Luthor", Avatar_Asset_Path: "assets/avatars/luthor.png", Interpol_Red_Notice: false, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 70 },
+    { ID: "fb-011", Name: "Saman Jayalath", Avatar_Asset_Path: "assets/avatars/jayalath.png", Interpol_Red_Notice: true, FBI_Most_Wanted: true, Conviction_Status: true, Computed_Value: 90 }
 ];
 
 export class RegistryService {
