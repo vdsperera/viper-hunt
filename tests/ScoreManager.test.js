@@ -161,4 +161,19 @@ test('ScoreManager Test Suite', async (t) => {
         assert.strictEqual(breakdown.summary.totalTimeBonus, 96);
     });
 
+    await t.test('TC-031: logs criminal captures and includes details in breakdown', () => {
+        const scoreManager = new ScoreManager();
+        scoreManager.recordCriminalCapture(
+            { ID: 'c-1', Name: 'Carmen Sandiego', Avatar_Asset_Path: 'carmen.png', Computed_Value: 100 },
+            { name: 'Shooting', icon: '🎯', color: '#ff0055' },
+            150
+        );
+
+        const breakdown = scoreManager.getScoreBreakdown();
+        assert.strictEqual(breakdown.capturedCriminals.length, 1);
+        assert.strictEqual(breakdown.capturedCriminals[0].name, 'Carmen Sandiego');
+        assert.strictEqual(breakdown.capturedCriminals[0].attackName, 'Shooting');
+        assert.strictEqual(breakdown.capturedCriminals[0].finalValue, 150);
+    });
+
 });

@@ -34,7 +34,8 @@ describe('AttackManager Test Suite', () => {
         mgr.selectAttack('3');
         const res1 = mgr.consumeActiveAttack(100);
         assert.equal(res1.finalValue, 150);
-        assert.equal(res1.attackName, 'Shooting');
+        assert.equal(res1.attackName, 'Shot Down');
+        assert.equal(res1.pastAction, 'Shot Down in Action');
         assert.equal(res1.remainingUses, 2);
 
         const res2 = mgr.consumeActiveAttack(100);

@@ -92,6 +92,12 @@ body {
     display: none !important;
 }
 
+.hud-left-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .hud-badge {
     background: var(--hud-bg);
     backdrop-filter: blur(12px);
@@ -130,14 +136,20 @@ body {
 /* Active Wanted Targets Roster (Mode 1) */
 #wanted-roster-hud {
     position: absolute;
-    bottom: 12px;
+    bottom: 10px;
     left: 16px;
     right: 16px;
     display: flex;
     flex-direction: column;
     gap: 4px;
     z-index: 5;
-    pointer-events: none;
+    pointer-events: auto;
+    opacity: 0.9;
+    transition: opacity 0.25s ease-in-out;
+}
+
+#wanted-roster-hud:hover {
+    opacity: 0.25;
 }
 
 #wanted-roster-hud.hidden {
@@ -259,15 +271,13 @@ body {
 
 /* Attack & Punishment Selector HUD (Mode 1) */
 #attack-selector-hud {
-    position: absolute;
-    top: 56px;
-    left: 16px;
-    right: 16px;
+    position: relative;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    gap: 6px;
     z-index: 6;
     pointer-events: auto;
+    margin: 0 8px;
 }
 
 #attack-selector-hud.hidden {
@@ -1020,6 +1030,115 @@ select option {
     font-size: 0.75rem;
     font-weight: 700;
     color: #38bdf8;
+}
+
+/* Criminal Punishment & Capture Log Summary Section */
+.criminal-log-section {
+    width: 100%;
+    margin-bottom: 12px;
+    background: rgba(8, 12, 22, 0.8);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 8px;
+    padding: 10px 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.05);
+}
+
+.criminal-log-title {
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--primary-cyan);
+    text-shadow: 0 0 8px var(--cyan-glow);
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.criminal-log-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.criminal-log-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(15, 23, 38, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 4px 10px;
+    gap: 10px;
+}
+
+.criminal-log-avatar-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #000;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.criminal-log-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.criminal-log-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    line-height: 1.1;
+    text-align: left;
+}
+
+.criminal-log-name {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.criminal-log-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--action-color, #00f0ff);
+}
+
+.criminal-log-payout {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.1;
+}
+
+.payout-score {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--snake-green);
+    text-shadow: 0 0 6px var(--green-glow);
+}
+
+.payout-base {
+    font-size: 0.65rem;
+    color: #888;
+}
+
+.no-captures-badge {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: #64748b;
+    padding: 6px 0;
 }
 
 

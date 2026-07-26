@@ -87,15 +87,24 @@ export class GameLoop {
             let addedScore = capturedTarget.Computed_Value;
             let popupText = `+${addedScore}`;
             let popupColor = '#00ff88';
+            let attackInfo = { name: 'Standard Capture', icon: '👮', color: '#00f0ff' };
 
             if (this.playMode === 'mode1' && this.attackManager) {
                 const attackResult = this.attackManager.consumeActiveAttack(capturedTarget.Computed_Value);
                 addedScore = attackResult.finalValue;
                 popupText = `+${addedScore} (${attackResult.attackName.toUpperCase()})`;
                 popupColor = attackResult.color || '#00ff88';
+                attackInfo = {
+                    name: attackResult.pastAction || attackResult.attackName,
+                    icon: attackResult.icon,
+                    color: attackResult.color
+                };
             }
             
             if (this.scoreManager) {
+                if (typeof this.scoreManager.recordCriminalCapture === 'function') {
+                    this.scoreManager.recordCriminalCapture(capturedTarget, attackInfo, addedScore);
+                }
                 this.scoreManager.addCaptureValue(addedScore);
             }
 
