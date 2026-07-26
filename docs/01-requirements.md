@@ -147,6 +147,28 @@ _Last updated: 2026-07-23_
 - **12.1 [REFINED]** Canvas rendering engine features neon glowing stroke styling, dark cyberpunk color palettes, and glowing grid lines.
 - **12.2 [REFINED]** Capturing targets triggers dynamic particle explosion animations rendered over the grid matrix.
 
+### 13. Criminal Target Visibility & Wanted Roster
+
+- **13.1 [REFINED]** Floating cyberpunk name & bounty pill badges render dynamically directly above target avatars on the game canvas in Mode 1.
+- **13.2 [REFINED]** Live Wanted Targets Roster HUD panel displays active targets, avatar images, bounty values, and Interpol/FBI badges.
+
+### 14. Configurable Attack & Punishment System
+
+- **14.1 [REFINED]** Players can select active attack/punishment methods using keyboard number keys `1`-`9` or HUD buttons.
+- **14.2 [REFINED]** Attack definitions support custom score multipliers, limited inventory counts, and auto-fallback to default infinite attacks when depleted.
+- **14.3 [REFINED]** Attack actions use narrative story phrasing (`Handed to Police`, `Caged Like an Animal`, `Shot Down in Action`, `Ruthlessly Butchered`).
+
+### 15. Configurable Multi-Hazard Engine & Cause of Death
+
+- **15.1 [REFINED]** Game grid supports multiple simultaneous hazard entity types (🦹 Crime Boss, 🚔 Police Patrol, 💀 Death Reaper).
+- **15.2 [REFINED]** Number and type of hazards scale per level index via configurable `levelHazards` rules.
+- **15.3 [REFINED]** CollisionDetector tracks precise cause of failure (`Arrested by Police Patrol`, `Eliminated by Crime Boss`, `Claimed by Death Reaper`, `Impacted Outer Wall`).
+
+### 16. End-of-Game Criminal Punishment & Capture Summary Log
+
+- **16.1 [REFINED]** Post-game overlay card renders a dedicated Criminal Punishment & Capture Log summary table.
+- **16.2 [REFINED]** Log details criminal avatar, name, punishment executed by player, base bounty value, and final payout earned.
+
 ---
 
 ## Open Blockers — Resolution Status
