@@ -4,6 +4,29 @@ export class ScoreManager {
         this.currentLevelCapturedSum = 0;
         this.currentLevelTargetsCount = 0;
         this.levelHistory = [];
+        this.capturedCriminals = [];
+    }
+
+    /**
+     * Records a detailed log entry for a captured target and the action taken by the player.
+     * @param {Object} criminalRecord Criminal target record
+     * @param {Object} attackInfo { name, icon, color, id } Attack or action details
+     * @param {number} finalValue Awarded score points
+     */
+    recordCriminalCapture(criminalRecord, attackInfo = null, finalValue = 0) {
+        if (!criminalRecord) return;
+        this.capturedCriminals.push({
+            id: criminalRecord.ID || `cap-${this.capturedCriminals.length + 1}`,
+            name: criminalRecord.Name || 'Unknown Target',
+            avatar: criminalRecord.Avatar_Asset_Path || 'assets/avatars/placeholder.png',
+            baseValue: criminalRecord.Computed_Value || 0,
+            finalValue: finalValue || criminalRecord.Computed_Value || 0,
+            attackName: attackInfo?.name || 'Standard Capture',
+            attackIcon: attackInfo?.icon || '👮',
+            attackColor: attackInfo?.color || '#00f0ff',
+            interpol: criminalRecord.Interpol_Red_Notice || false,
+            fbi: criminalRecord.FBI_Most_Wanted || false
+        });
     }
 
     /**
@@ -85,6 +108,7 @@ export class ScoreManager {
 
         return {
             levelHistory: [...this.levelHistory],
+            capturedCriminals: [...this.capturedCriminals],
             partialLevel: (partialCapturedSum > 0 || partialTargetsCaptured > 0) ? {
                 level: this.levelHistory.length + 1,
                 targetsCaptured: partialTargetsCaptured,

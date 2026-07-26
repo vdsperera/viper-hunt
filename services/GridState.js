@@ -68,12 +68,14 @@ export class GridState {
     }
     
     isCellOccupied(x, y) {
-        if (!this.hunter) return false;
-        if (this.hunter.HeadCoordinate.x === x && this.hunter.HeadCoordinate.y === y) return true;
-        for (const seg of this.hunter.BodySegments) {
-            if (seg.x === x && seg.y === y) return true;
+        if (this.hunter) {
+            if (this.hunter.HeadCoordinate.x === x && this.hunter.HeadCoordinate.y === y) return true;
+            for (const seg of this.hunter.BodySegments) {
+                if (seg.x === x && seg.y === y) return true;
+            }
         }
         if (this.bossPosition && this.bossPosition.x === x && this.bossPosition.y === y) return true;
+        if (this.activeTargets && this.activeTargets.has(`${x},${y}`)) return true;
         return false;
     }
 

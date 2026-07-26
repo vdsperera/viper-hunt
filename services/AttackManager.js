@@ -1,8 +1,8 @@
 export const DEFAULT_ATTACK_TYPES = [
-    { id: 'police', key: '1', name: 'Police Custody', icon: '👮', multiplier: 1.0, uses: -1, color: '#00f0ff' },
-    { id: 'caging', key: '2', name: 'Caging', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
-    { id: 'shooting', key: '3', name: 'Shooting', icon: '🎯', multiplier: 1.5, uses: 3, color: '#ff0055' },
-    { id: 'butchering', key: '4', name: 'Butchering', icon: '🪓', multiplier: 2.0, uses: 2, color: '#aa00ff' }
+    { id: 'police', key: '1', name: 'Police Custody', pastAction: 'Handed to Police', icon: '👮', multiplier: 1.0, uses: -1, color: '#00f0ff' },
+    { id: 'caging', key: '2', name: 'Caged Animal', pastAction: 'Caged Like an Animal', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
+    { id: 'shooting', key: '3', name: 'Shot Down', pastAction: 'Shot Down in Action', icon: '🎯', multiplier: 1.5, uses: 3, color: '#ff0055' },
+    { id: 'butchering', key: '4', name: 'Ruthlessly Butchered', pastAction: 'Ruthlessly Butchered', icon: '🪓', multiplier: 2.0, uses: 2, color: '#aa00ff' }
 ];
 
 export class AttackManager {
@@ -22,6 +22,7 @@ export class AttackManager {
             id: att.id || `att-${idx + 1}`,
             key: att.key || String(idx + 1),
             name: att.name || `Attack ${idx + 1}`,
+            pastAction: att.pastAction || att.name || `Captured via Attack ${idx + 1}`,
             icon: att.icon || '⚔️',
             multiplier: typeof att.multiplier === 'number' ? att.multiplier : 1.0,
             initialUses: typeof att.uses === 'number' ? att.uses : -1, // -1 means infinite
@@ -78,7 +79,7 @@ export class AttackManager {
     /**
      * Executes capture with active attack, decrements inventory if limited, and calculates score
      * @param {number} baseValue Base bounty score value
-     * @returns {Object} { finalValue, attackName, color, remainingUses, attackId }
+     * @returns {Object} { finalValue, attackName, pastAction, color, remainingUses, attackId }
      */
     consumeActiveAttack(baseValue = 0) {
         const attack = this.getActiveAttack();
@@ -92,6 +93,7 @@ export class AttackManager {
         const result = {
             finalValue,
             attackName: attack.name,
+            pastAction: attack.pastAction || attack.name,
             icon: attack.icon,
             color: attack.color,
             remainingUses: attack.currentUses,

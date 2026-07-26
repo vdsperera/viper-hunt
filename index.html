@@ -13,14 +13,22 @@
     <div id="game-container">
         <!-- Modern Cyberpunk HUD -->
         <div id="hud" class="hidden">
-            <div class="hud-badge player-badge">
-                <span class="hud-label">PLAYER</span>
-                <span id="hud-player" class="hud-value">---</span>
+            <div class="hud-left-group">
+                <div class="hud-badge player-badge">
+                    <span class="hud-label">PLAYER</span>
+                    <span id="hud-player" class="hud-value">---</span>
+                </div>
+                <div class="hud-badge level-badge">
+                    <span class="hud-label">LEVEL</span>
+                    <span id="hud-level" class="hud-value">1</span>
+                </div>
             </div>
-            <div class="hud-badge level-badge">
-                <span class="hud-label">LEVEL</span>
-                <span id="hud-level" class="hud-value">1</span>
+
+            <!-- Attack & Punishment Selector HUD Bar for Mode 1 -->
+            <div id="attack-selector-hud" class="hidden">
+                <div id="attack-buttons-container" class="attack-buttons-list"></div>
             </div>
+
             <div class="hud-badge score-badge">
                 <span class="hud-label">SCORE</span>
                 <span id="hud-score" class="hud-value">0</span>
@@ -33,14 +41,6 @@
                 <span class="roster-title">WANTED TARGETS</span>
             </div>
             <div id="wanted-targets-container" class="wanted-targets-list"></div>
-        </div>
-
-        <!-- Attack & Punishment Selector HUD Bar for Mode 1 -->
-        <div id="attack-selector-hud" class="hidden">
-            <div class="attack-selector-header">
-                <span class="attack-selector-title">ATTACK METHOD [KEYS 1-4]</span>
-            </div>
-            <div id="attack-buttons-container" class="attack-buttons-list"></div>
         </div>
 
         <!-- Emotional Question HUD Banner for Mode 3 -->

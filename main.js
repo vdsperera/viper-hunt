@@ -177,10 +177,10 @@ async function bootstrap() {
             }
         ],
         attackTypes: [
-            { id: 'police', key: '1', name: 'Police Custody', icon: '👮', multiplier: 1.0, uses: -1, color: '#00f0ff' },
-            { id: 'caging', key: '2', name: 'Caging', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
-            { id: 'shooting', key: '3', name: 'Shooting', icon: '🎯', multiplier: 1.5, uses: 3, color: '#ff0055' },
-            { id: 'butchering', key: '4', name: 'Butchering', icon: '🪓', multiplier: 2.0, uses: 2, color: '#aa00ff' }
+            { id: 'police', key: '1', name: 'Police Custody', pastAction: 'Handed to Police', icon: '👮', multiplier: 1.0, uses: -1, color: '#00f0ff' },
+            { id: 'caging', key: '2', name: 'Caged Animal', pastAction: 'Caged Like an Animal', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
+            { id: 'shooting', key: '3', name: 'Shot Down', pastAction: 'Shot Down in Action', icon: '🎯', multiplier: 1.5, uses: 3, color: '#ff0055' },
+            { id: 'butchering', key: '4', name: 'Ruthlessly Butchered', pastAction: 'Ruthlessly Butchered', icon: '🪓', multiplier: 2.0, uses: 2, color: '#aa00ff' }
         ]
     };
 
@@ -411,7 +411,7 @@ async function bootstrap() {
 
             if (overlayCard) overlayCard.classList.add('has-breakdown');
 
-            const { levelHistory, partialLevel, summary } = breakdown;
+            const { levelHistory, partialLevel, summary, capturedCriminals } = breakdown;
 
             let rowsHtml = '';
 
@@ -439,7 +439,50 @@ async function bootstrap() {
         `;
             }
 
+            let criminalLogHtml = '';
+            if (Array.isArray(capturedCriminals) && capturedCriminals.length > 0) {
+                const cards = capturedCriminals.map(c => `
+                    <div class="criminal-log-card">
+                        <div class="criminal-log-avatar-wrap">
+                            <img src="${c.avatar}" class="criminal-log-avatar" alt="${c.name}" onerror="this.src='assets/avatars/placeholder.png'" />
+                        </div>
+                        <div class="criminal-log-info">
+                            <div class="criminal-log-name">${c.name}</div>
+                            <div class="criminal-log-action" style="--action-color: ${c.attackColor}">
+                                <span class="action-icon">${c.attackIcon}</span>
+                                <span class="action-text">${c.attackName}</span>
+                            </div>
+                        </div>
+                        <div class="criminal-log-payout">
+                            <span class="payout-score">+${c.finalValue} pts</span>
+                            <span class="payout-base">Base: $${c.baseValue}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                criminalLogHtml = `
+                    <div class="criminal-log-section">
+                        <div class="criminal-log-title">
+                            <span>CRIMINAL PUNISHMENT & CAPTURE LOG</span>
+                        </div>
+                        <div class="criminal-log-grid">
+                            ${cards}
+                        </div>
+                    </div>
+                `;
+            } else if (selectedMode === 'mode1') {
+                criminalLogHtml = `
+                    <div class="criminal-log-section">
+                        <div class="criminal-log-title">
+                            <span>CRIMINAL PUNISHMENT & CAPTURE LOG</span>
+                        </div>
+                        <div class="no-captures-badge">[ NO TARGETS CAPTURED THIS SESSION ]</div>
+                    </div>
+                `;
+            }
+
             container.innerHTML = `
+        ${criminalLogHtml}
         <div class="score-formula-badge">
             <div class="formula-title">SCORE CALCULATION FORMULA</div>
             <div class="formula-desc">Target Values × 60% + Remaining Time Bonus × 40%</div>
