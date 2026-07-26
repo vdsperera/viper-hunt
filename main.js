@@ -13,6 +13,7 @@ import { ScoreManager } from './services/ScoreManager.js';
 import { LevelManager } from './services/LevelManager.js';
 import { HunterEntity, Direction } from './models/HunterEntity.js';
 import { FirebaseService } from './services/FirebaseService.js';
+import { AttackManager } from './services/AttackManager.js';
 
 const uiOverlay = document.getElementById('overlay-ui');
 const uiTitle = document.getElementById('overlay-title');
@@ -174,6 +175,12 @@ async function bootstrap() {
                     { text: "Courage", value: 100 }
                 ]
             }
+        ],
+        attackTypes: [
+            { id: 'police', key: '1', name: 'Police Custody', icon: '👮', multiplier: 1.0, uses: -1, color: '#00f0ff' },
+            { id: 'caging', key: '2', name: 'Caging', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
+            { id: 'shooting', key: '3', name: 'Shooting', icon: '🎯', multiplier: 1.5, uses: 3, color: '#ff0055' },
+            { id: 'butchering', key: '4', name: 'Butchering', icon: '🪓', multiplier: 2.0, uses: 2, color: '#aa00ff' }
         ]
     };
 
@@ -263,6 +270,49 @@ async function bootstrap() {
             }
         }
 
+        const attackSelectorHud = document.getElementById('attack-selector-hud');
+        const attackButtonsContainer = document.getElementById('attack-buttons-container');
+        const attackManager = new AttackManager(gameRules.attackTypes);
+
+        if (attackSelectorHud) {
+            if (selectedMode === 'mode1') {
+                attackSelectorHud.classList.remove('hidden');
+            } else {
+                attackSelectorHud.classList.add('hidden');
+            }
+        }
+
+        function renderAttackSelectorHud() {
+            if (!attackButtonsContainer || selectedMode !== 'mode1') return;
+            const attacks = attackManager.getAttackList();
+            attackButtonsContainer.innerHTML = attacks.map(att => {
+                const usesLabel = att.currentUses < 0 ? '∞' : att.currentUses;
+                const outOfAmmo = att.currentUses === 0;
+                return `
+                    <div class="attack-btn ${att.isActive ? 'active' : ''} ${outOfAmmo ? 'out-of-ammo' : ''}" 
+                         data-key="${att.key}" 
+                         style="--att-color: ${att.color}">
+                        <span class="attack-key-badge">[${att.key}]</span>
+                        <span class="attack-icon">${att.icon}</span>
+                        <span class="attack-name">${att.name}</span>
+                        <span class="attack-multiplier">${att.multiplier}x</span>
+                        <span class="attack-uses">(${usesLabel})</span>
+                    </div>
+                `;
+            }).join('');
+
+            attackButtonsContainer.querySelectorAll('.attack-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const key = btn.getAttribute('data-key');
+                    if (attackManager.selectAttack(key)) {
+                        renderAttackSelectorHud();
+                    }
+                });
+            });
+        }
+
+        renderAttackSelectorHud();
+
         // 1280x720 canvas with 32px cells = 40x22 grid
         const gridState = new GridState(40, 22);
         gridState.setPlayMode(selectedMode);
@@ -277,6 +327,13 @@ async function bootstrap() {
         const inputHandler = new InputHandler();
         if (dpadControls) inputHandler.bindDpadControls(dpadControls);
         inputHandler.bindTouchSwipe(document.getElementById('game-container'));
+        inputHandler.onAttackSelect = (key) => {
+            if (selectedMode === 'mode1') {
+                if (attackManager.selectAttack(key)) {
+                    renderAttackSelectorHud();
+                }
+            }
+        };
 
         const collisionDetector = new CollisionDetector();
         const renderer = new Renderer('game-canvas', 32);
@@ -284,7 +341,7 @@ async function bootstrap() {
         const scoreManager = new ScoreManager();
 
         gameLoop = new GameLoop(gameRules.fps, {
-            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, playMode: selectedMode
+            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, playMode: selectedMode
         });
 
         const levelManager = new LevelManager(
@@ -339,6 +396,9 @@ async function bootstrap() {
                             `).join('');
                         }
                     }
+                }
+                if (selectedMode === 'mode1') {
+                    renderAttackSelectorHud();
                 }
             }
         }, 100);
@@ -428,6 +488,7 @@ async function bootstrap() {
             const eqHud = document.getElementById('emotional-question-hud');
             if (eqHud) eqHud.classList.add('hidden');
             if (wantedRosterHud) wantedRosterHud.classList.add('hidden');
+            if (attackSelectorHud) attackSelectorHud.classList.add('hidden');
 
             const finalScore = scoreManager.getSessionScore();
             const breakdown = scoreManager.getScoreBreakdown();

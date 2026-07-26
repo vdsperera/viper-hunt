@@ -257,6 +257,124 @@ body {
     border: 1px solid rgba(255, 184, 0, 0.5);
 }
 
+/* Attack & Punishment Selector HUD (Mode 1) */
+#attack-selector-hud {
+    position: absolute;
+    top: 56px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 6;
+    pointer-events: auto;
+}
+
+#attack-selector-hud.hidden {
+    display: none !important;
+}
+
+.attack-selector-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.attack-selector-title {
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--primary-cyan);
+    text-shadow: 0 0 6px var(--cyan-glow);
+    background: rgba(8, 12, 20, 0.85);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    display: inline-block;
+}
+
+.attack-buttons-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.attack-btn {
+    background: rgba(10, 16, 26, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.attack-btn:hover:not(.out-of-ammo) {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+}
+
+.attack-btn.active {
+    border-color: var(--att-color, #00f0ff);
+    background: rgba(15, 25, 40, 0.95);
+    box-shadow: 0 0 14px var(--att-color, #00f0ff), inset 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+.attack-btn.out-of-ammo {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: rgba(255, 0, 85, 0.3);
+}
+
+.attack-key-badge {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 800;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.attack-icon {
+    font-size: 0.85rem;
+}
+
+.attack-name {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.attack-multiplier {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--snake-green);
+    background: rgba(0, 255, 136, 0.15);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+.attack-uses {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #aaaaaa;
+}
+
 /* Glassmorphism Overlay UI - Fixed Centering for Mobile & Desktop */
 .overlay {
     position: fixed;

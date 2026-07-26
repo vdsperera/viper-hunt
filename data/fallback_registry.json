@@ -88,5 +88,14 @@
         "FBI_Most_Wanted": true,
         "Conviction_Status": false,
         "Computed_Value": 70
+    },
+    {
+        "ID": "fb-011",
+        "Name": "Saman Jayalath",
+        "Avatar_Asset_Path": "assets/avatars/jayalath.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 90
     }
 ]
