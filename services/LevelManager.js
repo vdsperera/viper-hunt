@@ -7,7 +7,8 @@ export class LevelManager {
         maxSimultaneousTargets = 3, 
         maxLevels = 3,
         levelTargetSpecs = null,
-        emotionalQuestions = null
+        emotionalQuestions = null,
+        levelHazards = null
     ) {
         this.gridState = gridState;
         this.targetManager = targetManager;
@@ -17,6 +18,7 @@ export class LevelManager {
         this.maxSimultaneousTargets = maxSimultaneousTargets;
         this.maxLevels = maxLevels;
         this.levelTargetSpecs = levelTargetSpecs;
+        this.levelHazards = levelHazards;
         this.emotionalQuestions = emotionalQuestions || [
             {
                 level: 1,
@@ -183,9 +185,30 @@ export class LevelManager {
             if (newTarget) spawnedAny = true;
         }
 
-        // Spawn threat figure in Criminal mode (mode1) and Emotional Death mode (mode3)
+        // Spawn threat figures in Criminal mode (mode1) and Emotional Death mode (mode3)
         if (this.gridState.playMode === 'mode1' || this.gridState.playMode === 'mode3') {
-            this.gridState.spawnBoss();
+            let specForLevel = null;
+            if (Array.isArray(this.levelHazards)) {
+                const found = this.levelHazards.find(h => h.level === this.currentLevelIndex);
+                if (found && Array.isArray(found.hazards)) specForLevel = found.hazards;
+            }
+
+            if (specForLevel) {
+                this.gridState.spawnHazards(specForLevel);
+            } else if (this.currentLevelIndex === 2) {
+                this.gridState.spawnHazards([
+                    { type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 },
+                    { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }
+                ]);
+            } else if (this.currentLevelIndex >= 3) {
+                this.gridState.spawnHazards([
+                    { type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 },
+                    { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 },
+                    { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }
+                ]);
+            } else {
+                this.gridState.spawnBoss();
+            }
         }
         
         if (!spawnedAny) {

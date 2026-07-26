@@ -63,17 +63,28 @@ export class GameLoop {
         const nextDir = this.inputHandler.getCurrentDirection(currentDir);
         this.gridState.hunter.Direction = nextDir;
 
-        // 2. Move Hunter & Boss
+        // 2. Move Hunter & Hazards
         this.gridState.moveHunter();
-        this.gridState.moveBoss?.();
+        if (typeof this.gridState.moveHazards === 'function') {
+            this.gridState.moveHazards();
+        } else if (typeof this.gridState.moveBoss === 'function') {
+            this.gridState.moveBoss();
+        }
 
         // 3. Collision Check
         const head = this.gridState.hunter.HeadCoordinate;
         const body = this.gridState.hunter.BodySegments;
         const bounds = { width: this.gridState.width, height: this.gridState.height };
 
-        if (this.collisionDetector.checkCollision(head, bounds, body, this.gridState.bossPosition)) {
-            // Trigger GameOver
+        const hazardsOrBoss = (Array.isArray(this.gridState.hazards) && this.gridState.hazards.length > 0)
+            ? this.gridState.hazards
+            : this.gridState.bossPosition;
+
+        const isCollided = this.collisionDetector.checkCollision(head, bounds, body, hazardsOrBoss);
+        if (isCollided) {
+            const lastRes = this.collisionDetector.lastResult || {};
+            this.lastCollisionReason = lastRes.reason || 'Tactical Operation Failed';
+            this.lastHazardName = lastRes.hazardName || null;
             this.stop();
             return;
         }
