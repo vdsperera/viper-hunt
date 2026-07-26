@@ -432,7 +432,7 @@ export class Renderer {
             return;
         }
 
-        // 3. Criminal Bounty Mode (Mode 1) - Avatar & Text
+        // 3. Criminal Bounty Mode (Mode 1) - Avatar & Stylized Floating Name Badge
         let img = this.imageCache.get(record.ID);
         if (!img) {
             img = new Image();
@@ -477,16 +477,52 @@ export class Renderer {
         }
         this.ctx.restore?.();
 
-        // Value Tag Overlay (Criminal Mode only)
+        // Stylized Floating Name & Bounty Tag Overlay for Criminal Target Visibility
         this.ctx.save?.();
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = '700 11px Rajdhani';
-        this.ctx.shadowBlur = 4;
-        this.ctx.shadowColor = '#000000';
+        const isRedNotice = record.Interpol_Red_Notice;
+        const tagBorderColor = isRedNotice ? '#ff0055' : (auraColor || '#00f0ff');
+        const tagBg = 'rgba(8, 12, 20, 0.9)';
         
-        const text = `$${record.Computed_Value}`;
+        const labelText = `${record.Name || 'TARGET'} ($${record.Computed_Value})`;
+        const fontSize = Math.max(10, Math.floor(cs * 0.35));
+        this.ctx.font = `700 ${fontSize}px Rajdhani, sans-serif`;
+        
+        const textMetrics = this.ctx.measureText ? this.ctx.measureText(labelText) : { width: cs * 1.5 };
+        const textWidth = textMetrics.width;
+        const paddingX = 6;
+        const pillWidth = textWidth + paddingX * 2;
+        const pillHeight = fontSize + 6;
+        const pillX = px + cs / 2 - pillWidth / 2;
+        const pillY = py - pillHeight - 2;
+
+        // Draw glowing floating pill behind text
+        this.ctx.fillStyle = tagBg;
+        this.ctx.strokeStyle = tagBorderColor;
+        this.ctx.lineWidth = 1.5;
+        this.ctx.shadowBlur = 6;
+        this.ctx.shadowColor = tagBorderColor;
+
+        const actualY = pillY < 0 ? py + cs + 2 : pillY;
+        if (this.ctx.beginPath) {
+            this.ctx.beginPath();
+            if (this.ctx.roundRect) {
+                this.ctx.roundRect(pillX, actualY, pillWidth, pillHeight, 4);
+            } else if (this.ctx.rect) {
+                this.ctx.rect(pillX, actualY, pillWidth, pillHeight);
+            }
+            this.ctx.fill?.();
+            this.ctx.stroke?.();
+        }
+
+        // Draw Target Name & Value Text
+        this.ctx.shadowBlur = 0;
+        this.ctx.fillStyle = isRedNotice ? '#ff6688' : '#ffffff';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        
+        const drawY = actualY + pillHeight / 2;
         if (this.ctx.fillText) {
-            this.ctx.fillText(text, px + 2, py + cs - 4);
+            this.ctx.fillText(labelText, px + cs / 2, drawY);
         }
         this.ctx.restore?.();
     }

@@ -253,6 +253,16 @@ async function bootstrap() {
             }
         }
 
+        const wantedRosterHud = document.getElementById('wanted-roster-hud');
+        const wantedTargetsContainer = document.getElementById('wanted-targets-container');
+        if (wantedRosterHud) {
+            if (selectedMode === 'mode1') {
+                wantedRosterHud.classList.remove('hidden');
+            } else {
+                wantedRosterHud.classList.add('hidden');
+            }
+        }
+
         // 1280x720 canvas with 32px cells = 40x22 grid
         const gridState = new GridState(40, 22);
         gridState.setPlayMode(selectedMode);
@@ -298,9 +308,38 @@ async function bootstrap() {
             originalAdvanceLevel();
         };
 
+        let prevTargetSignature = '';
         hudInterval = setInterval(() => {
             if (gameLoop.running) {
                 hudScore.innerText = scoreManager.getSessionScore();
+
+                if (selectedMode === 'mode1' && wantedTargetsContainer) {
+                    const activeTargets = gridState.activeTargets;
+                    const records = Array.from(activeTargets.values());
+                    const sig = records.map(r => `${r.ID}-${r.Name}-${r.Computed_Value}`).join('|');
+                    if (sig !== prevTargetSignature) {
+                        prevTargetSignature = sig;
+                        if (records.length === 0) {
+                            wantedTargetsContainer.innerHTML = '<span style="font-size:0.75rem; color:#888; font-family:var(--font-body);">[ ALL TARGETS CAPTURED ]</span>';
+                        } else {
+                            wantedTargetsContainer.innerHTML = records.map(r => `
+                                <div class="wanted-card ${r.Interpol_Red_Notice ? 'red-notice' : ''}">
+                                    <div class="wanted-avatar-wrap">
+                                        <img src="${r.Avatar_Asset_Path}" class="wanted-avatar-img" alt="${r.Name}" onerror="this.src='assets/avatars/placeholder.png'" />
+                                    </div>
+                                    <div class="wanted-info">
+                                        <span class="wanted-name">${r.Name}</span>
+                                        <div class="wanted-meta">
+                                            <span class="wanted-value">$${r.Computed_Value}</span>
+                                            ${r.Interpol_Red_Notice ? '<span class="wanted-badge interpol">INTERPOL</span>' : ''}
+                                            ${r.FBI_Most_Wanted ? '<span class="wanted-badge fbi">FBI</span>' : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('');
+                        }
+                    }
+                }
             }
         }, 100);
 
@@ -388,6 +427,7 @@ async function bootstrap() {
             if (dpadControls) dpadControls.classList.add('hidden');
             const eqHud = document.getElementById('emotional-question-hud');
             if (eqHud) eqHud.classList.add('hidden');
+            if (wantedRosterHud) wantedRosterHud.classList.add('hidden');
 
             const finalScore = scoreManager.getSessionScore();
             const breakdown = scoreManager.getScoreBreakdown();
