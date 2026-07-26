@@ -42,13 +42,22 @@ _Last updated: 2026-07-23_
 - **Scaling strategy:** Stateless.
 - **Failure mode:** Graceful degradation — Invalid keys or 180-degree reversal attempts are silently discarded.
 
+### AttackManager
+- **Responsibility:** Manages tactical attack/punishment inventory, active selection state, score multipliers, and narrative story phrasing.
+- **Exposes:** `selectAttack(keyOrId)`, `getActiveAttack()`, `consumeActiveAttack(baseValue)`, `getAttackList()`, `resetInventory()`
+- **Depends on:** `DEFAULT_ATTACK_TYPES` configuration
+- **Data owned:** Attack types inventory (`id`, `name`, `pastAction`, `icon`, `multiplier`, `uses`, `color`), active attack index
+- **Technology:** Pure ES6 JavaScript class.
+- **Scaling strategy:** Bounded in-memory list.
+- **Failure mode:** Graceful fallback — Automatically reverts to default infinite attack (`Police Custody`) when selected attack exhausts inventory.
+
 ### GridState
-- **Responsibility:** Maintains spatial coordinates for Hunter, active Targets, Play Mode, and the roaming Big Boss hazard.
-- **Exposes:** `moveHunter()`, `growHunter()`, `occupyCell()`, `getCellContents()`, `setBossPosition()`, `getBossPosition()`
+- **Responsibility:** Maintains spatial coordinates for Hunter, active Targets, Play Mode, and active Multi-Hazard entities (Crime Boss, Police Patrol, Death Reaper).
+- **Exposes:** `moveHunter()`, `growHunter()`, `isCellOccupied(x, y)`, `spawnHazards(hazardSpecs)`, `moveHazards()`, `bossPosition`
 - **Depends on:** None
-- **Data owned:** Hunter body segments, Active Target coordinates, Play Mode (`mode1` / `mode2`), Big Boss coordinate & state
-- **Technology:** In-memory spatial coordinate maps — Fast lookups for collision, hazard interaction, and rendering.
-- **Scaling strategy:** Bounded by fixed grid size.
+- **Data owned:** Hunter body segments, Active Target coordinates, Play Mode (`mode1` / `mode2` / `mode3`), Active Hazards list (`hazards` array)
+- **Technology:** In-memory spatial coordinate maps and hazard collections — Fast lookups for collision, hazard interaction, and rendering.
+- **Scaling strategy:** Bounded by fixed grid size and active hazard limits.
 - **Failure mode:** Hard failure — Invalid coordinates throw exceptions.
 
 ### TargetManager
@@ -61,28 +70,28 @@ _Last updated: 2026-07-23_
 - **Failure mode:** Graceful degradation — If no cells are available, spawning is deferred to next tick.
 
 ### CollisionDetector
-- **Responsibility:** Evaluates if the Hunter's head coordinate intersects a wall, self body segment, or roaming Big Boss figure.
-- **Exposes:** `checkCollision(headCoord, gridBounds, bodySegments, bossCoord)`
+- **Responsibility:** Evaluates if the Hunter's head coordinate intersects a wall, self body segment, or active hazard entity; records cause of death metadata.
+- **Exposes:** `checkCollision(headCoord, gridBounds, bodySegments, bossPositionOrHazards)`, `lastResult`
 - **Depends on:** None
-- **Data owned:** None
-- **Technology:** Pure JavaScript spatial logic — Coordinate equality checks across grid matrix bounds, self segments, and boss hazard coordinates.
+- **Data owned:** Last collision result metadata (`collided`, `reason`, `hazardName`, `hazardType`)
+- **Technology:** Pure JavaScript spatial logic — Coordinate equality checks across grid matrix bounds, self segments, and multi-hazard coordinates.
 - **Scaling strategy:** Stateless.
 - **Failure mode:** Hard failure — Returns true unconditionally if data is malformed.
 
 ### ScoreManager
-- **Responsibility:** Calculates target values, level time bonuses, and total session score.
-- **Exposes:** `addCaptureValue()`, `completeLevel()`, `getSessionScore()`
+- **Responsibility:** Calculates target values, level time bonuses, criminal capture logging, and total session score.
+- **Exposes:** `addCaptureValue()`, `recordCriminalCapture()`, `completeLevel()`, `getSessionScore()`, `getScoreBreakdown()`
 - **Depends on:** None
-- **Data owned:** Current level score, Level time elapsed, Final session score
-- **Technology:** Pure JavaScript math logic — Implements defined scoring formulas with time bonus floor protection.
+- **Data owned:** Current level score, Level time elapsed, Final session score, `capturedCriminals` log array
+- **Technology:** Pure JavaScript math & structured record logging — Generates itemized post-game capture logs.
 - **Scaling strategy:** Stateless.
 - **Failure mode:** Graceful degradation — Floors negative time bonuses to zero to prevent score subtraction.
 
 ### LevelManager
-- **Responsibility:** Controls level progression, hunter recentering, level target pools, and Big Boss hazard spawning.
+- **Responsibility:** Controls level progression, hunter recentering, level target pools, and per-level multi-hazard risk scaling.
 - **Exposes:** `checkLevelCompletion()`, `advanceLevel()`, `spawnBossHazard()`
 - **Depends on:** GridState, TargetManager, ScoreManager
-- **Data owned:** Active level index, Captured target counter per level, Boss spawn state
+- **Data owned:** Active level index, Captured target counter per level, `levelHazards` configuration list
 - **Technology:** Pure JavaScript level state controller.
 - **Scaling strategy:** Stateless client-side logic.
 - **Failure mode:** Resets hunter safely to mathematical grid center on new level start.

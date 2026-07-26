@@ -325,6 +325,61 @@ TASK-001 → TASK-004 → TASK-007 → TASK-013 → TASK-014 → TASK-015 → TA
 - **Status:** [x] Done
 - **Risk / notes:** Autonomous movement logic keeping boss within grid boundaries.
 
+### TASK-025 — Floating Target Canvas Badges & Wanted Roster HUD
+- **Layer:** 5 & 6
+- **Linked stories:** US-001, US-002
+- **Linked component:** Renderer, HTML Shell, CSS
+- **Depends on:** TASK-015, TASK-017
+- **Input:** Target identity visibility specification
+- **Output:** Canvas rendering of floating name badges above target avatars and a live Wanted Targets Roster HUD bar.
+- **Acceptance condition:** Target names and bounties are visible directly on canvas and in top/bottom HUD containers.
+- **Size:** S
+- **Status:** [x] Done
+
+### TASK-026 — Configurable Attack & Punishment System
+- **Layer:** 4 & 5
+- **Linked stories:** US-004, US-010
+- **Linked component:** AttackManager, InputHandler, GameLoop, Renderer, CSS
+- **Depends on:** TASK-009, TASK-013, TASK-015
+- **Input:** Attack/punishment rules & keyboard shortcut specification
+- **Output:** `AttackManager` service, number key listeners (`1`-`9`), Attack Selector HUD bar, score multipliers, and story action phrasing (`Handed to Police`, `Caged Like an Animal`, `Shot Down in Action`, `Ruthlessly Butchered`).
+- **Acceptance condition:** Pressing keys 1-4 selects active attack method, applies score multipliers, decrements inventory, and displays popups.
+- **Size:** M
+- **Status:** [x] Done
+
+### TASK-027 — Post-Game Criminal Punishment & Capture Summary Log
+- **Layer:** 5 & 6
+- **Linked stories:** US-010, US-017
+- **Linked component:** ScoreManager, GameLoop, main.js, CSS
+- **Depends on:** TASK-010, TASK-017, TASK-026
+- **Input:** End-of-game summary result request
+- **Output:** Captured criminal log tracking in `ScoreManager`, post-game breakdown modal cards table detailing avatar, name, punishment used, base bounty, and payout.
+- **Acceptance condition:** Ending game presents itemized Criminal Punishment Log cards table.
+- **Size:** S
+- **Status:** [x] Done
+
+### TASK-028 — Configurable Multi-Hazard System & Escalating Level Risk
+- **Layer:** 4 & 5
+- **Linked stories:** US-020
+- **Linked component:** GridState, CollisionDetector, LevelManager, Renderer, GameLoop
+- **Depends on:** TASK-024
+- **Input:** Multi-hazard feature specification
+- **Output:** Multi-hazard support in `GridState`, collision metadata in `CollisionDetector`, per-level hazard scaling in `LevelManager`, custom hazard graphics (`Crime Boss`, `Police Patrol`, `Death Reaper`) in `Renderer`.
+- **Acceptance condition:** Higher levels spawn escalating hazard combinations; colliding with a hazard displays the exact cause of death in Game Over screen.
+- **Size:** M
+- **Status:** [x] Done
+
+### TASK-029 — Unobscured Gameplay HUD Layout Integration
+- **Layer:** 6
+- **Linked stories:** US-015, US-017
+- **Linked component:** HTML Shell, CSS, main.js
+- **Depends on:** TASK-025, TASK-026
+- **Input:** Player vision feedback
+- **Output:** Integrated `#attack-selector-hud` into top `#hud` flex container, added hover auto-dimming transition (`opacity: 0.25`) to `#wanted-roster-hud`.
+- **Acceptance condition:** Game canvas rows remain 100% unobscured and targets under bottom HUD are easily readable.
+- **Size:** S
+- **Status:** [x] Done
+
 ---
 
 ## Coverage matrix
