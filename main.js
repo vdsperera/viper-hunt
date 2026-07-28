@@ -236,6 +236,7 @@ async function bootstrap() {
 
     const sfxToggleBtn = document.getElementById('sfx-toggle-btn');
     const bgmToggleBtn = document.getElementById('bgm-toggle-btn');
+    const voiceToggleBtn = document.getElementById('voice-toggle-btn');
     const sfxVolSlider = document.getElementById('sfx-volume-slider');
     const bgmVolSlider = document.getElementById('bgm-volume-slider');
 
@@ -247,6 +248,10 @@ async function bootstrap() {
         if (bgmToggleBtn) {
             bgmToggleBtn.classList.toggle('off', !audioService.bgmEnabled);
             bgmToggleBtn.querySelector('span').innerText = audioService.bgmEnabled ? '🎵 BGM: ON' : '🔇 BGM: OFF';
+        }
+        if (voiceToggleBtn) {
+            voiceToggleBtn.classList.toggle('off', !audioService.voiceEnabled);
+            voiceToggleBtn.querySelector('span').innerText = audioService.voiceEnabled ? '🎙 VOICE: ON' : '🔇 VOICE: OFF';
         }
         if (sfxVolSlider) {
             sfxVolSlider.value = audioService.sfxVolume;
@@ -268,6 +273,13 @@ async function bootstrap() {
     if (bgmToggleBtn) {
         bgmToggleBtn.addEventListener('click', () => {
             audioService.setBgmEnabled(!audioService.bgmEnabled);
+            syncAudioUi();
+        });
+    }
+
+    if (voiceToggleBtn) {
+        voiceToggleBtn.addEventListener('click', () => {
+            audioService.setVoiceEnabled(!audioService.voiceEnabled);
             syncAudioUi();
         });
     }

@@ -3,6 +3,7 @@ export class AudioService {
         this.ctx = null;
         this.sfxEnabled = config.sfxEnabled ?? true;
         this.bgmEnabled = config.bgmEnabled ?? true;
+        this.voiceEnabled = config.voiceEnabled ?? true;
         this.sfxVolume = config.sfxVolume ?? 0.8;
         this.bgmVolume = config.bgmVolume ?? 0.4;
 
@@ -14,7 +15,7 @@ export class AudioService {
     }
 
     get enabled() {
-        return this.sfxEnabled || this.bgmEnabled;
+        return this.sfxEnabled || this.bgmEnabled || this.voiceEnabled;
     }
 
     loadConfig() {
@@ -25,6 +26,7 @@ export class AudioService {
                     const parsed = JSON.parse(saved);
                     if (typeof parsed.sfxEnabled === 'boolean') this.sfxEnabled = parsed.sfxEnabled;
                     if (typeof parsed.bgmEnabled === 'boolean') this.bgmEnabled = parsed.bgmEnabled;
+                    if (typeof parsed.voiceEnabled === 'boolean') this.voiceEnabled = parsed.voiceEnabled;
                     if (typeof parsed.sfxVolume === 'number') this.sfxVolume = parsed.sfxVolume;
                     if (typeof parsed.bgmVolume === 'number') this.bgmVolume = parsed.bgmVolume;
                 }
@@ -40,6 +42,7 @@ export class AudioService {
                 localStorage.setItem('viper_hunt_audio_config', JSON.stringify({
                     sfxEnabled: this.sfxEnabled,
                     bgmEnabled: this.bgmEnabled,
+                    voiceEnabled: this.voiceEnabled,
                     sfxVolume: this.sfxVolume,
                     bgmVolume: this.bgmVolume
                 }));
@@ -61,6 +64,11 @@ export class AudioService {
         } else if (this.shouldBgmPlay) {
             this.startBGM();
         }
+        this.saveConfig();
+    }
+
+    setVoiceEnabled(enabled) {
+        this.voiceEnabled = Boolean(enabled);
         this.saveConfig();
     }
 
@@ -86,6 +94,77 @@ export class AudioService {
         }
         if (this.ctx && this.ctx.state === 'suspended') {
             this.ctx.resume().catch(() => {});
+        }
+    }
+
+    /**
+     * Play live tactical radio voice-over comms using browser Web Speech API
+     * @param {string} phrase Text phrase to speak over tactical radio
+     */
+    playVoiceComm(phrase) {
+        if (!this.voiceEnabled) return;
+        try {
+            if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop any pending radio transmission
+
+                const utterance = new SpeechSynthesisUtterance(phrase);
+                utterance.rate = 1.15; // Fast tactical radio pace
+                utterance.pitch = 0.85; // Deep tactical operator pitch
+                utterance.volume = this.sfxVolume;
+
+                const voices = window.speechSynthesis.getVoices();
+                const englishVoice = voices.find(v => v.lang && v.lang.startsWith('en') && (v.name.includes('Male') || v.name.includes('Google') || v.name.includes('Natural')));
+                if (englishVoice) {
+                    utterance.voice = englishVoice;
+                }
+
+                this._playRadioCrackle();
+                window.speechSynthesis.speak(utterance);
+            }
+        } catch (e) {
+            console.warn('[AudioService] Tactical Voice Comm error:', e);
+        }
+    }
+
+    /**
+     * Procedural tactical radio static crackle effect
+     */
+    _playRadioCrackle() {
+        if (!this.sfxEnabled) return;
+        try {
+            this._initContext();
+            if (!this.ctx) return;
+
+            const now = this.ctx.currentTime;
+            const duration = 0.12;
+            const bufferSize = Math.floor(this.ctx.sampleRate * duration);
+            if (bufferSize <= 0) return;
+
+            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const output = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = (Math.random() * 2 - 1) * (i % 4 === 0 ? 0.8 : 0.2);
+            }
+
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 2400;
+            filter.Q.value = 3.5;
+
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime(0.12 * this.sfxVolume, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            noise.start(now);
+        } catch (e) {
+            console.warn('[AudioService] Radio crackle error:', e);
         }
     }
 
@@ -124,7 +203,7 @@ export class AudioService {
 
         const now = this.ctx.currentTime;
         const bpm = 124;
-        const sixteenthNote = 60 / bpm / 4; // ~0.121s
+        const sixteenthNote = 60 / bpm / 4;
 
         const bassFreqs = [
             55, 55, 110, 55,  65.4, 55, 73.4, 55,
@@ -139,7 +218,6 @@ export class AudioService {
         const bassFreq = bassFreqs[stepIndex % 16];
         const arpFreq = arpFreqs[stepIndex % 16];
 
-        // Bass Oscillator
         const bassOsc = this.ctx.createOscillator();
         const bassGain = this.ctx.createGain();
         bassOsc.type = 'sawtooth';
@@ -151,7 +229,6 @@ export class AudioService {
         bassOsc.start(now);
         bassOsc.stop(now + sixteenthNote * 0.9);
 
-        // Arp Lead Oscillator
         const arpOsc = this.ctx.createOscillator();
         const arpGain = this.ctx.createGain();
         arpOsc.type = 'triangle';
@@ -163,7 +240,6 @@ export class AudioService {
         arpOsc.start(now);
         arpOsc.stop(now + sixteenthNote * 0.8);
 
-        // Rhythmic Hi-Hat Noise Click every 2 steps
         if (stepIndex % 2 === 0) {
             this._playHiHat(now, sixteenthNote * 0.4);
         }
@@ -203,27 +279,30 @@ export class AudioService {
     }
 
     /**
-     * Synthesize and play custom retro sound effects based on attack type
+     * Synthesize sound effect & trigger tactical voice-over dispatch
      * @param {string} attackIdOrName ID or name of the attack ('police', 'caging', 'shooting', 'butchering')
      */
     playAttackSound(attackIdOrName) {
-        if (!this.sfxEnabled) return;
         try {
             this._initContext();
-            if (!this.ctx) return;
 
             const name = String(attackIdOrName || '').toLowerCase();
 
             if (name.includes('police') || name === '1') {
-                this._playPoliceSiren();
+                if (this.sfxEnabled) this._playPoliceSiren();
+                this.playVoiceComm("Dispatch, target apprehended! Surrendered to Police Custody.");
             } else if (name.includes('cage') || name.includes('caging') || name === '2') {
-                this._playCageLock();
+                if (this.sfxEnabled) this._playCageLock();
+                this.playVoiceComm("Heavy containment unit deployed! Target locked down.");
             } else if (name.includes('shot') || name.includes('shooting') || name === '3') {
-                this._playBlasterShot();
+                if (this.sfxEnabled) this._playBlasterShot();
+                this.playVoiceComm("Tactical engage! Target shot down in action.");
             } else if (name.includes('butcher') || name.includes('butchering') || name === '4') {
-                this._playHeavySlash();
+                if (this.sfxEnabled) this._playHeavySlash();
+                this.playVoiceComm("Breach completed! Target eliminated.");
             } else {
-                this._playDefaultChirp();
+                if (this.sfxEnabled) this._playDefaultChirp();
+                this.playVoiceComm("Target intercepted!");
             }
         } catch (e) {
             console.warn('[AudioService] SFX playback error:', e);
@@ -231,11 +310,12 @@ export class AudioService {
     }
 
     /**
-     * Play game over collision sound
+     * Play game over collision sound and voice comm
      */
     playGameOverSound() {
-        if (!this.sfxEnabled) return;
         try {
+            this.playVoiceComm("Agent down! Operation failed!");
+            if (!this.sfxEnabled) return;
             this._initContext();
             if (!this.ctx) return;
 
@@ -261,6 +341,7 @@ export class AudioService {
     }
 
     _playPoliceSiren() {
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -281,6 +362,7 @@ export class AudioService {
     }
 
     _playCageLock() {
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -300,6 +382,7 @@ export class AudioService {
     }
 
     _playBlasterShot() {
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -319,6 +402,7 @@ export class AudioService {
     }
 
     _playHeavySlash() {
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         
         const osc1 = this.ctx.createOscillator();
@@ -349,6 +433,7 @@ export class AudioService {
     }
 
     _playDefaultChirp() {
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
