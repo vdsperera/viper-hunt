@@ -479,7 +479,25 @@ async function bootstrap() {
                     </div>
                 `;
 
-                const dossierCards = capturedCriminals.map((c, idx) => `
+                const dossierCards = capturedCriminals.map((c, idx) => {
+                    const actionName = (c.attackName || '').toLowerCase();
+                    const color = c.attackColor || '#00f0ff';
+                    const pts = c.finalValue || c.baseValue || 0;
+
+                    let narrativeText = '';
+                    if (actionName.includes('police')) {
+                        narrativeText = `Following active field surveillance, the Hunter tracked down <strong>${c.name}</strong> and executed a high-priority apprehension. The fugitive was surrendered to <strong>Police Custody</strong> without further resistance (<span style="color:${color}; font-weight:700;">+${pts} pts</span>).`;
+                    } else if (actionName.includes('cage') || actionName.includes('caging')) {
+                        narrativeText = `Pursuing <strong>${c.name}</strong> through volatile territory, the Hunter deployed heavy tactical containment units. The fugitive was cornered and <strong>Brutally Caged</strong> in a high-security lockup (<span style="color:${color}; font-weight:700;">+${pts} pts</span>).`;
+                    } else if (actionName.includes('shot') || actionName.includes('shooting')) {
+                        narrativeText = `Engaging <strong>${c.name}</strong> in an armed operational standoff, the Hunter closed in on the target's position. The fugitive was <strong>Shot Down in Action</strong> during the raid (<span style="color:${color}; font-weight:700;">+${pts} pts</span>).`;
+                    } else if (actionName.includes('butcher') || actionName.includes('butchering')) {
+                        narrativeText = `Breaching <strong>${c.name}</strong>'s fortified compound, the Hunter executed a relentless tactical strike. The target was <strong>Ruthlessly Butchered</strong> and eliminated (<span style="color:${color}; font-weight:700;">+${pts} pts</span>).`;
+                    } else {
+                        narrativeText = `The Hunter tracked down <strong>${c.name}</strong> and successfully completed the capture operation via <strong>${c.attackName || 'Tactical Interception'}</strong> (<span style="color:${color}; font-weight:700;">+${pts} pts</span>).`;
+                    }
+
+                    return `
                     <div class="dossier-story-card">
                         <div class="dossier-header-bar">
                             <span class="dossier-id">DOSSIER #${(c.id || `FB-${idx + 1}`).toUpperCase()}</span>
@@ -503,13 +521,14 @@ async function bootstrap() {
                                 <div class="dossier-narrative-box hunt-box" style="--action-color: ${c.attackColor}">
                                     <div class="dossier-box-label" style="color: ${c.attackColor}">⚡ OPERATIONAL HUNT NARRATIVE (WHAT HUNTER DID)</div>
                                     <div class="dossier-box-content">
-                                        The Hunter tracked down <strong>${c.name}</strong> on the 2D grid matrix. Selecting tactical action <span class="action-badge" style="background:${c.attackColor}; color:#000;">${c.attackIcon} ${c.attackName}</span>, the Hunter successfully executed <em>"${c.pastAction}"</em> on the target, securing <strong>+${c.finalValue} pts</strong>.
+                                        ${narrativeText}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
 
                 dossierStoriesHtml = `
                     <div class="dossier-toggle-wrap">
