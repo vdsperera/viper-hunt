@@ -22,6 +22,9 @@ export class GameLoop {
         if (this.running) return;
         this.running = true;
         this.lastTime = performance.now();
+        if (this.audioService && typeof this.audioService.startBGM === 'function') {
+            this.audioService.startBGM();
+        }
         this.animationId = requestAnimationFrame((t) => this.tick(t));
     }
 
@@ -30,6 +33,9 @@ export class GameLoop {
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
             this.animationId = null;
+        }
+        if (this.audioService && typeof this.audioService.stopBGM === 'function') {
+            this.audioService.stopBGM();
         }
     }
 
