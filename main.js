@@ -232,6 +232,58 @@ async function bootstrap() {
         return;
     }
 
+    const audioService = new AudioService();
+
+    const sfxToggleBtn = document.getElementById('sfx-toggle-btn');
+    const bgmToggleBtn = document.getElementById('bgm-toggle-btn');
+    const sfxVolSlider = document.getElementById('sfx-volume-slider');
+    const bgmVolSlider = document.getElementById('bgm-volume-slider');
+
+    function syncAudioUi() {
+        if (sfxToggleBtn) {
+            sfxToggleBtn.classList.toggle('off', !audioService.sfxEnabled);
+            sfxToggleBtn.querySelector('span').innerText = audioService.sfxEnabled ? '🔊 SFX: ON' : '🔇 SFX: OFF';
+        }
+        if (bgmToggleBtn) {
+            bgmToggleBtn.classList.toggle('off', !audioService.bgmEnabled);
+            bgmToggleBtn.querySelector('span').innerText = audioService.bgmEnabled ? '🎵 BGM: ON' : '🔇 BGM: OFF';
+        }
+        if (sfxVolSlider) {
+            sfxVolSlider.value = audioService.sfxVolume;
+        }
+        if (bgmVolSlider) {
+            bgmVolSlider.value = audioService.bgmVolume;
+        }
+    }
+
+    syncAudioUi();
+
+    if (sfxToggleBtn) {
+        sfxToggleBtn.addEventListener('click', () => {
+            audioService.setSfxEnabled(!audioService.sfxEnabled);
+            syncAudioUi();
+        });
+    }
+
+    if (bgmToggleBtn) {
+        bgmToggleBtn.addEventListener('click', () => {
+            audioService.setBgmEnabled(!audioService.bgmEnabled);
+            syncAudioUi();
+        });
+    }
+
+    if (sfxVolSlider) {
+        sfxVolSlider.addEventListener('input', (e) => {
+            audioService.setSfxVolume(parseFloat(e.target.value));
+        });
+    }
+
+    if (bgmVolSlider) {
+        bgmVolSlider.addEventListener('input', (e) => {
+            audioService.setBgmVolume(parseFloat(e.target.value));
+        });
+    }
+
     createProfileBtn.addEventListener('click', async () => {
         await saveProfile(newProfileName.value);
         newProfileName.value = '';
@@ -345,7 +397,6 @@ async function bootstrap() {
         const renderer = new Renderer('game-canvas', 32);
         const targetManager = new TargetManager(gridState, registryService);
         const scoreManager = new ScoreManager();
-        const audioService = new AudioService();
 
         gameLoop = new GameLoop(gameRules.fps, {
             inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, audioService, playMode: selectedMode

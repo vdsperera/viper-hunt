@@ -1,9 +1,77 @@
 export class AudioService {
-    constructor() {
+    constructor(config = {}) {
         this.ctx = null;
-        this.enabled = true;
+        this.sfxEnabled = config.sfxEnabled ?? true;
+        this.bgmEnabled = config.bgmEnabled ?? true;
+        this.sfxVolume = config.sfxVolume ?? 0.8;
+        this.bgmVolume = config.bgmVolume ?? 0.4;
+
         this.bgmPlaying = false;
         this.bgmTimer = null;
+        this.shouldBgmPlay = false;
+
+        this.loadConfig();
+    }
+
+    get enabled() {
+        return this.sfxEnabled || this.bgmEnabled;
+    }
+
+    loadConfig() {
+        try {
+            if (typeof localStorage !== 'undefined') {
+                const saved = localStorage.getItem('viper_hunt_audio_config');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (typeof parsed.sfxEnabled === 'boolean') this.sfxEnabled = parsed.sfxEnabled;
+                    if (typeof parsed.bgmEnabled === 'boolean') this.bgmEnabled = parsed.bgmEnabled;
+                    if (typeof parsed.sfxVolume === 'number') this.sfxVolume = parsed.sfxVolume;
+                    if (typeof parsed.bgmVolume === 'number') this.bgmVolume = parsed.bgmVolume;
+                }
+            }
+        } catch (e) {
+            console.warn('[AudioService] Failed to load config:', e);
+        }
+    }
+
+    saveConfig() {
+        try {
+            if (typeof localStorage !== 'undefined') {
+                localStorage.setItem('viper_hunt_audio_config', JSON.stringify({
+                    sfxEnabled: this.sfxEnabled,
+                    bgmEnabled: this.bgmEnabled,
+                    sfxVolume: this.sfxVolume,
+                    bgmVolume: this.bgmVolume
+                }));
+            }
+        } catch (e) {
+            console.warn('[AudioService] Failed to save config:', e);
+        }
+    }
+
+    setSfxEnabled(enabled) {
+        this.sfxEnabled = Boolean(enabled);
+        this.saveConfig();
+    }
+
+    setBgmEnabled(enabled) {
+        this.bgmEnabled = Boolean(enabled);
+        if (!this.bgmEnabled) {
+            this.stopBGM();
+        } else if (this.shouldBgmPlay) {
+            this.startBGM();
+        }
+        this.saveConfig();
+    }
+
+    setSfxVolume(vol) {
+        this.sfxVolume = Math.max(0, Math.min(1, Number(vol)));
+        this.saveConfig();
+    }
+
+    setBgmVolume(vol) {
+        this.bgmVolume = Math.max(0, Math.min(1, Number(vol)));
+        this.saveConfig();
     }
 
     /**
@@ -22,10 +90,11 @@ export class AudioService {
     }
 
     /**
-     * Start playing the procedural Dark Synthwave Criminal Hunting BGM loop
+     * Start playing procedural Dark Synthwave BGM loop
      */
     startBGM() {
-        if (!this.enabled) return;
+        this.shouldBgmPlay = true;
+        if (!this.bgmEnabled) return;
         try {
             this._initContext();
             if (!this.ctx) return;
@@ -42,6 +111,7 @@ export class AudioService {
      * Stop background music loop
      */
     stopBGM() {
+        this.shouldBgmPlay = false;
         this.bgmPlaying = false;
         if (this.bgmTimer) {
             clearTimeout(this.bgmTimer);
@@ -50,19 +120,17 @@ export class AudioService {
     }
 
     _scheduleBGMStep(stepIndex = 0) {
-        if (!this.bgmPlaying || !this.ctx) return;
+        if (!this.bgmPlaying || !this.bgmEnabled || !this.ctx) return;
 
         const now = this.ctx.currentTime;
         const bpm = 124;
         const sixteenthNote = 60 / bpm / 4; // ~0.121s
 
-        // 16-step bass pattern (A minor pentatonic driving bassline)
         const bassFreqs = [
             55, 55, 110, 55,  65.4, 55, 73.4, 55,
             55, 55, 110, 55,  82.4, 73.4, 65.4, 55
         ];
 
-        // 16-step arpeggio melody line
         const arpFreqs = [
             220, 329.63, 440, 659.25, 220, 329.63, 440, 523.25,
             261.63, 329.63, 523.25, 659.25, 293.66, 349.23, 440, 523.25
@@ -76,7 +144,7 @@ export class AudioService {
         const bassGain = this.ctx.createGain();
         bassOsc.type = 'sawtooth';
         bassOsc.frequency.setValueAtTime(bassFreq, now);
-        bassGain.gain.setValueAtTime(0.06, now);
+        bassGain.gain.setValueAtTime(0.06 * this.bgmVolume, now);
         bassGain.gain.exponentialRampToValueAtTime(0.001, now + sixteenthNote * 0.9);
         bassOsc.connect(bassGain);
         bassGain.connect(this.ctx.destination);
@@ -88,7 +156,7 @@ export class AudioService {
         const arpGain = this.ctx.createGain();
         arpOsc.type = 'triangle';
         arpOsc.frequency.setValueAtTime(arpFreq, now);
-        arpGain.gain.setValueAtTime(0.025, now);
+        arpGain.gain.setValueAtTime(0.025 * this.bgmVolume, now);
         arpGain.gain.exponentialRampToValueAtTime(0.001, now + sixteenthNote * 0.8);
         arpOsc.connect(arpGain);
         arpGain.connect(this.ctx.destination);
@@ -107,7 +175,7 @@ export class AudioService {
     }
 
     _playHiHat(now, duration) {
-        if (!this.ctx) return;
+        if (!this.ctx || !this.bgmEnabled) return;
         const bufferSize = Math.floor(this.ctx.sampleRate * duration);
         if (bufferSize <= 0) return;
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
@@ -124,7 +192,7 @@ export class AudioService {
         filter.frequency.value = 7000;
 
         const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(0.02, now);
+        gain.gain.setValueAtTime(0.02 * this.bgmVolume, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
         noise.connect(filter);
@@ -139,7 +207,7 @@ export class AudioService {
      * @param {string} attackIdOrName ID or name of the attack ('police', 'caging', 'shooting', 'butchering')
      */
     playAttackSound(attackIdOrName) {
-        if (!this.enabled) return;
+        if (!this.sfxEnabled) return;
         try {
             this._initContext();
             if (!this.ctx) return;
@@ -166,7 +234,7 @@ export class AudioService {
      * Play game over collision sound
      */
     playGameOverSound() {
-        if (!this.enabled) return;
+        if (!this.sfxEnabled) return;
         try {
             this._initContext();
             if (!this.ctx) return;
@@ -179,7 +247,7 @@ export class AudioService {
             osc.frequency.setValueAtTime(220, now);
             osc.frequency.exponentialRampToValueAtTime(40, now + 0.4);
 
-            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.setValueAtTime(0.3 * this.sfxVolume, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
 
             osc.connect(gain);
@@ -192,7 +260,6 @@ export class AudioService {
         }
     }
 
-    // 1. Police Custody: Two-tone rapid siren beep (600Hz -> 900Hz)
     _playPoliceSiren() {
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -203,7 +270,7 @@ export class AudioService {
         osc.frequency.setValueAtTime(900, now + 0.08);
         osc.frequency.setValueAtTime(600, now + 0.16);
 
-        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.setValueAtTime(0.2 * this.sfxVolume, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
 
         osc.connect(gain);
@@ -213,7 +280,6 @@ export class AudioService {
         osc.stop(now + 0.25);
     }
 
-    // 2. Brutally Caged: Low metallic square wave lock (180Hz -> 70Hz)
     _playCageLock() {
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -223,7 +289,7 @@ export class AudioService {
         osc.frequency.setValueAtTime(180, now);
         osc.frequency.exponentialRampToValueAtTime(70, now + 0.2);
 
-        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.setValueAtTime(0.25 * this.sfxVolume, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
 
         osc.connect(gain);
@@ -233,7 +299,6 @@ export class AudioService {
         osc.stop(now + 0.22);
     }
 
-    // 3. Shot Down: Fast laser pitch sweep (800Hz -> 90Hz) with noise burst
     _playBlasterShot() {
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -243,7 +308,7 @@ export class AudioService {
         osc.frequency.setValueAtTime(800, now);
         osc.frequency.exponentialRampToValueAtTime(90, now + 0.18);
 
-        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.setValueAtTime(0.3 * this.sfxVolume, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
 
         osc.connect(gain);
@@ -253,26 +318,23 @@ export class AudioService {
         osc.stop(now + 0.18);
     }
 
-    // 4. Ruthlessly Butchered: Heavy dual pitch chop (1200Hz -> 150Hz sub-bass)
     _playHeavySlash() {
         const now = this.ctx.currentTime;
         
-        // Low bass thump
         const osc1 = this.ctx.createOscillator();
         const gain1 = this.ctx.createGain();
         osc1.type = 'triangle';
         osc1.frequency.setValueAtTime(250, now);
         osc1.frequency.exponentialRampToValueAtTime(40, now + 0.28);
-        gain1.gain.setValueAtTime(0.35, now);
+        gain1.gain.setValueAtTime(0.35 * this.sfxVolume, now);
         gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
 
-        // High slash sweep
         const osc2 = this.ctx.createOscillator();
         const gain2 = this.ctx.createGain();
         osc2.type = 'sawtooth';
         osc2.frequency.setValueAtTime(1200, now);
         osc2.frequency.exponentialRampToValueAtTime(200, now + 0.2);
-        gain2.gain.setValueAtTime(0.2, now);
+        gain2.gain.setValueAtTime(0.2 * this.sfxVolume, now);
         gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
 
         osc1.connect(gain1);
@@ -286,17 +348,16 @@ export class AudioService {
         osc2.stop(now + 0.2);
     }
 
-    // Default target capture arpeggio chirp (C5 -> E5)
     _playDefaultChirp() {
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
 
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, now); // C5
-        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.08);
 
-        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.setValueAtTime(0.2 * this.sfxVolume, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
 
         osc.connect(gain);
