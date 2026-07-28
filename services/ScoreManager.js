@@ -13,13 +13,14 @@ export class ScoreManager {
      * @param {Object} attackInfo { name, icon, color, id } Attack or action details
      * @param {number} finalValue Awarded score points
      */
-    recordCriminalCapture(criminalRecord, attackInfo = null, finalValue = 0) {
+    recordCriminalCapture(criminalRecord, attackInfo = null, finalValue = 0, confession = '') {
         if (!criminalRecord) return;
         this.capturedCriminals.push({
             id: criminalRecord.ID || `cap-${this.capturedCriminals.length + 1}`,
             name: criminalRecord.Name || 'Unknown Target',
             avatar: criminalRecord.Avatar_Asset_Path || 'assets/avatars/placeholder.png',
             incident: criminalRecord.Incident || 'Known High-Priority Fugitive Case',
+            confession: confession || '',
             baseValue: criminalRecord.Computed_Value || 0,
             finalValue: finalValue || criminalRecord.Computed_Value || 0,
             attackName: attackInfo?.name || 'Standard Capture',

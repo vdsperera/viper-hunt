@@ -1460,6 +1460,17 @@ select option {
     border-left-color: var(--action-color, #00f0ff);
 }
 
+.dossier-narrative-box.confession-box {
+    border-left-color: #ff0077;
+    background: rgba(255, 0, 119, 0.06);
+}
+
+.confession-text {
+    font-style: italic;
+    color: #ffb3d9;
+    text-shadow: 0 0 6px rgba(255, 0, 119, 0.3);
+}
+
 .dossier-box-label {
     font-family: var(--font-heading);
     font-size: 0.62rem;

@@ -16,6 +16,7 @@ import { FirebaseService } from './services/FirebaseService.js';
 import { AttackManager } from './services/AttackManager.js';
 import { AudioService } from './services/AudioService.js';
 import { AdaptiveDifficultyService } from './services/AdaptiveDifficultyService.js';
+import { LLMService } from './services/LLMService.js';
 
 const uiOverlay = document.getElementById('overlay-ui');
 const uiTitle = document.getElementById('overlay-title');
@@ -422,6 +423,7 @@ async function bootstrap() {
         const targetManager = new TargetManager(gridState, registryService);
         const scoreManager = new ScoreManager();
         const adaptiveDifficultyService = new AdaptiveDifficultyService();
+        const llmService = new LLMService();
 
         const hudThreatLevel = document.getElementById('hud-threat-level');
         if (hudThreatLevel) {
@@ -434,7 +436,7 @@ async function bootstrap() {
         }
 
         gameLoop = new GameLoop(gameRules.fps, {
-            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, audioService, adaptiveDifficultyService, playMode: selectedMode
+            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, audioService, adaptiveDifficultyService, llmService, playMode: selectedMode
         });
 
         const levelManager = new LevelManager(
@@ -583,6 +585,10 @@ async function bootstrap() {
                                         <div class="dossier-box-content">
                                             ${narrativeText}
                                         </div>
+                                    </div>
+                                    <div class="dossier-narrative-box confession-box">
+                                        <div class="dossier-box-label" style="color: #ff0077">🎙️ CRIMINAL CONFESSION / LAST WORDS (AI DYNAMIC)</div>
+                                        <div class="dossier-box-content confession-text">${c.confession || '"My reign in the shadows is over. The Hunter wins this session."'}</div>
                                     </div>
                                 </div>
                             </div>
