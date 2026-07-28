@@ -34,6 +34,16 @@ test('AudioService Test Suite', async (t) => {
         assert.doesNotThrow(() => {
             audioService.playAttackSound('police');
             audioService.playGameOverSound();
+            audioService.startBGM();
+            audioService.stopBGM();
+        });
+    });
+
+    await t.test('TC-054: gracefully handles startBGM and stopBGM in Node environment', () => {
+        const audioService = new AudioService();
+        assert.doesNotThrow(() => {
+            audioService.startBGM();
+            audioService.stopBGM();
         });
     });
 });
