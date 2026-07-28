@@ -4,6 +4,7 @@ export class AudioService {
         this.sfxEnabled = config.sfxEnabled ?? true;
         this.bgmEnabled = config.bgmEnabled ?? true;
         this.voiceEnabled = config.voiceEnabled ?? true;
+        this.currentBgmTrack = config.currentBgmTrack || 'neon_chase';
         this.sfxVolume = config.sfxVolume ?? 0.8;
         this.bgmVolume = config.bgmVolume ?? 0.4;
 
@@ -27,6 +28,7 @@ export class AudioService {
                     if (typeof parsed.sfxEnabled === 'boolean') this.sfxEnabled = parsed.sfxEnabled;
                     if (typeof parsed.bgmEnabled === 'boolean') this.bgmEnabled = parsed.bgmEnabled;
                     if (typeof parsed.voiceEnabled === 'boolean') this.voiceEnabled = parsed.voiceEnabled;
+                    if (typeof parsed.currentBgmTrack === 'string') this.currentBgmTrack = parsed.currentBgmTrack;
                     if (typeof parsed.sfxVolume === 'number') this.sfxVolume = parsed.sfxVolume;
                     if (typeof parsed.bgmVolume === 'number') this.bgmVolume = parsed.bgmVolume;
                 }
@@ -43,6 +45,7 @@ export class AudioService {
                     sfxEnabled: this.sfxEnabled,
                     bgmEnabled: this.bgmEnabled,
                     voiceEnabled: this.voiceEnabled,
+                    currentBgmTrack: this.currentBgmTrack,
                     sfxVolume: this.sfxVolume,
                     bgmVolume: this.bgmVolume
                 }));
@@ -70,6 +73,18 @@ export class AudioService {
     setVoiceEnabled(enabled) {
         this.voiceEnabled = Boolean(enabled);
         this.saveConfig();
+    }
+
+    setBgmTrack(trackId) {
+        const validTracks = ['neon_chase', 'cyber_standoff', 'shadow_grid'];
+        if (validTracks.includes(trackId)) {
+            this.currentBgmTrack = trackId;
+            this.saveConfig();
+            if (this.bgmPlaying) {
+                this.stopBGM();
+                this.startBGM();
+            }
+        }
     }
 
     setSfxVolume(vol) {
@@ -105,11 +120,11 @@ export class AudioService {
         if (!this.voiceEnabled) return;
         try {
             if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Stop any pending radio transmission
+                window.speechSynthesis.cancel();
 
                 const utterance = new SpeechSynthesisUtterance(phrase);
-                utterance.rate = 1.15; // Fast tactical radio pace
-                utterance.pitch = 0.85; // Deep tactical operator pitch
+                utterance.rate = 1.15;
+                utterance.pitch = 0.85;
                 utterance.volume = this.sfxVolume;
 
                 const voices = window.speechSynthesis.getVoices();
@@ -169,7 +184,7 @@ export class AudioService {
     }
 
     /**
-     * Start playing procedural Dark Synthwave BGM loop
+     * Start playing selected procedural Dark Synthwave BGM track
      */
     startBGM() {
         this.shouldBgmPlay = true;
@@ -202,25 +217,43 @@ export class AudioService {
         if (!this.bgmPlaying || !this.bgmEnabled || !this.ctx) return;
 
         const now = this.ctx.currentTime;
-        const bpm = 124;
+        let bpm = 124;
+        let bassFreqs = [];
+        let arpFreqs = [];
+        let bassWave = 'sawtooth';
+        let arpWave = 'triangle';
+
+        if (this.currentBgmTrack === 'cyber_standoff') {
+            // Track 2: Cyber Standoff (130 BPM Industrial Electro)
+            bpm = 130;
+            bassWave = 'square';
+            arpWave = 'sawtooth';
+            bassFreqs = [65.4, 65.4, 130.8, 65.4,  98, 65.4, 87.3, 65.4,  65.4, 65.4, 130.8, 65.4,  110, 98, 87.3, 65.4];
+            arpFreqs = [329.63, 659.25, 587.33, 783.99, 329.63, 659.25, 587.33, 880,  392, 659.25, 587.33, 783.99, 349.23, 523.25, 440, 659.25];
+        } else if (this.currentBgmTrack === 'shadow_grid') {
+            // Track 3: Shadow Grid (118 BPM Tactical Recon Ambience)
+            bpm = 118;
+            bassWave = 'triangle';
+            arpWave = 'sine';
+            bassFreqs = [43.65, 43.65, 87.3, 43.65,  55, 43.65, 48.99, 43.65,  43.65, 43.65, 87.3, 43.65,  65.4, 55, 48.99, 43.65];
+            arpFreqs = [174.61, 220, 261.63, 349.23, 174.61, 220, 261.63, 392,  196, 246.94, 293.66, 392,  164.81, 220, 261.63, 329.63];
+        } else {
+            // Track 1 (Default): Neon Chase (124 BPM Dark Synthwave)
+            bpm = 124;
+            bassWave = 'sawtooth';
+            arpWave = 'triangle';
+            bassFreqs = [55, 55, 110, 55,  65.4, 55, 73.4, 55,  55, 55, 110, 55,  82.4, 73.4, 65.4, 55];
+            arpFreqs = [220, 329.63, 440, 659.25, 220, 329.63, 440, 523.25,  261.63, 329.63, 523.25, 659.25, 293.66, 349.23, 440, 523.25];
+        }
+
         const sixteenthNote = 60 / bpm / 4;
-
-        const bassFreqs = [
-            55, 55, 110, 55,  65.4, 55, 73.4, 55,
-            55, 55, 110, 55,  82.4, 73.4, 65.4, 55
-        ];
-
-        const arpFreqs = [
-            220, 329.63, 440, 659.25, 220, 329.63, 440, 523.25,
-            261.63, 329.63, 523.25, 659.25, 293.66, 349.23, 440, 523.25
-        ];
-
         const bassFreq = bassFreqs[stepIndex % 16];
         const arpFreq = arpFreqs[stepIndex % 16];
 
+        // Bass Oscillator
         const bassOsc = this.ctx.createOscillator();
         const bassGain = this.ctx.createGain();
-        bassOsc.type = 'sawtooth';
+        bassOsc.type = bassWave;
         bassOsc.frequency.setValueAtTime(bassFreq, now);
         bassGain.gain.setValueAtTime(0.06 * this.bgmVolume, now);
         bassGain.gain.exponentialRampToValueAtTime(0.001, now + sixteenthNote * 0.9);
@@ -229,9 +262,10 @@ export class AudioService {
         bassOsc.start(now);
         bassOsc.stop(now + sixteenthNote * 0.9);
 
+        // Arp Lead Oscillator
         const arpOsc = this.ctx.createOscillator();
         const arpGain = this.ctx.createGain();
-        arpOsc.type = 'triangle';
+        arpOsc.type = arpWave;
         arpOsc.frequency.setValueAtTime(arpFreq, now);
         arpGain.gain.setValueAtTime(0.025 * this.bgmVolume, now);
         arpGain.gain.exponentialRampToValueAtTime(0.001, now + sixteenthNote * 0.8);
@@ -240,6 +274,7 @@ export class AudioService {
         arpOsc.start(now);
         arpOsc.stop(now + sixteenthNote * 0.8);
 
+        // Rhythmic Hi-Hat Noise Click every 2 steps
         if (stepIndex % 2 === 0) {
             this._playHiHat(now, sixteenthNote * 0.4);
         }
