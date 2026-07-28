@@ -1567,6 +1567,30 @@ select option {
     cursor: pointer;
 }
 
+.track-select {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    border-radius: 6px;
+    color: var(--primary-cyan);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.track-select:hover, .track-select:focus {
+    border-color: var(--primary-cyan);
+    box-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.track-select option {
+    background: #0b1120;
+    color: #ffffff;
+}
+
 
 
 
