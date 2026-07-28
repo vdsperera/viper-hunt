@@ -446,6 +446,8 @@ async function bootstrap() {
             }
 
             let criminalLogHtml = '';
+            let dossierStoriesHtml = '';
+
             if (Array.isArray(capturedCriminals) && capturedCriminals.length > 0) {
                 const cards = capturedCriminals.map(c => `
                     <div class="criminal-log-card">
@@ -476,6 +478,49 @@ async function bootstrap() {
                         </div>
                     </div>
                 `;
+
+                const dossierCards = capturedCriminals.map((c, idx) => `
+                    <div class="dossier-story-card">
+                        <div class="dossier-header-bar">
+                            <span class="dossier-id">DOSSIER #${(c.id || `FB-${idx + 1}`).toUpperCase()}</span>
+                            <div class="dossier-badge-row">
+                                ${c.interpol ? '<span class="wanted-badge interpol">INTERPOL</span>' : ''}
+                                ${c.fbi ? '<span class="wanted-badge fbi">FBI</span>' : ''}
+                                ${c.conviction ? '<span class="wanted-badge conviction">CONVICTED</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="dossier-main-row">
+                            <div class="dossier-portrait-box">
+                                <img src="${c.avatar}" class="dossier-portrait-img" alt="${c.name}" onerror="this.src='assets/avatars/placeholder.png'" />
+                                <div class="dossier-bounty-tag">BOUNTY $${c.baseValue}</div>
+                            </div>
+                            <div class="dossier-text-details">
+                                <h4 class="dossier-target-name">${c.name}</h4>
+                                <div class="dossier-narrative-box incident-box">
+                                    <div class="dossier-box-label">📋 CRIMINAL INCIDENT RECORD</div>
+                                    <div class="dossier-box-content">${c.incident || 'Known High-Priority Fugitive Case'}</div>
+                                </div>
+                                <div class="dossier-narrative-box hunt-box" style="--action-color: ${c.attackColor}">
+                                    <div class="dossier-box-label" style="color: ${c.attackColor}">⚡ OPERATIONAL HUNT NARRATIVE (WHAT HUNTER DID)</div>
+                                    <div class="dossier-box-content">
+                                        The Hunter tracked down <strong>${c.name}</strong> on the 2D grid matrix. Selecting tactical action <span class="action-badge" style="background:${c.attackColor}; color:#000;">${c.attackIcon} ${c.attackName}</span>, the Hunter successfully executed <em>"${c.pastAction}"</em> on the target, securing <strong>+${c.finalValue} pts</strong>.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                dossierStoriesHtml = `
+                    <div class="dossier-toggle-wrap">
+                        <button id="toggle-dossiers-btn" class="cyber-btn secondary story-toggle-btn">
+                            <span>📖 VIEW FULL CASE DOSSIERS & HUNT STORIES (${capturedCriminals.length})</span>
+                        </button>
+                    </div>
+                    <div id="full-dossiers-container" class="full-dossiers-container hidden">
+                        ${dossierCards}
+                    </div>
+                `;
             } else if (selectedMode === 'mode1') {
                 criminalLogHtml = `
                     <div class="criminal-log-section">
@@ -489,6 +534,7 @@ async function bootstrap() {
 
             container.innerHTML = `
         ${criminalLogHtml}
+        ${dossierStoriesHtml}
         <div class="score-formula-badge">
             <div class="formula-title">SCORE CALCULATION FORMULA</div>
             <div class="formula-desc">Target Values × 60% + Remaining Time Bonus × 40%</div>
@@ -524,6 +570,18 @@ async function bootstrap() {
             </div>
         </div>
     `;
+
+            const toggleBtn = container.querySelector('#toggle-dossiers-btn');
+            const dossiersWrap = container.querySelector('#full-dossiers-container');
+            if (toggleBtn && dossiersWrap) {
+                toggleBtn.addEventListener('click', () => {
+                    dossiersWrap.classList.toggle('hidden');
+                    const isHidden = dossiersWrap.classList.contains('hidden');
+                    toggleBtn.querySelector('span').innerText = isHidden
+                        ? `📖 VIEW FULL CASE DOSSIERS & HUNT STORIES (${capturedCriminals.length})`
+                        : `🙈 HIDE CASE DOSSIERS & HUNT STORIES`;
+                });
+            }
 
             container.classList.remove('hidden');
         }
