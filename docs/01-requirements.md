@@ -169,6 +169,13 @@ _Last updated: 2026-07-23_
 - **16.1 [REFINED]** Post-game overlay card renders a dedicated Criminal Punishment & Capture Log summary table.
 - **16.2 [REFINED]** Log details criminal avatar, name, punishment executed by player, base bounty value, and final payout earned.
 
+### 17. Advanced Pursuit & Squad AI
+
+- **17.1 [REFINED]** Police Patrol hazards execute predictive intercept calculations, pathfinding 2 grid tiles ahead of the Hunter's current direction vector.
+- **17.2 [REFINED]** Police Patrol hazards trigger a Squad Radio Alert state when within 3 grid units of the player, displaying visual HUD indicators and signaling squad backup.
+- **17.3 [REFINED]** Crime Boss hazards utilize client-side A* pathfinding (`Pathfinder.js`) to navigate around snake body segments and trap the player.
+- **17.4 [REFINED]** Death Reaper hazards stalk the Hunter's tail tip segment, constricting movement space as the snake grows.
+
 ---
 
 ## Open Blockers — Resolution Status

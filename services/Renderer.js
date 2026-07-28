@@ -369,6 +369,14 @@ export class Renderer {
         this.ctx.textBaseline = 'bottom';
         this.ctx.fillText(name.toUpperCase(), centerX, py + cs - 1);
 
+        // Squad Alert Badge for Police Pursuit
+        if (hazard.squadAlert) {
+            this.ctx.fillStyle = '#ff0037';
+            this.ctx.font = '900 8px Rajdhani';
+            this.ctx.textBaseline = 'top';
+            this.ctx.fillText('📡 ALERT', centerX, py - 10);
+        }
+
         this.ctx.restore?.();
     }
 
