@@ -6,7 +6,8 @@
         "Interpol_Red_Notice": true,
         "FBI_Most_Wanted": true,
         "Conviction_Status": false,
-        "Computed_Value": 100
+        "Computed_Value": 100,
+        "Incident": "International art and cultural artifact theft"
     },
     {
         "ID": "fb-002",
@@ -15,7 +16,8 @@
         "Interpol_Red_Notice": false,
         "FBI_Most_Wanted": true,
         "Conviction_Status": false,
-        "Computed_Value": 80
+        "Computed_Value": 80,
+        "Incident": "Boeing 727 aircraft hijacking and ransom extortion"
     },
     {
         "ID": "fb-003",
@@ -24,7 +26,8 @@
         "Interpol_Red_Notice": false,
         "FBI_Most_Wanted": false,
         "Conviction_Status": true,
-        "Computed_Value": 20
+        "Computed_Value": 20,
+        "Incident": "Municipal code violation and evasion"
     },
     {
         "ID": "fb-004",
@@ -33,7 +36,8 @@
         "Interpol_Red_Notice": false,
         "FBI_Most_Wanted": false,
         "Conviction_Status": false,
-        "Computed_Value": 10
+        "Computed_Value": 10,
+        "Incident": "Unspecified civil infraction"
     },
     {
         "ID": "fb-005",
@@ -42,7 +46,8 @@
         "Interpol_Red_Notice": false,
         "FBI_Most_Wanted": false,
         "Conviction_Status": true,
-        "Computed_Value": 30
+        "Computed_Value": 30,
+        "Incident": "Industrial espionage and trade secret theft"
     },
     {
         "ID": "fb-006",
@@ -51,7 +56,8 @@
         "Interpol_Red_Notice": true,
         "FBI_Most_Wanted": true,
         "Conviction_Status": false,
-        "Computed_Value": 95
+        "Computed_Value": 95,
+        "Incident": "Port of Los Angeles cargo vessel explosion and smuggling"
     },
     {
         "ID": "fb-007",
@@ -60,7 +66,8 @@
         "Interpol_Red_Notice": false,
         "FBI_Most_Wanted": true,
         "Conviction_Status": true,
-        "Computed_Value": 50
+        "Computed_Value": 50,
+        "Incident": "Wall Street securities fraud and insider trading"
     },
     {
         "ID": "fb-008",
@@ -69,7 +76,8 @@
         "Interpol_Red_Notice": true,
         "FBI_Most_Wanted": false,
         "Conviction_Status": false,
-        "Computed_Value": 75
+        "Computed_Value": 75,
+        "Incident": "Nakatomi Plaza vault heist and hostage siege"
     },
     {
         "ID": "fb-009",
@@ -78,7 +86,8 @@
         "Interpol_Red_Notice": true,
         "FBI_Most_Wanted": false,
         "Conviction_Status": false,
-        "Computed_Value": 85
+        "Computed_Value": 85,
+        "Incident": "Global satellite extortion and syndicate operations"
     },
     {
         "ID": "fb-010",
@@ -87,7 +96,8 @@
         "Interpol_Red_Notice": false,
         "FBI_Most_Wanted": true,
         "Conviction_Status": false,
-        "Computed_Value": 70
+        "Computed_Value": 70,
+        "Incident": "LexCorp illegal arms trafficking and conspiracy"
     },
     {
         "ID": "fb-011",
@@ -96,6 +106,7 @@
         "Interpol_Red_Notice": true,
         "FBI_Most_Wanted": true,
         "Conviction_Status": true,
-        "Computed_Value": 90
+        "Computed_Value": 90,
+        "Incident": "On September 12, 2015, four-year-old Seya Sadewmi went missing overnight from her family home. Her body was discovered the following day near a canal close to her house. Autopsy reports confirmed that she had been sexually assaulted and strangled."
     }
 ]

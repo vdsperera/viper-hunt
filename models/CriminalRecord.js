@@ -8,8 +8,9 @@ export class CriminalRecord {
      * @param {boolean} params.FBI_Most_Wanted
      * @param {boolean} params.Conviction_Status
      * @param {number} params.Computed_Value
+     * @param {string} [params.Incident]
      */
-    constructor({ ID, Name, Avatar_Asset_Path, Interpol_Red_Notice, FBI_Most_Wanted, Conviction_Status, Computed_Value }) {
+    constructor({ ID, Name, Avatar_Asset_Path, Interpol_Red_Notice, FBI_Most_Wanted, Conviction_Status, Computed_Value, Incident }) {
         if (typeof ID !== 'string' || !ID.trim()) {
             throw new TypeError("CriminalRecord validation failed: 'ID' must be a non-empty string.");
         }
@@ -31,6 +32,9 @@ export class CriminalRecord {
         if (!Number.isInteger(Computed_Value) || Computed_Value < 0 || Computed_Value > 100) {
             throw new TypeError("CriminalRecord validation failed: 'Computed_Value' must be an integer between 0 and 100.");
         }
+        if (Incident !== undefined && typeof Incident !== 'string') {
+            throw new TypeError("CriminalRecord validation failed: 'Incident' must be a string.");
+        }
 
         this.ID = ID;
         this.Name = Name;
@@ -39,5 +43,6 @@ export class CriminalRecord {
         this.FBI_Most_Wanted = FBI_Most_Wanted;
         this.Conviction_Status = Conviction_Status;
         this.Computed_Value = Computed_Value;
+        this.Incident = Incident || '';
     }
 }

@@ -1,17 +1,17 @@
 import { CriminalRecord } from '../models/CriminalRecord.js';
 
 const DEFAULT_FALLBACK_DATA = [
-    { ID: "fb-001", Name: "Carmen Sandiego", Avatar_Asset_Path: "assets/avatars/carmen.png", Interpol_Red_Notice: true, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 100 },
-    { ID: "fb-002", Name: "DB Cooper", Avatar_Asset_Path: "assets/avatars/cooper.png", Interpol_Red_Notice: false, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 80 },
-    { ID: "fb-003", Name: "John Doe", Avatar_Asset_Path: "assets/avatars/placeholder.png", Interpol_Red_Notice: false, FBI_Most_Wanted: false, Conviction_Status: true, Computed_Value: 20 },
-    { ID: "fb-004", Name: "Jane Doe", Avatar_Asset_Path: "assets/avatars/placeholder.png", Interpol_Red_Notice: false, FBI_Most_Wanted: false, Conviction_Status: false, Computed_Value: 10 },
-    { ID: "fb-005", Name: "Arthur Slugworth", Avatar_Asset_Path: "assets/avatars/slugworth.png", Interpol_Red_Notice: false, FBI_Most_Wanted: false, Conviction_Status: true, Computed_Value: 30 },
-    { ID: "fb-006", Name: "Keyser Soze", Avatar_Asset_Path: "assets/avatars/soze.png", Interpol_Red_Notice: true, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 95 },
-    { ID: "fb-007", Name: "Gordon Gekko", Avatar_Asset_Path: "assets/avatars/gekko.png", Interpol_Red_Notice: false, FBI_Most_Wanted: true, Conviction_Status: true, Computed_Value: 50 },
-    { ID: "fb-008", Name: "Hans Gruber", Avatar_Asset_Path: "assets/avatars/gruber.png", Interpol_Red_Notice: true, FBI_Most_Wanted: false, Conviction_Status: false, Computed_Value: 75 },
-    { ID: "fb-009", Name: "Ernst Stavro Blofeld", Avatar_Asset_Path: "assets/avatars/blofeld.png", Interpol_Red_Notice: true, FBI_Most_Wanted: false, Conviction_Status: false, Computed_Value: 85 },
-    { ID: "fb-010", Name: "Lex Luthor", Avatar_Asset_Path: "assets/avatars/luthor.png", Interpol_Red_Notice: false, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 70 },
-    { ID: "fb-011", Name: "Saman Jayalath", Avatar_Asset_Path: "assets/avatars/jayalath.png", Interpol_Red_Notice: true, FBI_Most_Wanted: true, Conviction_Status: true, Computed_Value: 90 }
+    { ID: "fb-001", Name: "Carmen Sandiego", Avatar_Asset_Path: "assets/avatars/carmen.png", Interpol_Red_Notice: true, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 100, Incident: "International art and cultural artifact theft" },
+    { ID: "fb-002", Name: "DB Cooper", Avatar_Asset_Path: "assets/avatars/cooper.png", Interpol_Red_Notice: false, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 80, Incident: "Boeing 727 aircraft hijacking and ransom extortion" },
+    { ID: "fb-003", Name: "John Doe", Avatar_Asset_Path: "assets/avatars/placeholder.png", Interpol_Red_Notice: false, FBI_Most_Wanted: false, Conviction_Status: true, Computed_Value: 20, Incident: "Municipal code violation and evasion" },
+    { ID: "fb-004", Name: "Jane Doe", Avatar_Asset_Path: "assets/avatars/placeholder.png", Interpol_Red_Notice: false, FBI_Most_Wanted: false, Conviction_Status: false, Computed_Value: 10, Incident: "Unspecified civil infraction" },
+    { ID: "fb-005", Name: "Arthur Slugworth", Avatar_Asset_Path: "assets/avatars/slugworth.png", Interpol_Red_Notice: false, FBI_Most_Wanted: false, Conviction_Status: true, Computed_Value: 30, Incident: "Industrial espionage and trade secret theft" },
+    { ID: "fb-006", Name: "Keyser Soze", Avatar_Asset_Path: "assets/avatars/soze.png", Interpol_Red_Notice: true, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 95, Incident: "Port of Los Angeles cargo vessel explosion and smuggling" },
+    { ID: "fb-007", Name: "Gordon Gekko", Avatar_Asset_Path: "assets/avatars/gekko.png", Interpol_Red_Notice: false, FBI_Most_Wanted: true, Conviction_Status: true, Computed_Value: 50, Incident: "Wall Street securities fraud and insider trading" },
+    { ID: "fb-008", Name: "Hans Gruber", Avatar_Asset_Path: "assets/avatars/gruber.png", Interpol_Red_Notice: true, FBI_Most_Wanted: false, Conviction_Status: false, Computed_Value: 75, Incident: "Nakatomi Plaza vault heist and hostage siege" },
+    { ID: "fb-009", Name: "Ernst Stavro Blofeld", Avatar_Asset_Path: "assets/avatars/blofeld.png", Interpol_Red_Notice: true, FBI_Most_Wanted: false, Conviction_Status: false, Computed_Value: 85, Incident: "Global satellite extortion and syndicate operations" },
+    { ID: "fb-010", Name: "Lex Luthor", Avatar_Asset_Path: "assets/avatars/luthor.png", Interpol_Red_Notice: false, FBI_Most_Wanted: true, Conviction_Status: false, Computed_Value: 70, Incident: "LexCorp illegal arms trafficking and conspiracy" },
+    { ID: "fb-011", Name: "Saman Jayalath", Avatar_Asset_Path: "assets/avatars/jayalath.png", Interpol_Red_Notice: true, FBI_Most_Wanted: true, Conviction_Status: true, Computed_Value: 90, Incident: "High Court of Negombo capital conviction case (Kotadeniyawa, Sep 2015)" }
 ];
 
 export class RegistryService {
