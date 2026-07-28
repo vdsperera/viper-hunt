@@ -135,6 +135,7 @@ async function bootstrap() {
         // or true to fetch and sync live rules with Firebase Firestore.
         useCloudConfig: true,
         showCriminalPunishmentLog: false, // Admin System Level Configuration (default: false / hidden)
+        voiceStyle: 'tactical_swat', // Admin System Level Configuration ('tactical_swat', 'gritty_syndicate', 'cyber_command')
         fps: 12,
         targetsPerLevel: 5,
         maxSimultaneousTargets: 3,
@@ -236,6 +237,9 @@ async function bootstrap() {
     }
 
     const audioService = new AudioService();
+    if (gameRules.voiceStyle) {
+        audioService.setVoiceStyle(gameRules.voiceStyle);
+    }
 
     const sfxToggleBtn = document.getElementById('sfx-toggle-btn');
     const bgmToggleBtn = document.getElementById('bgm-toggle-btn');
