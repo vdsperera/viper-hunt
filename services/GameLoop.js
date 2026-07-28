@@ -14,6 +14,7 @@ export class GameLoop {
         this.renderer = deps.renderer;
         this.scoreManager = deps.scoreManager;
         this.audioService = deps.audioService;
+        this.adaptiveDifficultyService = deps.adaptiveDifficultyService;
         this.playMode = deps.playMode || 'mode1';
         this.attackManager = deps.attackManager;
     }
@@ -64,6 +65,10 @@ export class GameLoop {
     update() {
         if (!this.gridState || !this.gridState.hunter) return;
 
+        if (this.adaptiveDifficultyService && typeof this.adaptiveDifficultyService.tick === 'function') {
+            this.adaptiveDifficultyService.tick();
+        }
+
         // 1. Process Input
         const currentDir = this.gridState.hunter.Direction;
         const nextDir = this.inputHandler ? this.inputHandler.getCurrentDirection(currentDir) : currentDir;
@@ -94,6 +99,9 @@ export class GameLoop {
             const lastRes = this.collisionDetector.lastResult || {};
             this.lastCollisionReason = lastRes.reason || 'Tactical Operation Failed';
             this.lastHazardName = lastRes.hazardName || null;
+            if (this.adaptiveDifficultyService && typeof this.adaptiveDifficultyService.recordFailure === 'function') {
+                this.adaptiveDifficultyService.recordFailure();
+            }
             if (this.audioService && typeof this.audioService.playGameOverSound === 'function') {
                 this.audioService.playGameOverSound();
             }
@@ -125,6 +133,14 @@ export class GameLoop {
                     icon: attackResult.icon,
                     color: attackResult.color
                 };
+            }
+
+            if (this.adaptiveDifficultyService && typeof this.adaptiveDifficultyService.recordCapture === 'function') {
+                const tier = this.adaptiveDifficultyService.recordCapture();
+                if (tier && tier.bountyMult && tier.bountyMult !== 1.0) {
+                    addedScore = Math.round(addedScore * tier.bountyMult);
+                    popupText += ` [${tier.name}]`;
+                }
             }
 
             if (this.audioService && typeof this.audioService.playAttackSound === 'function') {

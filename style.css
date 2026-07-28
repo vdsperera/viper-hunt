@@ -108,7 +108,21 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.05);
+}
+
+.threat-badge {
+    border-color: rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+}
+
+.threat-value {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px currentColor;
+    transition: color 0.3s ease;
 }
 
 .hud-label {
