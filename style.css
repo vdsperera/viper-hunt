@@ -1141,5 +1141,180 @@ select option {
     padding: 6px 0;
 }
 
+/* ==========================================================================
+   Full Case Dossier & Hunt Story View
+   ========================================================================== */
+.dossier-toggle-wrap {
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.story-toggle-btn {
+    font-size: 0.78rem;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(170, 0, 255, 0.2));
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    color: var(--primary-cyan);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+}
+
+.story-toggle-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(170, 0, 255, 0.4));
+    border-color: var(--primary-cyan);
+    box-shadow: 0 0 16px var(--cyan-glow);
+}
+
+.full-dossiers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 14px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.full-dossiers-container.hidden {
+    display: none;
+}
+
+.dossier-story-card {
+    background: rgba(10, 15, 28, 0.95);
+    border: 1px solid rgba(0, 240, 255, 0.35);
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(0, 240, 255, 0.05);
+    text-align: left;
+}
+
+.dossier-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+}
+
+.dossier-id {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--primary-cyan);
+    text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.dossier-badge-row {
+    display: flex;
+    gap: 4px;
+}
+
+.wanted-badge.conviction {
+    background: rgba(255, 184, 0, 0.2);
+    color: #ffb800;
+    border: 1px solid #ffb800;
+}
+
+.dossier-main-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.dossier-portrait-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.dossier-portrait-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid var(--primary-cyan);
+    box-shadow: 0 0 10px var(--cyan-glow);
+    background: #000;
+}
+
+.dossier-bounty-tag {
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--snake-green);
+    background: rgba(0, 255, 136, 0.12);
+    border: 1px solid var(--snake-green);
+    border-radius: 4px;
+    padding: 2px 6px;
+    white-space: nowrap;
+}
+
+.dossier-text-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.dossier-target-name {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.dossier-narrative-box {
+    background: rgba(6, 10, 20, 0.85);
+    border-radius: 6px;
+    padding: 6px 10px;
+    border-left: 3px solid #00f0ff;
+}
+
+.dossier-narrative-box.incident-box {
+    border-left-color: #ffb800;
+}
+
+.dossier-narrative-box.hunt-box {
+    border-left-color: var(--action-color, #00f0ff);
+}
+
+.dossier-box-label {
+    font-family: var(--font-heading);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #94a3b8;
+    margin-bottom: 3px;
+}
+
+.dossier-narrative-box.incident-box .dossier-box-label {
+    color: #ffb800;
+}
+
+.dossier-box-content {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: #e2e8f0;
+    line-height: 1.35;
+}
+
+.action-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
 
 

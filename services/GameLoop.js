@@ -106,7 +106,8 @@ export class GameLoop {
                 popupText = `+${addedScore} (${attackResult.attackName.toUpperCase()})`;
                 popupColor = attackResult.color || '#00ff88';
                 attackInfo = {
-                    name: attackResult.pastAction || attackResult.attackName,
+                    name: attackResult.attackName,
+                    pastAction: attackResult.pastAction || attackResult.attackName,
                     icon: attackResult.icon,
                     color: attackResult.color
                 };
