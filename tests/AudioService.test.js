@@ -4,11 +4,12 @@ import test from 'node:test';
 
 test('AudioService Test Suite', async (t) => {
 
-    await t.test('TC-050: instantiates AudioService with default enabled status', () => {
+    await t.test('TC-050: instantiates AudioService with default enabled status and default track', () => {
         const audioService = new AudioService();
         assert.strictEqual(audioService.sfxEnabled, true);
         assert.strictEqual(audioService.bgmEnabled, true);
         assert.strictEqual(audioService.voiceEnabled, true);
+        assert.strictEqual(audioService.currentBgmTrack, 'neon_chase');
         assert.strictEqual(audioService.ctx, null);
     });
 
@@ -72,5 +73,18 @@ test('AudioService Test Suite', async (t) => {
             audioService.playVoiceComm('Dispatch, target neutralized!');
             audioService._playRadioCrackle();
         });
+    });
+
+    await t.test('TC-057: supports BGM track selection and switching across valid tracks', () => {
+        const audioService = new AudioService();
+        audioService.setBgmTrack('cyber_standoff');
+        assert.strictEqual(audioService.currentBgmTrack, 'cyber_standoff');
+
+        audioService.setBgmTrack('shadow_grid');
+        assert.strictEqual(audioService.currentBgmTrack, 'shadow_grid');
+
+        // Invalid track ID should be ignored
+        audioService.setBgmTrack('invalid_track_id');
+        assert.strictEqual(audioService.currentBgmTrack, 'shadow_grid');
     });
 });
