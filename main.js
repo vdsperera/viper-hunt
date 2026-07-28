@@ -14,6 +14,7 @@ import { LevelManager } from './services/LevelManager.js';
 import { HunterEntity, Direction } from './models/HunterEntity.js';
 import { FirebaseService } from './services/FirebaseService.js';
 import { AttackManager } from './services/AttackManager.js';
+import { AudioService } from './services/AudioService.js';
 
 const uiOverlay = document.getElementById('overlay-ui');
 const uiTitle = document.getElementById('overlay-title');
@@ -344,9 +345,10 @@ async function bootstrap() {
         const renderer = new Renderer('game-canvas', 32);
         const targetManager = new TargetManager(gridState, registryService);
         const scoreManager = new ScoreManager();
+        const audioService = new AudioService();
 
         gameLoop = new GameLoop(gameRules.fps, {
-            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, playMode: selectedMode
+            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, audioService, playMode: selectedMode
         });
 
         const levelManager = new LevelManager(
