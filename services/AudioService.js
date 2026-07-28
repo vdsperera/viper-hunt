@@ -4,7 +4,6 @@ export class AudioService {
         this.sfxEnabled = config.sfxEnabled ?? true;
         this.bgmEnabled = config.bgmEnabled ?? true;
         this.voiceEnabled = config.voiceEnabled ?? true;
-        this.showCaptureLog = config.showCaptureLog ?? false;
         this.currentBgmTrack = config.currentBgmTrack || 'neon_chase';
         this.sfxVolume = config.sfxVolume ?? 0.8;
         this.bgmVolume = config.bgmVolume ?? 0.4;
@@ -29,7 +28,6 @@ export class AudioService {
                     if (typeof parsed.sfxEnabled === 'boolean') this.sfxEnabled = parsed.sfxEnabled;
                     if (typeof parsed.bgmEnabled === 'boolean') this.bgmEnabled = parsed.bgmEnabled;
                     if (typeof parsed.voiceEnabled === 'boolean') this.voiceEnabled = parsed.voiceEnabled;
-                    if (typeof parsed.showCaptureLog === 'boolean') this.showCaptureLog = parsed.showCaptureLog;
                     if (typeof parsed.currentBgmTrack === 'string') this.currentBgmTrack = parsed.currentBgmTrack;
                     if (typeof parsed.sfxVolume === 'number') this.sfxVolume = parsed.sfxVolume;
                     if (typeof parsed.bgmVolume === 'number') this.bgmVolume = parsed.bgmVolume;
@@ -47,7 +45,6 @@ export class AudioService {
                     sfxEnabled: this.sfxEnabled,
                     bgmEnabled: this.bgmEnabled,
                     voiceEnabled: this.voiceEnabled,
-                    showCaptureLog: this.showCaptureLog,
                     currentBgmTrack: this.currentBgmTrack,
                     sfxVolume: this.sfxVolume,
                     bgmVolume: this.bgmVolume
@@ -60,11 +57,6 @@ export class AudioService {
 
     setSfxEnabled(enabled) {
         this.sfxEnabled = Boolean(enabled);
-        this.saveConfig();
-    }
-
-    setShowCaptureLog(enabled) {
-        this.showCaptureLog = Boolean(enabled);
         this.saveConfig();
     }
 

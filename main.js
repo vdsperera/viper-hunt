@@ -134,6 +134,7 @@ async function bootstrap() {
         // Set useCloudConfig to false for local testing (uses local default rules directly),
         // or true to fetch and sync live rules with Firebase Firestore.
         useCloudConfig: true,
+        showCriminalPunishmentLog: false, // Admin System Level Configuration (default: false / hidden)
         fps: 12,
         targetsPerLevel: 5,
         maxSimultaneousTargets: 3,
@@ -239,7 +240,6 @@ async function bootstrap() {
     const sfxToggleBtn = document.getElementById('sfx-toggle-btn');
     const bgmToggleBtn = document.getElementById('bgm-toggle-btn');
     const voiceToggleBtn = document.getElementById('voice-toggle-btn');
-    const logConfigToggleBtn = document.getElementById('log-config-toggle-btn');
     const sfxVolSlider = document.getElementById('sfx-volume-slider');
     const bgmVolSlider = document.getElementById('bgm-volume-slider');
     const bgmTrackSelect = document.getElementById('bgm-track-select');
@@ -256,10 +256,6 @@ async function bootstrap() {
         if (voiceToggleBtn) {
             voiceToggleBtn.classList.toggle('off', !audioService.voiceEnabled);
             voiceToggleBtn.querySelector('span').innerText = audioService.voiceEnabled ? '🎙 VOICE: ON' : '🔇 VOICE: OFF';
-        }
-        if (logConfigToggleBtn) {
-            logConfigToggleBtn.classList.toggle('off', !audioService.showCaptureLog);
-            logConfigToggleBtn.querySelector('span').innerText = audioService.showCaptureLog ? '📋 LOG: ON' : '📋 LOG: OFF';
         }
         if (sfxVolSlider) {
             sfxVolSlider.value = audioService.sfxVolume;
@@ -291,13 +287,6 @@ async function bootstrap() {
     if (voiceToggleBtn) {
         voiceToggleBtn.addEventListener('click', () => {
             audioService.setVoiceEnabled(!audioService.voiceEnabled);
-            syncAudioUi();
-        });
-    }
-
-    if (logConfigToggleBtn) {
-        logConfigToggleBtn.addEventListener('click', () => {
-            audioService.setShowCaptureLog(!audioService.showCaptureLog);
             syncAudioUi();
         });
     }
@@ -638,8 +627,8 @@ async function bootstrap() {
                     </div>
                 `;
 
-                // 2. Build Compact Log (Only if audioService.showCaptureLog is enabled in settings)
-                if (audioService && audioService.showCaptureLog) {
+                // 2. Build Compact Log (Only if gameRules.showCriminalPunishmentLog is set to true in Admin Game Rules)
+                if (gameRules && gameRules.showCriminalPunishmentLog === true) {
                     const logCards = capturedCriminals.map(c => `
                         <div class="criminal-log-card">
                             <div class="criminal-log-avatar-wrap">
@@ -675,7 +664,7 @@ async function bootstrap() {
                         </div>
                     `;
                 }
-            } else if (selectedMode === 'mode1' && audioService && audioService.showCaptureLog) {
+            } else if (selectedMode === 'mode1' && gameRules && gameRules.showCriminalPunishmentLog === true) {
                 compactLogHtml = `
                     <div class="criminal-log-section">
                         <div class="criminal-log-title">
