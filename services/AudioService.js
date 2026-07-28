@@ -5,6 +5,7 @@ export class AudioService {
         this.bgmEnabled = config.bgmEnabled ?? true;
         this.voiceEnabled = config.voiceEnabled ?? true;
         this.currentBgmTrack = config.currentBgmTrack || 'neon_chase';
+        this.voiceStyle = config.voiceStyle || 'tactical_swat';
         this.sfxVolume = config.sfxVolume ?? 0.8;
         this.bgmVolume = config.bgmVolume ?? 0.4;
 
@@ -12,11 +13,29 @@ export class AudioService {
         this.bgmTimer = null;
         this.shouldBgmPlay = false;
 
+        this.cachedVoices = [];
         this.loadConfig();
+        this._initVoices();
     }
 
     get enabled() {
         return this.sfxEnabled || this.bgmEnabled || this.voiceEnabled;
+    }
+
+    _initVoices() {
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            const load = () => {
+                try {
+                    this.cachedVoices = window.speechSynthesis.getVoices() || [];
+                } catch (e) {
+                    this.cachedVoices = [];
+                }
+            };
+            load();
+            if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                window.speechSynthesis.onvoiceschanged = load;
+            }
+        }
     }
 
     loadConfig() {
@@ -29,6 +48,7 @@ export class AudioService {
                     if (typeof parsed.bgmEnabled === 'boolean') this.bgmEnabled = parsed.bgmEnabled;
                     if (typeof parsed.voiceEnabled === 'boolean') this.voiceEnabled = parsed.voiceEnabled;
                     if (typeof parsed.currentBgmTrack === 'string') this.currentBgmTrack = parsed.currentBgmTrack;
+                    if (typeof parsed.voiceStyle === 'string') this.voiceStyle = parsed.voiceStyle;
                     if (typeof parsed.sfxVolume === 'number') this.sfxVolume = parsed.sfxVolume;
                     if (typeof parsed.bgmVolume === 'number') this.bgmVolume = parsed.bgmVolume;
                 }
@@ -46,6 +66,7 @@ export class AudioService {
                     bgmEnabled: this.bgmEnabled,
                     voiceEnabled: this.voiceEnabled,
                     currentBgmTrack: this.currentBgmTrack,
+                    voiceStyle: this.voiceStyle,
                     sfxVolume: this.sfxVolume,
                     bgmVolume: this.bgmVolume
                 }));
@@ -73,6 +94,14 @@ export class AudioService {
     setVoiceEnabled(enabled) {
         this.voiceEnabled = Boolean(enabled);
         this.saveConfig();
+    }
+
+    setVoiceStyle(styleId) {
+        const validStyles = ['tactical_swat', 'gritty_syndicate', 'cyber_command'];
+        if (validStyles.includes(styleId)) {
+            this.voiceStyle = styleId;
+            this.saveConfig();
+        }
     }
 
     setBgmTrack(trackId) {
@@ -113,7 +142,7 @@ export class AudioService {
     }
 
     /**
-     * Play live tactical radio voice-over comms using browser Web Speech API
+     * Play live tactical radio voice-over comms using browser Web Speech API with crime-theme pitch & tone
      * @param {string} phrase Text phrase to speak over tactical radio
      */
     playVoiceComm(phrase) {
@@ -123,15 +152,66 @@ export class AudioService {
                 window.speechSynthesis.cancel();
 
                 const utterance = new SpeechSynthesisUtterance(phrase);
-                utterance.rate = 1.15;
-                utterance.pitch = 0.85;
                 utterance.volume = this.sfxVolume;
 
-                const voices = window.speechSynthesis.getVoices();
-                const englishVoice = voices.find(v => v.lang && v.lang.startsWith('en') && (v.name.includes('Male') || v.name.includes('Google') || v.name.includes('Natural')));
-                if (englishVoice) {
-                    utterance.voice = englishVoice;
+                // Configure voice tone & pitch parameters based on selected voice style
+                let basePitch = 0.65;
+                let baseRate = 1.10;
+                let preferredKeywords = ['David', 'Mark', 'George', 'Daniel', 'Richard', 'Male', 'Google UK English Male', 'Google US English Male', 'Natural'];
+
+                if (this.voiceStyle === 'gritty_syndicate') {
+                    basePitch = 0.55;
+                    baseRate = 1.02;
+                    preferredKeywords = ['David', 'Mark', 'George', 'Male', 'Alex', 'Natural'];
+                } else if (this.voiceStyle === 'cyber_command') {
+                    basePitch = 0.72;
+                    baseRate = 1.18;
+                    preferredKeywords = ['Command', 'Male', 'Google', 'Natural', 'David'];
                 }
+
+                // Retrieve indexed or live browser voices
+                let voices = this.cachedVoices;
+                if (!voices || voices.length === 0) {
+                    voices = window.speechSynthesis.getVoices() || [];
+                }
+
+                const englishVoices = voices.filter(v => v.lang && v.lang.startsWith('en'));
+                let selectedVoice = null;
+
+                // Priority 1: Match preferred deep/male/tactical voice names
+                for (const keyword of preferredKeywords) {
+                    const match = englishVoices.find(v => v.name && v.name.toLowerCase().includes(keyword.toLowerCase()));
+                    if (match) {
+                        selectedVoice = match;
+                        break;
+                    }
+                }
+
+                // Priority 2: Any English male voice
+                if (!selectedVoice) {
+                    selectedVoice = englishVoices.find(v => v.name && v.name.toLowerCase().includes('male'));
+                }
+
+                // Priority 3: First available English voice
+                if (!selectedVoice && englishVoices.length > 0) {
+                    selectedVoice = englishVoices[0];
+                }
+
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                }
+
+                // If no explicit male voice matched or using fallback OS voice, deepen pitch further to eliminate soft female tone
+                const isExplicitMale = selectedVoice && (
+                    selectedVoice.name.toLowerCase().includes('male') ||
+                    selectedVoice.name.toLowerCase().includes('david') ||
+                    selectedVoice.name.toLowerCase().includes('mark') ||
+                    selectedVoice.name.toLowerCase().includes('george') ||
+                    selectedVoice.name.toLowerCase().includes('daniel')
+                );
+
+                utterance.pitch = isExplicitMale ? basePitch : Math.max(0.35, basePitch - 0.15);
+                utterance.rate = baseRate;
 
                 this._playRadioCrackle();
                 window.speechSynthesis.speak(utterance);
@@ -142,7 +222,7 @@ export class AudioService {
     }
 
     /**
-     * Procedural tactical radio static crackle effect
+     * Procedural tactical radio static crackle & walkie-talkie squelch effect
      */
     _playRadioCrackle() {
         if (!this.sfxEnabled) return;
@@ -151,26 +231,27 @@ export class AudioService {
             if (!this.ctx) return;
 
             const now = this.ctx.currentTime;
-            const duration = 0.12;
+            const duration = 0.14;
             const bufferSize = Math.floor(this.ctx.sampleRate * duration);
             if (bufferSize <= 0) return;
 
             const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
             const output = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) {
-                output[i] = (Math.random() * 2 - 1) * (i % 4 === 0 ? 0.8 : 0.2);
+                output[i] = (Math.random() * 2 - 1) * (i % 3 === 0 ? 0.85 : 0.25);
             }
 
             const noise = this.ctx.createBufferSource();
             noise.buffer = buffer;
 
+            // Telephone / SWAT radio bandpass filter (300Hz - 3400Hz)
             const filter = this.ctx.createBiquadFilter();
             filter.type = 'bandpass';
-            filter.frequency.value = 2400;
-            filter.Q.value = 3.5;
+            filter.frequency.value = 2200;
+            filter.Q.value = 2.8;
 
             const gain = this.ctx.createGain();
-            gain.gain.setValueAtTime(0.12 * this.sfxVolume, now);
+            gain.gain.setValueAtTime(0.15 * this.sfxVolume, now);
             gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
             noise.connect(filter);
@@ -178,6 +259,20 @@ export class AudioService {
             gain.connect(this.ctx.destination);
 
             noise.start(now);
+
+            // Add walkie-talkie radio frequency squelch chirp
+            const squelchOsc = this.ctx.createOscillator();
+            const squelchGain = this.ctx.createGain();
+            squelchOsc.type = 'sine';
+            squelchOsc.frequency.setValueAtTime(1800, now);
+            squelchOsc.frequency.exponentialRampToValueAtTime(2400, now + 0.05);
+            squelchGain.gain.setValueAtTime(0.04 * this.sfxVolume, now);
+            squelchGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+            squelchOsc.connect(squelchGain);
+            squelchGain.connect(this.ctx.destination);
+            squelchOsc.start(now);
+            squelchOsc.stop(now + 0.05);
         } catch (e) {
             console.warn('[AudioService] Radio crackle error:', e);
         }
@@ -325,19 +420,19 @@ export class AudioService {
 
             if (name.includes('police') || name === '1') {
                 if (this.sfxEnabled) this._playPoliceSiren();
-                this.playVoiceComm("Dispatch, target apprehended! Surrendered to Police Custody.");
+                this.playVoiceComm("Busted! One less criminal on the streets.");
             } else if (name.includes('cage') || name.includes('caging') || name === '2') {
                 if (this.sfxEnabled) this._playCageLock();
-                this.playVoiceComm("Heavy containment unit deployed! Target locked down.");
+                this.playVoiceComm("Locked in the cage. Payback delivered!");
             } else if (name.includes('shot') || name.includes('shooting') || name === '3') {
                 if (this.sfxEnabled) this._playBlasterShot();
-                this.playVoiceComm("Tactical engage! Target shot down in action.");
+                this.playVoiceComm("Target down! Clean hit.");
             } else if (name.includes('butcher') || name.includes('butchering') || name === '4') {
                 if (this.sfxEnabled) this._playHeavySlash();
-                this.playVoiceComm("Breach completed! Target eliminated.");
+                this.playVoiceComm("Scum eliminated! Contract fulfilled.");
             } else {
                 if (this.sfxEnabled) this._playDefaultChirp();
-                this.playVoiceComm("Target intercepted!");
+                this.playVoiceComm("Another target wiped out.");
             }
         } catch (e) {
             console.warn('[AudioService] SFX playback error:', e);
@@ -349,7 +444,7 @@ export class AudioService {
      */
     playGameOverSound() {
         try {
-            this.playVoiceComm("Agent down! Operation failed!");
+            this.playVoiceComm("Wiped out in the underworld! Game over.");
             if (!this.sfxEnabled) return;
             this._initContext();
             if (!this.ctx) return;

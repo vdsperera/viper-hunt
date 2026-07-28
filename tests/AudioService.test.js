@@ -87,4 +87,34 @@ test('AudioService Test Suite', async (t) => {
         audioService.setBgmTrack('invalid_track_id');
         assert.strictEqual(audioService.currentBgmTrack, 'shadow_grid');
     });
+
+    await t.test('TC-058: supports voiceStyle selection across valid tactical crime voice personas', () => {
+        const audioService = new AudioService();
+        assert.strictEqual(audioService.voiceStyle, 'tactical_swat');
+
+        audioService.setVoiceStyle('gritty_syndicate');
+        assert.strictEqual(audioService.voiceStyle, 'gritty_syndicate');
+
+        audioService.setVoiceStyle('cyber_command');
+        assert.strictEqual(audioService.voiceStyle, 'cyber_command');
+
+        // Invalid voice style should be ignored
+        audioService.setVoiceStyle('invalid_voice_style');
+        assert.strictEqual(audioService.voiceStyle, 'cyber_command');
+    });
+
+    await t.test('TC-059: handles voice comm dispatch with tactical voice personas without throwing errors', () => {
+        const audioService = new AudioService();
+        assert.doesNotThrow(() => {
+            audioService.setVoiceStyle('tactical_swat');
+            audioService.playVoiceComm('SWAT team in position!');
+
+            audioService.setVoiceStyle('gritty_syndicate');
+            audioService.playVoiceComm('Syndicate intercept confirmed!');
+
+            audioService.setVoiceStyle('cyber_command');
+            audioService.playVoiceComm('Cyber command breach authorized!');
+        });
+    });
 });
+
