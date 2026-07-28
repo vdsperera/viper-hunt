@@ -8,6 +8,7 @@ test('AudioService Test Suite', async (t) => {
         const audioService = new AudioService();
         assert.strictEqual(audioService.sfxEnabled, true);
         assert.strictEqual(audioService.bgmEnabled, true);
+        assert.strictEqual(audioService.voiceEnabled, true);
         assert.strictEqual(audioService.ctx, null);
     });
 
@@ -29,18 +30,21 @@ test('AudioService Test Suite', async (t) => {
         });
     });
 
-    await t.test('TC-053: supports sfx and bgm toggle controls', () => {
+    await t.test('TC-053: supports sfx, bgm, and voice toggle controls', () => {
         const audioService = new AudioService();
         audioService.setSfxEnabled(false);
         assert.strictEqual(audioService.sfxEnabled, false);
         audioService.setBgmEnabled(false);
         assert.strictEqual(audioService.bgmEnabled, false);
+        audioService.setVoiceEnabled(false);
+        assert.strictEqual(audioService.voiceEnabled, false);
 
         assert.doesNotThrow(() => {
             audioService.playAttackSound('police');
             audioService.playGameOverSound();
             audioService.startBGM();
             audioService.stopBGM();
+            audioService.playVoiceComm('Testing radio dispatch');
         });
     });
 
@@ -60,5 +64,13 @@ test('AudioService Test Suite', async (t) => {
 
         audioService.setBgmVolume(-0.5);
         assert.strictEqual(audioService.bgmVolume, 0.0);
+    });
+
+    await t.test('TC-056: handles voice comms and radio crackle without throwing errors in Node environment', () => {
+        const audioService = new AudioService();
+        assert.doesNotThrow(() => {
+            audioService.playVoiceComm('Dispatch, target neutralized!');
+            audioService._playRadioCrackle();
+        });
     });
 });
