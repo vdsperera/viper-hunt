@@ -329,6 +329,37 @@ async function bootstrap() {
         updateStartBtnState();
     });
 
+    // Gemini API Key UI wiring
+    const geminiApiKeyInput = document.getElementById('gemini-api-key-input');
+    const saveGeminiKeyBtn = document.getElementById('save-gemini-key-btn');
+    const geminiStatusBadge = document.getElementById('gemini-status-badge');
+    const globalLlmService = new LLMService();
+
+    function syncGeminiUiStatus() {
+        const hasKey = globalLlmService.hasApiKey();
+        if (geminiStatusBadge) {
+            if (hasKey) {
+                geminiStatusBadge.classList.add('active');
+                geminiStatusBadge.innerText = '⚡ GEMINI AI ONLINE';
+            } else {
+                geminiStatusBadge.classList.remove('active');
+                geminiStatusBadge.innerText = '⚙️ PROCEDURAL ENGINE';
+            }
+        }
+        if (geminiApiKeyInput && hasKey) {
+            geminiApiKeyInput.value = globalLlmService.getApiKey() || '';
+        }
+    }
+
+    if (saveGeminiKeyBtn && geminiApiKeyInput) {
+        syncGeminiUiStatus();
+        saveGeminiKeyBtn.addEventListener('click', () => {
+            const val = geminiApiKeyInput.value.trim();
+            globalLlmService.setApiKey(val);
+            syncGeminiUiStatus();
+        });
+    }
+
     let gameLoop;
     let hudInterval;
 

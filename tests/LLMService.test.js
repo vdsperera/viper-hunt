@@ -35,4 +35,60 @@ test('LLMService Test Suite', async (t) => {
         assert.strictEqual(quest.answers.length, 3);
         assert.strictEqual(quest.answers.filter(a => a.isCorrect).length, 1);
     });
+
+    await t.test('TC-074: manages Gemini API Key state correctly', () => {
+        const llm = new LLMService();
+        assert.strictEqual(llm.hasApiKey(), false);
+        llm.setApiKey('test_key_123');
+        assert.strictEqual(llm.getApiKey(), 'test_key_123');
+        assert.strictEqual(llm.hasApiKey(), true);
+        llm.setApiKey(null);
+        assert.strictEqual(llm.hasApiKey(), false);
+    });
+
+    await t.test('TC-075: generates hazard radio taunts for all hazard types', async () => {
+        const llm = new LLMService();
+        const policeTaunt = await llm.generateHazardTaunt('police_patrol', 'Police Patrol', 2);
+        const bossTaunt = await llm.generateHazardTaunt('crime_boss', 'Crime Boss', 1);
+        const reaperTaunt = await llm.generateHazardTaunt('death_reaper', 'Death Reaper', 3);
+
+        assert.strictEqual(typeof policeTaunt, 'string');
+        assert.ok(policeTaunt.length > 5);
+        assert.strictEqual(typeof bossTaunt, 'string');
+        assert.ok(bossTaunt.length > 5);
+        assert.strictEqual(typeof reaperTaunt, 'string');
+        assert.ok(reaperTaunt.length > 5);
+    });
+
+    await t.test('TC-076: generates post-match news broadcast report', async () => {
+        const llm = new LLMService();
+        const report = await llm.generateNewsBroadcast({
+            totalScore: 1250,
+            capturesCount: 4,
+            causeOfDeath: 'Arrested by Police Patrol'
+        });
+
+        assert.strictEqual(typeof report, 'string');
+        assert.ok(report.includes('1250'));
+        assert.ok(report.includes('4'));
+    });
+
+    await t.test('TC-077: generates target backstory rap sheet', async () => {
+        const llm = new LLMService();
+        const backstory = await llm.generateTargetBackstory('Cyber Fugitive X', 95);
+        assert.strictEqual(typeof backstory, 'string');
+        assert.ok(backstory.length > 10);
+    });
+
+    await t.test('TC-078: handles mock Gemini API calls gracefully', async () => {
+        const llm = new LLMService('mock_api_key');
+        // Override _callGeminiApi for deterministic testing
+        llm._callGeminiApi = async () => 'Mock Gemini AI Generated Response';
+
+        const confession = await llm.generateConfession('Viper Target', 'Trial', 'Police Custody');
+        assert.strictEqual(confession, '"Mock Gemini AI Generated Response"');
+
+        const taunt = await llm.generateHazardTaunt('police_patrol', 'Police', 2);
+        assert.strictEqual(taunt, 'Mock Gemini AI Generated Response');
+    });
 });

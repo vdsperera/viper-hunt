@@ -176,6 +176,12 @@ _Last updated: 2026-07-23_
 - **17.3 [REFINED]** Crime Boss hazards utilize client-side A* pathfinding (`Pathfinder.js`) to navigate around snake body segments and trap the player.
 - **17.4 [REFINED]** Death Reaper hazards stalk the Hunter's tail tip segment, constricting movement space as the snake grows.
 
+### 18. Google Gemini API Integration
+
+- **18.1 [REFINED]** `LLMService` integrates with Google AI Studio Gemini API (`gemini-1.5-flash`) via user-configured API key or local storage persistence.
+- **18.2 [REFINED]** System generates real-time hazard radio dispatches (`generateHazardTaunt`), post-match Cyberpunk News Broadcast reports (`generateNewsBroadcast`), criminal rap sheet backstories (`generateTargetBackstory`), and dynamic Mode 3 soul questions (`generateQuestQuestion`).
+- **18.3 [REFINED]** All AI endpoints feature an automatic 4-second timeout and instant procedural fallback engines to guarantee 100% offline gameplay compatibility.
+
 ---
 
 ## Open Blockers — Resolution Status
