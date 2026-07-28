@@ -239,6 +239,7 @@ async function bootstrap() {
     const sfxToggleBtn = document.getElementById('sfx-toggle-btn');
     const bgmToggleBtn = document.getElementById('bgm-toggle-btn');
     const voiceToggleBtn = document.getElementById('voice-toggle-btn');
+    const logConfigToggleBtn = document.getElementById('log-config-toggle-btn');
     const sfxVolSlider = document.getElementById('sfx-volume-slider');
     const bgmVolSlider = document.getElementById('bgm-volume-slider');
     const bgmTrackSelect = document.getElementById('bgm-track-select');
@@ -255,6 +256,10 @@ async function bootstrap() {
         if (voiceToggleBtn) {
             voiceToggleBtn.classList.toggle('off', !audioService.voiceEnabled);
             voiceToggleBtn.querySelector('span').innerText = audioService.voiceEnabled ? '🎙 VOICE: ON' : '🔇 VOICE: OFF';
+        }
+        if (logConfigToggleBtn) {
+            logConfigToggleBtn.classList.toggle('off', !audioService.showCaptureLog);
+            logConfigToggleBtn.querySelector('span').innerText = audioService.showCaptureLog ? '📋 LOG: ON' : '📋 LOG: OFF';
         }
         if (sfxVolSlider) {
             sfxVolSlider.value = audioService.sfxVolume;
@@ -286,6 +291,13 @@ async function bootstrap() {
     if (voiceToggleBtn) {
         voiceToggleBtn.addEventListener('click', () => {
             audioService.setVoiceEnabled(!audioService.voiceEnabled);
+            syncAudioUi();
+        });
+    }
+
+    if (logConfigToggleBtn) {
+        logConfigToggleBtn.addEventListener('click', () => {
+            audioService.setShowCaptureLog(!audioService.showCaptureLog);
             syncAudioUi();
         });
     }
@@ -626,42 +638,44 @@ async function bootstrap() {
                     </div>
                 `;
 
-                // 2. Build Compact Log (Collapsible)
-                const logCards = capturedCriminals.map(c => `
-                    <div class="criminal-log-card">
-                        <div class="criminal-log-avatar-wrap">
-                            <img src="${c.avatar}" class="criminal-log-avatar" alt="${c.name}" onerror="this.src='assets/avatars/placeholder.png'" />
-                        </div>
-                        <div class="criminal-log-info">
-                            <div class="criminal-log-name">${c.name}</div>
-                            <div class="criminal-log-action" style="--action-color: ${c.attackColor}">
-                                <span class="action-icon">${c.attackIcon}</span>
-                                <span class="action-text">${c.attackName}</span>
+                // 2. Build Compact Log (Only if audioService.showCaptureLog is enabled in settings)
+                if (audioService && audioService.showCaptureLog) {
+                    const logCards = capturedCriminals.map(c => `
+                        <div class="criminal-log-card">
+                            <div class="criminal-log-avatar-wrap">
+                                <img src="${c.avatar}" class="criminal-log-avatar" alt="${c.name}" onerror="this.src='assets/avatars/placeholder.png'" />
+                            </div>
+                            <div class="criminal-log-info">
+                                <div class="criminal-log-name">${c.name}</div>
+                                <div class="criminal-log-action" style="--action-color: ${c.attackColor}">
+                                    <span class="action-icon">${c.attackIcon}</span>
+                                    <span class="action-text">${c.attackName}</span>
+                                </div>
+                            </div>
+                            <div class="criminal-log-payout">
+                                <span class="payout-score">+${c.finalValue} pts</span>
+                                <span class="payout-base">Base: $${c.baseValue}</span>
                             </div>
                         </div>
-                        <div class="criminal-log-payout">
-                            <span class="payout-score">+${c.finalValue} pts</span>
-                            <span class="payout-base">Base: $${c.baseValue}</span>
-                        </div>
-                    </div>
-                `).join('');
+                    `).join('');
 
-                compactLogHtml = `
-                    <div class="log-toggle-wrap">
-                        <button id="toggle-compact-log-btn" class="cyber-btn secondary log-toggle-btn">
-                            <span>📋 EXPLAIN / VIEW COMPACT CAPTURE LOG (${capturedCriminals.length})</span>
-                        </button>
-                    </div>
-                    <div id="compact-log-container" class="criminal-log-section hidden">
-                        <div class="criminal-log-title">
-                            <span>CRIMINAL PUNISHMENT & CAPTURE LOG</span>
+                    compactLogHtml = `
+                        <div class="log-toggle-wrap">
+                            <button id="toggle-compact-log-btn" class="cyber-btn secondary log-toggle-btn">
+                                <span>📋 EXPLAIN / VIEW COMPACT CAPTURE LOG (${capturedCriminals.length})</span>
+                            </button>
                         </div>
-                        <div class="criminal-log-grid">
-                            ${logCards}
+                        <div id="compact-log-container" class="criminal-log-section hidden">
+                            <div class="criminal-log-title">
+                                <span>CRIMINAL PUNISHMENT & CAPTURE LOG</span>
+                            </div>
+                            <div class="criminal-log-grid">
+                                ${logCards}
+                            </div>
                         </div>
-                    </div>
-                `;
-            } else if (selectedMode === 'mode1') {
+                    `;
+                }
+            } else if (selectedMode === 'mode1' && audioService && audioService.showCaptureLog) {
                 compactLogHtml = `
                     <div class="criminal-log-section">
                         <div class="criminal-log-title">
