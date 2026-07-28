@@ -15,6 +15,7 @@ export class GameLoop {
         this.scoreManager = deps.scoreManager;
         this.audioService = deps.audioService;
         this.adaptiveDifficultyService = deps.adaptiveDifficultyService;
+        this.llmService = deps.llmService;
         this.playMode = deps.playMode || 'mode1';
         this.attackManager = deps.attackManager;
     }
@@ -147,9 +148,14 @@ export class GameLoop {
                 this.audioService.playAttackSound(attackIdToPlay);
             }
 
+            let confession = '';
+            if (this.llmService && typeof this.llmService._synthesizeProceduralConfession === 'function') {
+                confession = this.llmService._synthesizeProceduralConfession(capturedTarget.Name, capturedTarget.Incident, attackInfo.name);
+            }
+
             if (this.scoreManager) {
                 if (typeof this.scoreManager.recordCriminalCapture === 'function') {
-                    this.scoreManager.recordCriminalCapture(capturedTarget, attackInfo, addedScore);
+                    this.scoreManager.recordCriminalCapture(capturedTarget, attackInfo, addedScore, confession);
                 }
                 this.scoreManager.addCaptureValue(addedScore);
             }
