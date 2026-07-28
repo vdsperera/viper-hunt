@@ -191,7 +191,8 @@ async function bootstrap() {
             { level: 1, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }] },
             { level: 2, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }] },
             { level: 3, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }] }
-        ]
+        ],
+        geminiApiKey: firebaseConfig?.geminiApiKey || ''
     };
 
     let gameRules = { ...defaultRules };
@@ -213,6 +214,20 @@ async function bootstrap() {
         }
     } else {
         console.log("[main] Local testing mode active (useCloudConfig: false). Using local default rules directly:", gameRules);
+    }
+
+    const adminGeminiKey = (gameRules.geminiApiKey && gameRules.geminiApiKey.trim()) || (firebaseConfig && firebaseConfig.geminiApiKey && firebaseConfig.geminiApiKey.trim()) || '';
+    
+    // UI Status Badge for Admin Configured Gemini API Key
+    const geminiStatusBadge = document.getElementById('gemini-status-badge');
+    if (geminiStatusBadge) {
+        if (adminGeminiKey) {
+            geminiStatusBadge.classList.add('active');
+            geminiStatusBadge.innerText = '⚡ GEMINI AI ONLINE (ADMIN CONFIG)';
+        } else {
+            geminiStatusBadge.classList.remove('active');
+            geminiStatusBadge.innerText = '⚙️ PROCEDURAL ENGINE';
+        }
     }
 
     // TASK-012: Network integration (using fallback file as default since we have no live CSV setup)
@@ -329,37 +344,6 @@ async function bootstrap() {
         updateStartBtnState();
     });
 
-    // Gemini API Key UI wiring
-    const geminiApiKeyInput = document.getElementById('gemini-api-key-input');
-    const saveGeminiKeyBtn = document.getElementById('save-gemini-key-btn');
-    const geminiStatusBadge = document.getElementById('gemini-status-badge');
-    const globalLlmService = new LLMService();
-
-    function syncGeminiUiStatus() {
-        const hasKey = globalLlmService.hasApiKey();
-        if (geminiStatusBadge) {
-            if (hasKey) {
-                geminiStatusBadge.classList.add('active');
-                geminiStatusBadge.innerText = '⚡ GEMINI AI ONLINE';
-            } else {
-                geminiStatusBadge.classList.remove('active');
-                geminiStatusBadge.innerText = '⚙️ PROCEDURAL ENGINE';
-            }
-        }
-        if (geminiApiKeyInput && hasKey) {
-            geminiApiKeyInput.value = globalLlmService.getApiKey() || '';
-        }
-    }
-
-    if (saveGeminiKeyBtn && geminiApiKeyInput) {
-        syncGeminiUiStatus();
-        saveGeminiKeyBtn.addEventListener('click', () => {
-            const val = geminiApiKeyInput.value.trim();
-            globalLlmService.setApiKey(val);
-            syncGeminiUiStatus();
-        });
-    }
-
     let gameLoop;
     let hudInterval;
 
@@ -459,7 +443,7 @@ async function bootstrap() {
         const targetManager = new TargetManager(gridState, registryService);
         const scoreManager = new ScoreManager();
         const adaptiveDifficultyService = new AdaptiveDifficultyService();
-        const llmService = new LLMService();
+        const llmService = new LLMService(adminGeminiKey);
 
         const hudThreatLevel = document.getElementById('hud-threat-level');
         if (hudThreatLevel) {

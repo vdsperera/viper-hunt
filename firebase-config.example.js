@@ -9,5 +9,7 @@ export const firebaseConfig = {
     projectId: "YOUR_PROJECT_ID",
     storageBucket: "YOUR_STORAGE_BUCKET",
     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    appId: "YOUR_APP_ID",
+    // Admin Google AI Studio Gemini API key for real-time boss taunts & LLM features
+    geminiApiKey: "YOUR_GEMINI_API_KEY"
 };

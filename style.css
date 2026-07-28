@@ -1606,30 +1606,22 @@ select option {
 .gemini-config-bar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
     margin-top: 10px;
-    padding: 8px 12px;
+    padding: 8px 14px;
     background: rgba(15, 23, 42, 0.6);
     border: 1px dashed rgba(0, 240, 255, 0.3);
     border-radius: 8px;
     width: 100%;
 }
 
-.gemini-config-bar input {
-    flex: 1;
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    padding: 6px 10px;
-    background: rgba(5, 10, 20, 0.8);
-    border: 1px solid rgba(0, 240, 255, 0.3);
-    border-radius: 6px;
-    color: #ffffff;
-    outline: none;
-}
-
-.gemini-config-bar input:focus {
-    border-color: var(--primary-cyan);
-    box-shadow: 0 0 8px var(--cyan-glow);
+.config-bar-label {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--primary-cyan);
+    letter-spacing: 1px;
 }
 
 .badge-status {

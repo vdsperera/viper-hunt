@@ -52,7 +52,8 @@ async function init() {
             growthElite: { integerValue: "4" },
             bossMoveChance: { doubleValue: 0.4 },
             bossAggressiveness: { doubleValue: 0.6 },
-            bossMoveRange: { integerValue: "1" }
+            bossMoveRange: { integerValue: "1" },
+            geminiApiKey: { stringValue: "" }
         }
     };
 
