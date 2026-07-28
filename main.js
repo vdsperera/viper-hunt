@@ -468,18 +468,12 @@ async function bootstrap() {
                     </div>
                 `).join('');
 
-                criminalLogHtml = `
-                    <div class="criminal-log-section">
-                        <div class="criminal-log-title">
-                            <span>CRIMINAL PUNISHMENT & CAPTURE LOG</span>
-                        </div>
-                        <div class="criminal-log-grid">
-                            ${cards}
-                        </div>
-                    </div>
-                `;
+            let slideshowHtml = '';
+            let compactLogHtml = '';
 
-                const dossierCards = capturedCriminals.map((c, idx) => {
+            if (Array.isArray(capturedCriminals) && capturedCriminals.length > 0) {
+                // 1. Build Slideshow Slides
+                const slidesHtml = capturedCriminals.map((c, idx) => {
                     const actionName = (c.attackName || '').toLowerCase();
                     const color = c.attackColor || '#00f0ff';
                     const pts = c.finalValue || c.baseValue || 0;
@@ -498,30 +492,32 @@ async function bootstrap() {
                     }
 
                     return `
-                    <div class="dossier-story-card">
-                        <div class="dossier-header-bar">
-                            <span class="dossier-id">DOSSIER #${(c.id || `FB-${idx + 1}`).toUpperCase()}</span>
-                            <div class="dossier-badge-row">
-                                ${c.interpol ? '<span class="wanted-badge interpol">INTERPOL</span>' : ''}
-                                ${c.fbi ? '<span class="wanted-badge fbi">FBI</span>' : ''}
-                                ${c.conviction ? '<span class="wanted-badge conviction">CONVICTED</span>' : ''}
-                            </div>
-                        </div>
-                        <div class="dossier-main-row">
-                            <div class="dossier-portrait-box">
-                                <img src="${c.avatar}" class="dossier-portrait-img" alt="${c.name}" onerror="this.src='assets/avatars/placeholder.png'" />
-                                <div class="dossier-bounty-tag">BOUNTY $${c.baseValue}</div>
-                            </div>
-                            <div class="dossier-text-details">
-                                <h4 class="dossier-target-name">${c.name}</h4>
-                                <div class="dossier-narrative-box incident-box">
-                                    <div class="dossier-box-label">📋 CRIMINAL INCIDENT RECORD</div>
-                                    <div class="dossier-box-content">${c.incident || 'Known High-Priority Fugitive Case'}</div>
+                    <div class="slideshow-slide ${idx === 0 ? 'active' : ''}" data-index="${idx}">
+                        <div class="dossier-story-card">
+                            <div class="dossier-header-bar">
+                                <span class="dossier-id">DOSSIER #${(c.id || `FB-${idx + 1}`).toUpperCase()}</span>
+                                <div class="dossier-badge-row">
+                                    ${c.interpol ? '<span class="wanted-badge interpol">INTERPOL</span>' : ''}
+                                    ${c.fbi ? '<span class="wanted-badge fbi">FBI</span>' : ''}
+                                    ${c.conviction ? '<span class="wanted-badge conviction">CONVICTED</span>' : ''}
                                 </div>
-                                <div class="dossier-narrative-box hunt-box" style="--action-color: ${c.attackColor}">
-                                    <div class="dossier-box-label" style="color: ${c.attackColor}">⚡ OPERATIONAL HUNT NARRATIVE (WHAT HUNTER DID)</div>
-                                    <div class="dossier-box-content">
-                                        ${narrativeText}
+                            </div>
+                            <div class="dossier-main-row">
+                                <div class="dossier-portrait-box">
+                                    <img src="${c.avatar}" class="dossier-portrait-img" alt="${c.name}" onerror="this.src='assets/avatars/placeholder.png'" />
+                                    <div class="dossier-bounty-tag">BOUNTY $${c.baseValue}</div>
+                                </div>
+                                <div class="dossier-text-details">
+                                    <h4 class="dossier-target-name">${c.name}</h4>
+                                    <div class="dossier-narrative-box incident-box">
+                                        <div class="dossier-box-label">📋 CRIMINAL INCIDENT RECORD</div>
+                                        <div class="dossier-box-content">${c.incident || 'Known High-Priority Fugitive Case'}</div>
+                                    </div>
+                                    <div class="dossier-narrative-box hunt-box" style="--action-color: ${c.attackColor}">
+                                        <div class="dossier-box-label" style="color: ${c.attackColor}">⚡ OPERATIONAL HUNT NARRATIVE (WHAT HUNTER DID)</div>
+                                        <div class="dossier-box-content">
+                                            ${narrativeText}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -530,18 +526,72 @@ async function bootstrap() {
                 `;
                 }).join('');
 
-                dossierStoriesHtml = `
-                    <div class="dossier-toggle-wrap">
-                        <button id="toggle-dossiers-btn" class="cyber-btn secondary story-toggle-btn">
-                            <span>📖 VIEW FULL CASE DOSSIERS & HUNT STORIES (${capturedCriminals.length})</span>
+                const dotsHtml = capturedCriminals.map((_, idx) => `
+                    <span class="slide-dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></span>
+                `).join('');
+
+                slideshowHtml = `
+                    <div class="hunt-slideshow-section">
+                        <div class="slideshow-header-bar">
+                            <div class="slideshow-title">
+                                <span class="pulse-icon">🎬</span>
+                                <span>OPERATIONAL HUNT NARRATIVE SLIDESHOW</span>
+                            </div>
+                            <div class="slideshow-controls">
+                                <button id="slideshow-prev-btn" class="cyber-btn nav-btn" title="Previous Slide"><span>⏮ PREV</span></button>
+                                <button id="slideshow-pause-btn" class="cyber-btn pause-btn" title="Pause / Play Slideshow"><span>⏸ PAUSE</span></button>
+                                <button id="slideshow-next-btn" class="cyber-btn nav-btn" title="Next Slide"><span>NEXT ⏭</span></button>
+                            </div>
+                        </div>
+                        <div class="slideshow-viewport">
+                            ${slidesHtml}
+                        </div>
+                        <div class="slideshow-footer-bar">
+                            <div id="slideshow-dots" class="slideshow-dots-row">
+                                ${dotsHtml}
+                            </div>
+                            <div id="slideshow-counter" class="slideshow-counter-tag">DOSSIER 1 OF ${capturedCriminals.length}</div>
+                        </div>
+                    </div>
+                `;
+
+                // 2. Build Compact Log (Collapsible)
+                const logCards = capturedCriminals.map(c => `
+                    <div class="criminal-log-card">
+                        <div class="criminal-log-avatar-wrap">
+                            <img src="${c.avatar}" class="criminal-log-avatar" alt="${c.name}" onerror="this.src='assets/avatars/placeholder.png'" />
+                        </div>
+                        <div class="criminal-log-info">
+                            <div class="criminal-log-name">${c.name}</div>
+                            <div class="criminal-log-action" style="--action-color: ${c.attackColor}">
+                                <span class="action-icon">${c.attackIcon}</span>
+                                <span class="action-text">${c.attackName}</span>
+                            </div>
+                        </div>
+                        <div class="criminal-log-payout">
+                            <span class="payout-score">+${c.finalValue} pts</span>
+                            <span class="payout-base">Base: $${c.baseValue}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                compactLogHtml = `
+                    <div class="log-toggle-wrap">
+                        <button id="toggle-compact-log-btn" class="cyber-btn secondary log-toggle-btn">
+                            <span>📋 EXPLAIN / VIEW COMPACT CAPTURE LOG (${capturedCriminals.length})</span>
                         </button>
                     </div>
-                    <div id="full-dossiers-container" class="full-dossiers-container hidden">
-                        ${dossierCards}
+                    <div id="compact-log-container" class="criminal-log-section hidden">
+                        <div class="criminal-log-title">
+                            <span>CRIMINAL PUNISHMENT & CAPTURE LOG</span>
+                        </div>
+                        <div class="criminal-log-grid">
+                            ${logCards}
+                        </div>
                     </div>
                 `;
             } else if (selectedMode === 'mode1') {
-                criminalLogHtml = `
+                compactLogHtml = `
                     <div class="criminal-log-section">
                         <div class="criminal-log-title">
                             <span>CRIMINAL PUNISHMENT & CAPTURE LOG</span>
@@ -552,8 +602,8 @@ async function bootstrap() {
             }
 
             container.innerHTML = `
-        ${criminalLogHtml}
-        ${dossierStoriesHtml}
+        ${slideshowHtml}
+        ${compactLogHtml}
         <div class="score-formula-badge">
             <div class="formula-title">SCORE CALCULATION FORMULA</div>
             <div class="formula-desc">Target Values × 60% + Remaining Time Bonus × 40%</div>
@@ -590,15 +640,95 @@ async function bootstrap() {
         </div>
     `;
 
-            const toggleBtn = container.querySelector('#toggle-dossiers-btn');
-            const dossiersWrap = container.querySelector('#full-dossiers-container');
-            if (toggleBtn && dossiersWrap) {
-                toggleBtn.addEventListener('click', () => {
-                    dossiersWrap.classList.toggle('hidden');
-                    const isHidden = dossiersWrap.classList.contains('hidden');
-                    toggleBtn.querySelector('span').innerText = isHidden
-                        ? `📖 VIEW FULL CASE DOSSIERS & HUNT STORIES (${capturedCriminals.length})`
-                        : `🙈 HIDE CASE DOSSIERS & HUNT STORIES`;
+            // Slideshow Interactivity
+            let slideshowTimer = null;
+            let currentSlideIndex = 0;
+            let isSlideshowPlaying = true;
+
+            const slides = container.querySelectorAll('.slideshow-slide');
+            const dots = container.querySelectorAll('.slide-dot');
+            const counterTag = container.querySelector('#slideshow-counter');
+            const prevBtn = container.querySelector('#slideshow-prev-btn');
+            const pauseBtn = container.querySelector('#slideshow-pause-btn');
+            const nextBtn = container.querySelector('#slideshow-next-btn');
+
+            if (slides.length > 0) {
+                function goToSlide(index) {
+                    slides.forEach(s => s.classList.remove('active'));
+                    dots.forEach(d => d.classList.remove('active'));
+
+                    currentSlideIndex = (index + slides.length) % slides.length;
+                    slides[currentSlideIndex].classList.add('active');
+                    if (dots[currentSlideIndex]) dots[currentSlideIndex].classList.add('active');
+                    if (counterTag) counterTag.innerText = `DOSSIER ${currentSlideIndex + 1} OF ${slides.length}`;
+                }
+
+                function startSlideshow() {
+                    if (slideshowTimer) clearInterval(slideshowTimer);
+                    isSlideshowPlaying = true;
+                    if (pauseBtn) pauseBtn.innerHTML = '<span>⏸ PAUSE</span>';
+                    slideshowTimer = setInterval(() => {
+                        goToSlide(currentSlideIndex + 1);
+                    }, 4000);
+                }
+
+                function pauseSlideshow() {
+                    if (slideshowTimer) clearInterval(slideshowTimer);
+                    slideshowTimer = null;
+                    isSlideshowPlaying = false;
+                    if (pauseBtn) pauseBtn.innerHTML = '<span>▶ PLAY</span>';
+                }
+
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', () => {
+                        goToSlide(currentSlideIndex - 1);
+                        if (isSlideshowPlaying) startSlideshow();
+                    });
+                }
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        goToSlide(currentSlideIndex + 1);
+                        if (isSlideshowPlaying) startSlideshow();
+                    });
+                }
+
+                if (pauseBtn) {
+                    pauseBtn.addEventListener('click', () => {
+                        if (isSlideshowPlaying) {
+                            pauseSlideshow();
+                        } else {
+                            startSlideshow();
+                        }
+                    });
+                }
+
+                dots.forEach((dot, idx) => {
+                    dot.addEventListener('click', () => {
+                        goToSlide(idx);
+                        if (isSlideshowPlaying) startSlideshow();
+                    });
+                });
+
+                if (slides.length > 1) {
+                    startSlideshow();
+                } else {
+                    if (pauseBtn) pauseBtn.style.display = 'none';
+                    if (prevBtn) prevBtn.style.display = 'none';
+                    if (nextBtn) nextBtn.style.display = 'none';
+                }
+            }
+
+            // Compact Log toggle listener
+            const toggleLogBtn = container.querySelector('#toggle-compact-log-btn');
+            const compactLogWrap = container.querySelector('#compact-log-container');
+            if (toggleLogBtn && compactLogWrap) {
+                toggleLogBtn.addEventListener('click', () => {
+                    compactLogWrap.classList.toggle('hidden');
+                    const isHidden = compactLogWrap.classList.contains('hidden');
+                    toggleLogBtn.querySelector('span').innerText = isHidden
+                        ? `📋 EXPLAIN / VIEW COMPACT CAPTURE LOG (${capturedCriminals.length})`
+                        : `🙈 HIDE COMPACT CAPTURE LOG`;
                 });
             }
 
