@@ -445,29 +445,6 @@ async function bootstrap() {
         `;
             }
 
-            let criminalLogHtml = '';
-            let dossierStoriesHtml = '';
-
-            if (Array.isArray(capturedCriminals) && capturedCriminals.length > 0) {
-                const cards = capturedCriminals.map(c => `
-                    <div class="criminal-log-card">
-                        <div class="criminal-log-avatar-wrap">
-                            <img src="${c.avatar}" class="criminal-log-avatar" alt="${c.name}" onerror="this.src='assets/avatars/placeholder.png'" />
-                        </div>
-                        <div class="criminal-log-info">
-                            <div class="criminal-log-name">${c.name}</div>
-                            <div class="criminal-log-action" style="--action-color: ${c.attackColor}">
-                                <span class="action-icon">${c.attackIcon}</span>
-                                <span class="action-text">${c.attackName}</span>
-                            </div>
-                        </div>
-                        <div class="criminal-log-payout">
-                            <span class="payout-score">+${c.finalValue} pts</span>
-                            <span class="payout-base">Base: $${c.baseValue}</span>
-                        </div>
-                    </div>
-                `).join('');
-
             let slideshowHtml = '';
             let compactLogHtml = '';
 
