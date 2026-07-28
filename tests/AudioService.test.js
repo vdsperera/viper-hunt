@@ -9,6 +9,7 @@ test('AudioService Test Suite', async (t) => {
         assert.strictEqual(audioService.sfxEnabled, true);
         assert.strictEqual(audioService.bgmEnabled, true);
         assert.strictEqual(audioService.voiceEnabled, true);
+        assert.strictEqual(audioService.showCaptureLog, false);
         assert.strictEqual(audioService.currentBgmTrack, 'neon_chase');
         assert.strictEqual(audioService.ctx, null);
     });
@@ -86,5 +87,14 @@ test('AudioService Test Suite', async (t) => {
         // Invalid track ID should be ignored
         audioService.setBgmTrack('invalid_track_id');
         assert.strictEqual(audioService.currentBgmTrack, 'shadow_grid');
+    });
+
+    await t.test('TC-058: defaults showCaptureLog to false and supports setting toggle', () => {
+        const audioService = new AudioService();
+        assert.strictEqual(audioService.showCaptureLog, false);
+        audioService.setShowCaptureLog(true);
+        assert.strictEqual(audioService.showCaptureLog, true);
+        audioService.setShowCaptureLog(false);
+        assert.strictEqual(audioService.showCaptureLog, false);
     });
 });
