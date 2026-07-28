@@ -13,6 +13,7 @@ export class GameLoop {
         this.targetManager = deps.targetManager;
         this.renderer = deps.renderer;
         this.scoreManager = deps.scoreManager;
+        this.audioService = deps.audioService;
         this.playMode = deps.playMode || 'mode1';
         this.attackManager = deps.attackManager;
     }
@@ -43,10 +44,9 @@ export class GameLoop {
             
             try {
                 this.update();
-                this.renderer.renderFrame(this.gridState);
-            } catch (error) {
-                console.error("GameLoop hard failure:", error);
-                this.stop(); // Safe fallback to avoid silent cyclic exceptions
+            } catch (e) {
+                console.error("Uncaught exception in GameLoop update tick:", e);
+                this.stop();
             }
         }
 
@@ -56,15 +56,18 @@ export class GameLoop {
     }
 
     update() {
-        if (!this.gridState.hunter) return;
+        if (!this.gridState || !this.gridState.hunter) return;
 
         // 1. Process Input
         const currentDir = this.gridState.hunter.Direction;
-        const nextDir = this.inputHandler.getCurrentDirection(currentDir);
-        this.gridState.hunter.Direction = nextDir;
+        const nextDir = this.inputHandler ? this.inputHandler.getCurrentDirection(currentDir) : currentDir;
+        if (nextDir) {
+            this.gridState.hunter.Direction = nextDir;
+        }
 
         // 2. Move Hunter & Hazards
         this.gridState.moveHunter();
+
         if (typeof this.gridState.moveHazards === 'function') {
             this.gridState.moveHazards();
         } else if (typeof this.gridState.moveBoss === 'function') {
@@ -85,6 +88,9 @@ export class GameLoop {
             const lastRes = this.collisionDetector.lastResult || {};
             this.lastCollisionReason = lastRes.reason || 'Tactical Operation Failed';
             this.lastHazardName = lastRes.hazardName || null;
+            if (this.audioService && typeof this.audioService.playGameOverSound === 'function') {
+                this.audioService.playGameOverSound();
+            }
             this.stop();
             return;
         }
@@ -99,12 +105,14 @@ export class GameLoop {
             let popupText = `+${addedScore}`;
             let popupColor = '#00ff88';
             let attackInfo = { name: 'Standard Capture', icon: '👮', color: '#00f0ff' };
+            let attackIdToPlay = 'default';
 
             if (this.playMode === 'mode1' && this.attackManager) {
                 const attackResult = this.attackManager.consumeActiveAttack(capturedTarget.Computed_Value);
                 addedScore = attackResult.finalValue;
                 popupText = `+${addedScore} (${attackResult.attackName.toUpperCase()})`;
                 popupColor = attackResult.color || '#00ff88';
+                attackIdToPlay = attackResult.attackId || attackResult.attackName;
                 attackInfo = {
                     name: attackResult.attackName,
                     pastAction: attackResult.pastAction || attackResult.attackName,
@@ -112,7 +120,11 @@ export class GameLoop {
                     color: attackResult.color
                 };
             }
-            
+
+            if (this.audioService && typeof this.audioService.playAttackSound === 'function') {
+                this.audioService.playAttackSound(attackIdToPlay);
+            }
+
             if (this.scoreManager) {
                 if (typeof this.scoreManager.recordCriminalCapture === 'function') {
                     this.scoreManager.recordCriminalCapture(capturedTarget, attackInfo, addedScore);
@@ -135,6 +147,10 @@ export class GameLoop {
             if (this.levelManager) {
                 this.levelManager.handleCapture();
             }
+        }
+
+        if (this.renderer && typeof this.renderer.renderFrame === 'function') {
+            this.renderer.renderFrame(this.gridState);
         }
     }
 }
