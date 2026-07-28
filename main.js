@@ -15,6 +15,7 @@ import { HunterEntity, Direction } from './models/HunterEntity.js';
 import { FirebaseService } from './services/FirebaseService.js';
 import { AttackManager } from './services/AttackManager.js';
 import { AudioService } from './services/AudioService.js';
+import { AdaptiveDifficultyService } from './services/AdaptiveDifficultyService.js';
 
 const uiOverlay = document.getElementById('overlay-ui');
 const uiTitle = document.getElementById('overlay-title');
@@ -409,9 +410,20 @@ async function bootstrap() {
         const renderer = new Renderer('game-canvas', 32);
         const targetManager = new TargetManager(gridState, registryService);
         const scoreManager = new ScoreManager();
+        const adaptiveDifficultyService = new AdaptiveDifficultyService();
+
+        const hudThreatLevel = document.getElementById('hud-threat-level');
+        if (hudThreatLevel) {
+            hudThreatLevel.innerText = adaptiveDifficultyService.currentTier.label;
+            hudThreatLevel.style.color = adaptiveDifficultyService.currentTier.color;
+            adaptiveDifficultyService.onTierChange = (tier) => {
+                hudThreatLevel.innerText = tier.label;
+                hudThreatLevel.style.color = tier.color;
+            };
+        }
 
         gameLoop = new GameLoop(gameRules.fps, {
-            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, audioService, playMode: selectedMode
+            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, audioService, adaptiveDifficultyService, playMode: selectedMode
         });
 
         const levelManager = new LevelManager(
