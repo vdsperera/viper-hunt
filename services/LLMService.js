@@ -22,7 +22,7 @@ export class LLMService {
     }
 
     /**
-     * Call Google AI Studio Gemini API endpoint with timeout and error handling
+     * Call Google AI Studio Gemini / Gemma API endpoint with model fallbacks, timeout, and error handling
      * @param {string} prompt
      * @param {string} systemInstruction
      * @returns {Promise<string|null>}
@@ -30,45 +30,54 @@ export class LLMService {
     async _callGeminiApi(prompt, systemInstruction = "You are a dramatic cyberpunk game narrator.") {
         if (!this.hasApiKey()) return null;
 
-        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-        const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+        const candidateModels = [
+            'gemma-4-26b-a4b-it',
+            'gemma-4-31b-it',
+            'gemini-3.6-flash',
+            'gemini-3.5-flash'
+        ];
 
-        try {
-            const url = `${this.geminiEndpoint}?key=${encodeURIComponent(this.apiKey)}`;
-            const payload = {
-                contents: [
-                    {
-                        parts: [{ text: `${systemInstruction}\n\nTask: ${prompt}` }]
+        for (const model of candidateModels) {
+            const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(this.apiKey)}`;
+                const payload = {
+                    contents: [
+                        {
+                            parts: [{ text: `${systemInstruction}\n\nTask: ${prompt}` }]
+                        }
+                    ],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 150
                     }
-                ],
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 150
+                };
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    signal: controller ? controller.signal : undefined
+                });
+
+                if (timeoutId) clearTimeout(timeoutId);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text && text.trim()) return text.trim();
+                } else {
+                    console.warn(`[LLMService] Gemini API model ${model} returned status ${response.status}`);
                 }
-            };
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-                signal: controller ? controller.signal : undefined
-            });
-
-            if (timeoutId) clearTimeout(timeoutId);
-
-            if (!response.ok) {
-                console.warn(`[LLMService] Gemini API returned status ${response.status}`);
-                return null;
+            } catch (e) {
+                if (timeoutId) clearTimeout(timeoutId);
+                console.warn(`[LLMService] Gemini API call for ${model} failed:`, e.message || e);
             }
-
-            const data = await response.json();
-            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            return text ? text.trim() : null;
-        } catch (e) {
-            if (timeoutId) clearTimeout(timeoutId);
-            console.warn("[LLMService] Gemini API call failed, using procedural fallback:", e.message || e);
-            return null;
         }
+
+        return null;
     }
 
     /**
