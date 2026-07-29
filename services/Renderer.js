@@ -593,8 +593,10 @@ export class Renderer {
         const paddingX = 6;
         const pillWidth = textWidth + paddingX * 2;
         const pillHeight = fontSize + 6;
-        const pillX = px + cs / 2 - pillWidth / 2;
+        const rawPillX = px + cs / 2 - pillWidth / 2;
+        const pillX = Math.max(4, Math.min(this.canvas.width - pillWidth - 4, rawPillX));
         const pillY = py - pillHeight - 2;
+        const actualY = pillY < 4 ? py + cs + 4 : pillY;
 
         // Draw glowing floating pill behind text
         this.ctx.fillStyle = tagBg;
@@ -603,7 +605,6 @@ export class Renderer {
         this.ctx.shadowBlur = 6;
         this.ctx.shadowColor = tagBorderColor;
 
-        const actualY = pillY < 0 ? py + cs + 2 : pillY;
         if (this.ctx.beginPath) {
             this.ctx.beginPath();
             if (this.ctx.roundRect) {
@@ -621,9 +622,10 @@ export class Renderer {
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         
+        const drawX = pillX + pillWidth / 2;
         const drawY = actualY + pillHeight / 2;
         if (this.ctx.fillText) {
-            this.ctx.fillText(labelText, px + cs / 2, drawY);
+            this.ctx.fillText(labelText, drawX, drawY);
         }
         this.ctx.restore?.();
     }

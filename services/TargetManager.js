@@ -28,10 +28,15 @@ export class TargetManager {
         let attempts = 0;
         let coord = { x: 0, y: 0 };
         
+        const minX = this.gridState.width > 2 ? 1 : 0;
+        const maxX = this.gridState.width > 2 ? this.gridState.width - 2 : this.gridState.width - 1;
+        const minY = this.gridState.height > 2 ? 1 : 0;
+        const maxY = this.gridState.height > 2 ? this.gridState.height - 2 : this.gridState.height - 1;
+
         // Find empty cell with retry limits to prevent infinite locks on dense grids
         while (!spawned && attempts < 1000) {
-            coord.x = Math.floor(Math.random() * this.gridState.width);
-            coord.y = Math.floor(Math.random() * this.gridState.height);
+            coord.x = minX + Math.floor(Math.random() * (maxX - minX + 1));
+            coord.y = minY + Math.floor(Math.random() * (maxY - minY + 1));
             
             if (!this.gridState.isCellOccupied(coord.x, coord.y)) {
                 spawned = true;
