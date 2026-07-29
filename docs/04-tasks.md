@@ -380,6 +380,28 @@ TASK-001 → TASK-004 → TASK-007 → TASK-013 → TASK-014 → TASK-015 → TA
 - **Size:** S
 - **Status:** [x] Done
 
+### TASK-030 — Advanced Pursuit & Squad AI Integration
+- **Layer:** 4 & 5
+- **Linked stories:** US-020, §17
+- **Linked component:** Pathfinder, GridState, Renderer
+- **Depends on:** TASK-028
+- **Input:** $A^*$ pathfinding, Police velocity vector prediction, Reaper tail tracking, Squad Alert signal
+- **Output:** `Pathfinder.js` module, tactical pursuit AI in `GridState.js`, visual radio alert badge in `Renderer.js`, unit test suite in `tests/PursuitAI.test.js`.
+- **Acceptance condition:** Police Patrol pathfinds to 2-step predicted head location and triggers radio alert badge within 3 units; Crime Boss uses A* around body segments; Reaper stalks tail tip.
+- **Size:** M
+- **Status:** [x] Done
+
+### TASK-031 — Google Gemini API Integration & Dynamic Narrative Generation
+- **Layer:** 4, 5 & 6
+- **Linked stories:** US-010, §18
+- **Linked component:** LLMService, HTML Shell, CSS, main.js
+- **Depends on:** TASK-028, TASK-030
+- **Input:** Google AI Studio Gemini API endpoint (`gemini-1.5-flash`), API key state, procedural fallbacks
+- **Output:** Gemini REST API client in `LLMService.js`, API key config UI & status badge, hazard taunt generator, news report generator, target backstory generator, expanded test suite in `tests/LLMService.test.js`.
+- **Acceptance condition:** Entering a valid Gemini API key enables real-time LLM taunts and news reports; network failures or missing key fallback seamlessly to procedural generation.
+- **Size:** M
+- **Status:** [x] Done
+
 ---
 
 ## Coverage matrix

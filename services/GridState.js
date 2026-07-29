@@ -1,4 +1,5 @@
 import { Direction } from '../models/HunterEntity.js';
+import { Pathfinder } from './Pathfinder.js';
 
 export class GridState {
     constructor(gridWidth, gridHeight) {
@@ -6,9 +7,10 @@ export class GridState {
         this.height = gridHeight;
         this.hunter = null;
         this.activeTargets = new Map(); // key: "x,y", value: CriminalRecord
-        this.hazards = []; // Array of active hazard objects { id, type, name, icon, color, x, y }
+        this.hazards = []; // Array of active hazard objects { id, type, name, icon, color, x, y, squadAlert }
         this.growthRules = null;
         this.playMode = 'mode1';
+        this.squadBackupTriggered = false;
     }
 
     get bossPosition() {
@@ -187,36 +189,76 @@ export class GridState {
 
         if (Math.random() > chance) return;
 
-        const dirs = [
-            { x: 0, y: -1 },
-            { x: 0, y: 1 },
-            { x: -1, y: 0 },
-            { x: 1, y: 0 }
-        ];
+        // Build obstacle set (hunter body segments & active targets)
+        const obstacles = new Set();
+        if (this.hunter && Array.isArray(this.hunter.BodySegments)) {
+            this.hunter.BodySegments.forEach(seg => obstacles.add(`${seg.x},${seg.y}`));
+        }
+        if (this.activeTargets) {
+            for (const key of this.activeTargets.keys()) {
+                obstacles.add(key);
+            }
+        }
+
+        const dirVector = {
+            'UP': { x: 0, y: -1 },
+            'DOWN': { x: 0, y: 1 },
+            'LEFT': { x: -1, y: 0 },
+            'RIGHT': { x: 1, y: 0 }
+        };
 
         this.hazards.forEach(hazard => {
             for (let step = 0; step < moveRange; step++) {
-                const validPositions = dirs
-                    .map(d => ({ x: hazard.x + d.x, y: hazard.y + d.y }))
-                    .filter(p => p.x >= 0 && p.x < this.width && p.y >= 0 && p.y < this.height && !this.activeTargets.has(`${p.x},${p.y}`));
+                let nextStep = null;
+                const isAggressive = this.hunter && Math.random() < aggressiveness;
 
-                if (validPositions.length === 0) break;
+                if (!isAggressive) {
+                    // Random adjacent valid step
+                    const dirs = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }];
+                    const valid = dirs
+                        .map(d => ({ x: hazard.x + d.x, y: hazard.y + d.y }))
+                        .filter(p => p.x >= 0 && p.x < this.width && p.y >= 0 && p.y < this.height && !obstacles.has(`${p.x},${p.y}`));
+                    if (valid.length > 0) {
+                        nextStep = valid[Math.floor(Math.random() * valid.length)];
+                    }
+                } else if (hazard.type === 'police_patrol') {
+                    // 🚔 Police Patrol — Predictive Intercept
+                    const head = this.hunter.HeadCoordinate;
+                    const dir = dirVector[this.hunter.Direction] || { x: 1, y: 0 };
+                    
+                    const interceptTarget = {
+                        x: Math.max(0, Math.min(this.width - 1, head.x + dir.x * 2)),
+                        y: Math.max(0, Math.min(this.height - 1, head.y + dir.y * 2))
+                    };
 
-                const isAggressiveMove = this.hunter && Math.random() < aggressiveness;
+                    nextStep = Pathfinder.getNextStep(hazard, interceptTarget, this.width, this.height, obstacles);
+                } else if (hazard.type === 'death_reaper') {
+                    // 💀 Death Reaper — Tail Stalker
+                    const tailTarget = (this.hunter.BodySegments && this.hunter.BodySegments.length > 0)
+                        ? this.hunter.BodySegments[this.hunter.BodySegments.length - 1]
+                        : this.hunter.HeadCoordinate;
 
-                if (isAggressiveMove) {
-                    const targetHead = this.hunter.HeadCoordinate;
-                    validPositions.sort((a, b) => {
-                        const distA = Math.abs(a.x - targetHead.x) + Math.abs(a.y - targetHead.y);
-                        const distB = Math.abs(b.x - targetHead.x) + Math.abs(b.y - targetHead.y);
-                        return distA - distB;
-                    });
-                    hazard.x = validPositions[0].x;
-                    hazard.y = validPositions[0].y;
+                    nextStep = Pathfinder.getNextStep(hazard, tailTarget, this.width, this.height, obstacles);
                 } else {
-                    const nextPos = validPositions[Math.floor(Math.random() * validPositions.length)];
-                    hazard.x = nextPos.x;
-                    hazard.y = nextPos.y;
+                    // 🦹 Crime Boss — A* Pathfinder to Hunter Head
+                    const head = this.hunter.HeadCoordinate;
+                    nextStep = Pathfinder.getNextStep(hazard, head, this.width, this.height, obstacles);
+                }
+
+                if (nextStep) {
+                    hazard.x = nextStep.x;
+                    hazard.y = nextStep.y;
+                }
+
+                if (hazard.type === 'police_patrol' && this.hunter) {
+                    const head = this.hunter.HeadCoordinate;
+                    const distToHead = Math.abs(hazard.x - head.x) + Math.abs(hazard.y - head.y);
+                    if (distToHead <= 3) {
+                        hazard.squadAlert = true;
+                        this.squadBackupTriggered = true;
+                    } else {
+                        hazard.squadAlert = false;
+                    }
                 }
             }
         });
@@ -226,3 +268,4 @@ export class GridState {
         this.moveHazards(overrideRules);
     }
 }
+
