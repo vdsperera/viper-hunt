@@ -17,6 +17,7 @@ import { AttackManager } from './services/AttackManager.js';
 import { AudioService } from './services/AudioService.js';
 import { AdaptiveDifficultyService } from './services/AdaptiveDifficultyService.js';
 import { LLMService } from './services/LLMService.js';
+import { WeatherService, WeatherType } from './services/WeatherService.js';
 
 const uiOverlay = document.getElementById('overlay-ui');
 const uiTitle = document.getElementById('overlay-title');
@@ -447,6 +448,31 @@ async function bootstrap() {
         const scoreManager = new ScoreManager();
         const adaptiveDifficultyService = new AdaptiveDifficultyService();
         const llmService = new LLMService(adminGeminiKey);
+        const weatherService = new WeatherService('tokyo');
+
+        // Fetch live real-time Open-Meteo weather & sync renderer state
+        const hudWeatherLevel = document.getElementById('hud-weather-level');
+        weatherService.fetchLiveWeather().then(weatherInfo => {
+            renderer.setWeatherState(weatherInfo.weather);
+            const badge = weatherService.getWeatherBadgeInfo();
+            if (hudWeatherLevel) {
+                hudWeatherLevel.innerText = badge.label;
+                hudWeatherLevel.style.color = badge.color;
+                hudWeatherLevel.title = `${badge.desc} (${weatherInfo.city})`;
+            }
+        });
+
+        // Developer Console Weather Override Helper
+        window.setWeatherOverride = (weatherType) => {
+            weatherService.setOverrideWeather(weatherType);
+            renderer.setWeatherState(weatherService.currentWeather);
+            const badge = weatherService.getWeatherBadgeInfo();
+            if (hudWeatherLevel) {
+                hudWeatherLevel.innerText = badge.label;
+                hudWeatherLevel.style.color = badge.color;
+            }
+            console.log(`[WeatherService] Manual Weather Override set to: ${weatherService.currentWeather}`);
+        };
 
         const hudThreatLevel = document.getElementById('hud-threat-level');
         if (hudThreatLevel) {
@@ -459,7 +485,7 @@ async function bootstrap() {
         }
 
         gameLoop = new GameLoop(gameRules.fps, {
-            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, audioService, adaptiveDifficultyService, llmService, playMode: selectedMode
+            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, audioService, adaptiveDifficultyService, llmService, weatherService, playMode: selectedMode
         });
 
         const levelManager = new LevelManager(
