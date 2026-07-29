@@ -12,6 +12,8 @@ export const firebaseConfig = {
     appId: "YOUR_APP_ID",
     // Toggle enableGeminiAI to false to disable Gemini API calls and run in 100% offline procedural mode
     enableGeminiAI: true,
+    // Enable/Disable live Real-Time Cyberpunk Weather & Volumetric Fog System (Open-Meteo API)
+    enableWeatherSystem: true,
     // Admin Google AI Studio Gemini API key for real-time boss taunts & LLM features
     geminiApiKey: "YOUR_GEMINI_API_KEY"
 };
