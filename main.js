@@ -194,6 +194,7 @@ async function bootstrap() {
             { level: 3, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }] }
         ],
         enableGeminiAI: firebaseConfig?.enableGeminiAI !== false,
+        enableWeatherSystem: firebaseConfig?.enableWeatherSystem !== false,
         geminiApiKey: firebaseConfig?.geminiApiKey || ''
     };
 
@@ -448,19 +449,29 @@ async function bootstrap() {
         const scoreManager = new ScoreManager();
         const adaptiveDifficultyService = new AdaptiveDifficultyService();
         const llmService = new LLMService(adminGeminiKey);
+        const isWeatherEnabled = firebaseConfig?.enableWeatherSystem !== false && gameRules.enableWeatherSystem !== false;
         const weatherService = new WeatherService('tokyo');
-
-        // Fetch live real-time Open-Meteo weather & sync renderer state
         const hudWeatherLevel = document.getElementById('hud-weather-level');
-        weatherService.fetchLiveWeather().then(weatherInfo => {
-            renderer.setWeatherState(weatherInfo.weather);
-            const badge = weatherService.getWeatherBadgeInfo();
+
+        if (isWeatherEnabled) {
+            weatherService.fetchLiveWeather().then(weatherInfo => {
+                renderer.setWeatherState(weatherInfo.weather);
+                const badge = weatherService.getWeatherBadgeInfo();
+                if (hudWeatherLevel) {
+                    hudWeatherLevel.innerText = badge.label;
+                    hudWeatherLevel.style.color = badge.color;
+                    hudWeatherLevel.title = `${badge.desc} (${weatherInfo.city})`;
+                }
+            });
+        } else {
+            weatherService.setOverrideWeather('CLEAR');
+            renderer.setWeatherState('CLEAR');
             if (hudWeatherLevel) {
-                hudWeatherLevel.innerText = badge.label;
-                hudWeatherLevel.style.color = badge.color;
-                hudWeatherLevel.title = `${badge.desc} (${weatherInfo.city})`;
+                hudWeatherLevel.innerText = 'OFFLINE (ADMIN)';
+                hudWeatherLevel.style.color = '#888888';
+                hudWeatherLevel.title = 'Weather System Disabled by Admin Config';
             }
-        });
+        }
 
         // Developer Console Weather Override Helper
         window.setWeatherOverride = (weatherType) => {
