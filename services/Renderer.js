@@ -23,6 +23,16 @@ export class Renderer {
         this.floatingTexts = [];
         this.prevTargetKeys = new Set();
         this.pulseAngle = 0;
+
+        // Cyber Weather FX Systems
+        this.weatherState = 'CLEAR';
+        this.rainDrops = [];
+        this.fogPhase = 0;
+        this.lightningFlash = 0;
+    }
+
+    setWeatherState(weatherState) {
+        this.weatherState = weatherState || 'CLEAR';
     }
 
     /**
@@ -67,7 +77,8 @@ export class Renderer {
             this._drawHunter(gridState.hunter);
         }
 
-        // 6. Update & Draw FX (Particles & Floating Score Texts)
+        // 6. Update & Draw FX (Particles, Weather Rain/Fog, & Floating Score Texts)
+        this._updateAndDrawWeatherFX();
         this._updateAndDrawParticles();
         this._updateAndDrawFloatingTexts();
     }
@@ -722,6 +733,95 @@ export class Renderer {
                 this.ctx.fillText(ft.text, ft.x, ft.y);
             }
         }
+        this.ctx.restore?.();
+    }
+
+    /**
+     * Render Cyber Rain Drops, Splash Ripples, Volumetric Fog, and Lightning Flashes
+     */
+    _updateAndDrawWeatherFX() {
+        if (this.weatherState === 'CLEAR') return;
+
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        this.ctx.save?.();
+
+        // 1. Draw Volumetric Fog Layer if FOG or ACID_STORM
+        if (this.weatherState === 'FOG' || this.weatherState === 'ACID_STORM') {
+            this.fogPhase = (this.fogPhase + 0.005) % (Math.PI * 2);
+            const fogOpacity = this.weatherState === 'ACID_STORM' ? 0.25 : 0.18;
+            const fogGrad = this.ctx.createLinearGradient?.(0, 0, w, h);
+            if (fogGrad) {
+                fogGrad.addColorStop(0, `rgba(0, 240, 255, ${fogOpacity * (0.8 + 0.2 * Math.sin(this.fogPhase))})`);
+                fogGrad.addColorStop(0.5, `rgba(100, 120, 160, ${fogOpacity * 0.7})`);
+                fogGrad.addColorStop(1, `rgba(0, 240, 255, ${fogOpacity * (0.8 + 0.2 * Math.cos(this.fogPhase))})`);
+                this.ctx.fillStyle = fogGrad;
+                this.ctx.fillRect?.(0, 0, w, h);
+            }
+        }
+
+        // 2. Draw Cyber Rain Drops & Splash Particles if RAIN or ACID_STORM
+        if (this.weatherState === 'RAIN' || this.weatherState === 'ACID_STORM') {
+            const maxRain = this.weatherState === 'ACID_STORM' ? 70 : 40;
+            while (this.rainDrops.length < maxRain) {
+                this.rainDrops.push({
+                    x: Math.random() * (w + 100) - 50,
+                    y: Math.random() * -100,
+                    len: 12 + Math.random() * 18,
+                    speed: 14 + Math.random() * 10,
+                    color: this.weatherState === 'ACID_STORM' ? '#ff0055' : '#00f0ff',
+                    alpha: 0.4 + Math.random() * 0.5
+                });
+            }
+
+            this.ctx.lineWidth = this.weatherState === 'ACID_STORM' ? 1.5 : 1.0;
+
+            for (let i = this.rainDrops.length - 1; i >= 0; i--) {
+                const r = this.rainDrops[i];
+                r.y += r.speed;
+                r.x -= r.speed * 0.25; // Slanted cyber rain angle
+
+                if (r.y > h) {
+                    // Re-spawn splash at bottom
+                    if (Math.random() < 0.4) {
+                        this.particles.push({
+                            x: r.x,
+                            y: h - 5,
+                            vx: (Math.random() - 0.5) * 3,
+                            vy: -Math.random() * 3,
+                            radius: 1 + Math.random() * 2,
+                            color: r.color,
+                            alpha: 0.8,
+                            decay: 0.08
+                        });
+                    }
+                    r.y = Math.random() * -50;
+                    r.x = Math.random() * (w + 100) - 50;
+                }
+
+                this.ctx.strokeStyle = r.color;
+                this.ctx.globalAlpha = r.alpha;
+                if (this.ctx.beginPath && this.ctx.moveTo && this.ctx.lineTo) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(r.x, r.y);
+                    this.ctx.lineTo(r.x - r.len * 0.25, r.y + r.len);
+                    this.ctx.stroke?.();
+                }
+            }
+        }
+
+        // 3. Lightning Flash for ACID_STORM
+        if (this.weatherState === 'ACID_STORM') {
+            if (Math.random() < 0.012) {
+                this.lightningFlash = 0.6 + Math.random() * 0.3;
+            }
+            if (this.lightningFlash > 0) {
+                this.ctx.fillStyle = `rgba(255, 255, 255, ${this.lightningFlash})`;
+                this.ctx.fillRect?.(0, 0, w, h);
+                this.lightningFlash -= 0.08;
+            }
+        }
+
         this.ctx.restore?.();
     }
 }
