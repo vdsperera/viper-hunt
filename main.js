@@ -192,6 +192,7 @@ async function bootstrap() {
             { level: 2, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }] },
             { level: 3, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }] }
         ],
+        enableGeminiAI: firebaseConfig?.enableGeminiAI !== false,
         geminiApiKey: firebaseConfig?.geminiApiKey || ''
     };
 
@@ -216,7 +217,9 @@ async function bootstrap() {
         console.log("[main] Local testing mode active (useCloudConfig: false). Using local default rules directly:", gameRules);
     }
 
-    const adminGeminiKey = (gameRules.geminiApiKey && gameRules.geminiApiKey.trim()) || (firebaseConfig && firebaseConfig.geminiApiKey && firebaseConfig.geminiApiKey.trim()) || '';
+    const isGeminiEnabled = firebaseConfig?.enableGeminiAI !== false && gameRules.enableGeminiAI !== false;
+    const rawKey = (gameRules.geminiApiKey && gameRules.geminiApiKey.trim()) || (firebaseConfig && firebaseConfig.geminiApiKey && firebaseConfig.geminiApiKey.trim()) || '';
+    const adminGeminiKey = isGeminiEnabled ? rawKey : '';
     
     // UI Status Badge for Admin Configured Gemini API Key
     const geminiStatusBadge = document.getElementById('gemini-status-badge');

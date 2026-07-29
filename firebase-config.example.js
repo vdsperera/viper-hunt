@@ -10,6 +10,8 @@ export const firebaseConfig = {
     storageBucket: "YOUR_STORAGE_BUCKET",
     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
     appId: "YOUR_APP_ID",
+    // Toggle enableGeminiAI to false to disable Gemini API calls and run in 100% offline procedural mode
+    enableGeminiAI: true,
     // Admin Google AI Studio Gemini API key for real-time boss taunts & LLM features
     geminiApiKey: "YOUR_GEMINI_API_KEY"
 };
