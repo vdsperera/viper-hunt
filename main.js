@@ -410,12 +410,15 @@ async function bootstrap() {
             }).join('');
 
             attackButtonsContainer.querySelectorAll('.attack-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                const handleSelect = (e) => {
+                    if (e.cancelable && e.type === 'touchstart') e.preventDefault();
                     const key = btn.getAttribute('data-key');
                     if (attackManager.selectAttack(key)) {
                         renderAttackSelectorHud();
                     }
-                });
+                };
+                btn.addEventListener('click', handleSelect);
+                btn.addEventListener('touchstart', handleSelect, { passive: false });
             });
         }
 

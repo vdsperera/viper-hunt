@@ -42,17 +42,25 @@ export class InputHandler {
 
         let startX = 0;
         let startY = 0;
+        let isIgnoredTouch = false;
         const minSwipeDistance = 20;
 
         element.addEventListener('touchstart', (e) => {
             if (e.touches && e.touches.length > 0) {
+                // Ignore swipes that start on UI buttons or control pads
+                const target = e.target;
+                if (target && target.closest && target.closest('#dpad-controls, #attack-selector-hud, #hud, .cyber-btn, button, input, select')) {
+                    isIgnoredTouch = true;
+                    return;
+                }
+                isIgnoredTouch = false;
                 startX = e.touches[0].clientX;
                 startY = e.touches[0].clientY;
             }
         }, { passive: true });
 
         element.addEventListener('touchend', (e) => {
-            if (!e.changedTouches || e.changedTouches.length === 0) return;
+            if (isIgnoredTouch || !e.changedTouches || e.changedTouches.length === 0) return;
 
             const endX = e.changedTouches[0].clientX;
             const endY = e.changedTouches[0].clientY;
@@ -95,12 +103,35 @@ export class InputHandler {
 
         const bindBtn = (btn, dir) => {
             if (!btn) return;
-            const handler = (e) => {
+
+            let lastTriggerTime = 0;
+            const handleInput = (e) => {
+                const now = Date.now();
+                // Prevent double trigger if both pointerdown and touchstart fire within 150ms
+                if (now - lastTriggerTime < 150) {
+                    if (e.cancelable) e.preventDefault();
+                    return;
+                }
+                lastTriggerTime = now;
                 if (e.cancelable) e.preventDefault();
+                btn.classList.add('active');
                 this.injectDirection(dir);
             };
-            btn.addEventListener('pointerdown', handler);
-            btn.addEventListener('touchstart', handler, { passive: false });
+
+            const handleRelease = () => {
+                btn.classList.remove('active');
+            };
+
+            if (typeof window !== 'undefined' && window.PointerEvent) {
+                btn.addEventListener('pointerdown', handleInput);
+                btn.addEventListener('pointerup', handleRelease);
+                btn.addEventListener('pointercancel', handleRelease);
+                btn.addEventListener('pointerleave', handleRelease);
+            } else {
+                btn.addEventListener('touchstart', handleInput, { passive: false });
+                btn.addEventListener('touchend', handleRelease);
+                btn.addEventListener('touchcancel', handleRelease);
+            }
         };
 
         bindBtn(upBtn, Direction.UP);
