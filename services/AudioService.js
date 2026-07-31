@@ -154,19 +154,19 @@ export class AudioService {
                 const utterance = new SpeechSynthesisUtterance(phrase);
                 utterance.volume = this.sfxVolume;
 
-                // Configure voice tone & pitch parameters based on selected voice style
-                let basePitch = 0.65;
-                let baseRate = 1.10;
-                let preferredKeywords = ['David', 'Mark', 'George', 'Daniel', 'Richard', 'Male', 'Google UK English Male', 'Google US English Male', 'Natural'];
+                // Deep male pitch & rate tuning suited for gritty crime/SWAT theme
+                let basePitch = 0.30;
+                let baseRate = 0.95;
+                let preferredKeywords = ['David', 'Mark', 'George', 'Daniel', 'Richard', 'James', 'Alex', 'Brian', 'Paul', 'Guy', 'Male', 'Google UK English Male', 'Google US English Male'];
 
                 if (this.voiceStyle === 'gritty_syndicate') {
-                    basePitch = 0.55;
-                    baseRate = 1.02;
-                    preferredKeywords = ['David', 'Mark', 'George', 'Male', 'Alex', 'Natural'];
+                    basePitch = 0.20;
+                    baseRate = 0.88;
+                    preferredKeywords = ['David', 'Mark', 'George', 'Male', 'Richard', 'Alex'];
                 } else if (this.voiceStyle === 'cyber_command') {
-                    basePitch = 0.72;
-                    baseRate = 1.18;
-                    preferredKeywords = ['Command', 'Male', 'Google', 'Natural', 'David'];
+                    basePitch = 0.40;
+                    baseRate = 1.05;
+                    preferredKeywords = ['Command', 'Male', 'Google', 'David', 'Daniel'];
                 }
 
                 // Retrieve indexed or live browser voices
@@ -176,41 +176,42 @@ export class AudioService {
                 }
 
                 const englishVoices = voices.filter(v => v.lang && v.lang.startsWith('en'));
+
+                // Explicitly filter out soft female voices on mobile and desktop OS
+                const femaleKeywords = ['female', 'zira', 'hazel', 'susan', 'catherine', 'heather', 'karen', 'samantha', 'victoria', 'fiona', 'sera', 'linnea', 'eva', 'girl', 'woman'];
+                const maleOnlyVoices = englishVoices.filter(v => {
+                    const nameLower = (v.name || '').toLowerCase();
+                    return !femaleKeywords.some(f => nameLower.includes(f));
+                });
+
+                const voicePool = maleOnlyVoices.length > 0 ? maleOnlyVoices : englishVoices;
                 let selectedVoice = null;
 
-                // Priority 1: Match preferred deep/male/tactical voice names
+                // Priority 1: Match preferred deep/male voice names
                 for (const keyword of preferredKeywords) {
-                    const match = englishVoices.find(v => v.name && v.name.toLowerCase().includes(keyword.toLowerCase()));
+                    const match = voicePool.find(v => v.name && v.name.toLowerCase().includes(keyword.toLowerCase()));
                     if (match) {
                         selectedVoice = match;
                         break;
                     }
                 }
 
-                // Priority 2: Any English male voice
+                // Priority 2: Any English voice with 'male' in title
                 if (!selectedVoice) {
-                    selectedVoice = englishVoices.find(v => v.name && v.name.toLowerCase().includes('male'));
+                    selectedVoice = voicePool.find(v => v.name && v.name.toLowerCase().includes('male'));
                 }
 
-                // Priority 3: First available English voice
-                if (!selectedVoice && englishVoices.length > 0) {
-                    selectedVoice = englishVoices[0];
+                // Priority 3: First available non-female English voice
+                if (!selectedVoice && voicePool.length > 0) {
+                    selectedVoice = voicePool[0];
                 }
 
                 if (selectedVoice) {
                     utterance.voice = selectedVoice;
                 }
 
-                // If no explicit male voice matched or using fallback OS voice, deepen pitch further to eliminate soft female tone
-                const isExplicitMale = selectedVoice && (
-                    selectedVoice.name.toLowerCase().includes('male') ||
-                    selectedVoice.name.toLowerCase().includes('david') ||
-                    selectedVoice.name.toLowerCase().includes('mark') ||
-                    selectedVoice.name.toLowerCase().includes('george') ||
-                    selectedVoice.name.toLowerCase().includes('daniel')
-                );
-
-                utterance.pitch = isExplicitMale ? basePitch : Math.max(0.35, basePitch - 0.15);
+                // Enforce deep bass pitch and tough cadence for crime atmosphere
+                utterance.pitch = basePitch;
                 utterance.rate = baseRate;
 
                 this._playRadioCrackle();

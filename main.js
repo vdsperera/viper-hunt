@@ -267,6 +267,7 @@ async function bootstrap() {
     const sfxVolSlider = document.getElementById('sfx-volume-slider');
     const bgmVolSlider = document.getElementById('bgm-volume-slider');
     const bgmTrackSelect = document.getElementById('bgm-track-select');
+    const voiceStyleSelect = document.getElementById('voice-style-select');
 
     function syncAudioUi() {
         if (sfxToggleBtn) {
@@ -289,6 +290,9 @@ async function bootstrap() {
         }
         if (bgmTrackSelect) {
             bgmTrackSelect.value = audioService.currentBgmTrack;
+        }
+        if (voiceStyleSelect) {
+            voiceStyleSelect.value = audioService.voiceStyle;
         }
     }
 
@@ -318,6 +322,13 @@ async function bootstrap() {
     if (bgmTrackSelect) {
         bgmTrackSelect.addEventListener('change', (e) => {
             audioService.setBgmTrack(e.target.value);
+            syncAudioUi();
+        });
+    }
+
+    if (voiceStyleSelect) {
+        voiceStyleSelect.addEventListener('change', (e) => {
+            audioService.setVoiceStyle(e.target.value);
             syncAudioUi();
         });
     }
