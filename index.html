@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Viper Hunt - Cyberpunk Tactical Arcade</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
+
 <body>
     <div id="game-container">
         <!-- Modern Cyberpunk Top Header HUD Bar (Outside Grid) -->
@@ -24,11 +30,16 @@
                 </div>
                 <div id="ai-threat-badge" class="hud-badge threat-badge" title="Dynamic AI Threat Level">
                     <span class="hud-label">AI THREAT</span>
-                    <span id="hud-threat-level" class="hud-value threat-value" style="color: #00ff88;">🎯 STANDARD</span>
+                    <span id="hud-threat-level" class="hud-value threat-value" style="color: #00ff88;">🎯
+                        STANDARD</span>
                 </div>
                 <div id="weather-badge" class="hud-badge weather-badge" title="Live Sector Weather Status">
                     <span class="hud-label">WEATHER</span>
-                    <span id="hud-weather-level" class="hud-value weather-value" style="color: #00f0ff;">🌧️ CYBER RAIN</span>
+                    <span id="hud-weather-level" class="hud-value weather-value" style="color: #00f0ff;">🌧️ CYBER
+                        RAIN</span>
+                </div>
+                <div id="render-mode-badge" class="hud-badge render-mode-badge" title="Toggle 2D / 3D Render Engine">
+                    <button id="render-mode-toggle-btn" class="hud-toggle-btn"><span>👁️ VIEW: 2D</span></button>
                 </div>
             </div>
 
@@ -55,6 +66,7 @@
             </div>
 
             <canvas id="game-canvas" width="1280" height="720"></canvas>
+            <canvas id="three-canvas" width="1280" height="720" class="hidden"></canvas>
 
             <!-- Virtual Touch D-Pad for Mobile -->
             <div id="dpad-controls" class="hidden">
@@ -75,14 +87,17 @@
                         <div class="cyber-line"></div>
                     </div>
                     <p id="overlay-message">Loading Registry...</p>
-                    
+
                     <div id="profile-section" class="hidden">
                         <!-- Audio Configuration Control Panel -->
                         <div class="audio-config-bar">
                             <div class="audio-toggle-group">
-                                <button id="sfx-toggle-btn" class="cyber-btn audio-btn" title="Toggle Sound Effects"><span>🔊 SFX: ON</span></button>
-                                <button id="bgm-toggle-btn" class="cyber-btn audio-btn" title="Toggle Background Music"><span>🎵 BGM: ON</span></button>
-                                <button id="voice-toggle-btn" class="cyber-btn audio-btn" title="Toggle Tactical Voice Comms"><span>🎙 VOICE: ON</span></button>
+                                <button id="sfx-toggle-btn" class="cyber-btn audio-btn"
+                                    title="Toggle Sound Effects"><span>🔊 SFX: ON</span></button>
+                                <button id="bgm-toggle-btn" class="cyber-btn audio-btn"
+                                    title="Toggle Background Music"><span>🎵 BGM: ON</span></button>
+                                <button id="voice-toggle-btn" class="cyber-btn audio-btn"
+                                    title="Toggle Tactical Voice Comms"><span>🎙 VOICE: ON</span></button>
                             </div>
                             <div class="audio-sliders-group">
                                 <div class="slider-row">
@@ -114,8 +129,10 @@
 
                         <div class="profile-card-group">
                             <div class="profile-create">
-                                <input type="text" id="new-profile-name" placeholder="Enter player callsign..." maxlength="16" autocomplete="off">
-                                <button id="create-profile-btn" class="cyber-btn secondary"><span>+ CREATE</span></button>
+                                <input type="text" id="new-profile-name" placeholder="Enter player callsign..."
+                                    maxlength="16" autocomplete="off">
+                                <button id="create-profile-btn" class="cyber-btn secondary"><span>+
+                                        CREATE</span></button>
                             </div>
                             <div class="profile-select">
                                 <select id="profile-dropdown">
@@ -127,6 +144,12 @@
                                     <option value="mode1" selected>Criminal Bounty Mode (Default)</option>
                                     <option value="mode2">Treasure Vault Mode</option>
                                     <option value="mode3">Emotional Death Quest Mode</option>
+                                </select>
+                            </div>
+                            <div class="render-engine-select" style="width: 100%; margin-top: 8px;">
+                                <select id="render-engine-dropdown" class="track-select" style="background: rgba(4, 8, 18, 0.9); border: 1px solid var(--primary-cyan); color: #00f0ff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; padding: 10px 12px; border-radius: 6px; width: 100%; cursor: pointer; box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);">
+                                    <option value="2d" selected>👁️ RENDER ENGINE: 2D CANVAS (CLASSIC)</option>
+                                    <option value="3d">🎲 RENDER ENGINE: 3D WEBGL (THREE.JS)</option>
                                 </select>
                             </div>
                         </div>
@@ -155,4 +178,5 @@
     </div>
     <script type="module" src="main.js"></script>
 </body>
+
 </html>

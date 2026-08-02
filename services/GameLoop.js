@@ -70,6 +70,16 @@ export class GameLoop {
             this.adaptiveDifficultyService.tick();
         }
 
+        // Update real-time HUD threat status badge based on active grid risk & hazard count
+        if (typeof document !== 'undefined') {
+            const hudThreat = document.getElementById('hud-threat-level');
+            if (hudThreat && this.gridState && typeof this.gridState.getThreatStatus === 'function') {
+                const threat = this.gridState.getThreatStatus();
+                hudThreat.innerText = threat.label;
+                hudThreat.style.color = threat.color;
+            }
+        }
+
         // 1. Process Input
         const currentDir = this.gridState.hunter.Direction;
         const nextDir = this.inputHandler ? this.inputHandler.getCurrentDirection(currentDir) : currentDir;
@@ -132,8 +142,29 @@ export class GameLoop {
                     name: attackResult.attackName,
                     pastAction: attackResult.pastAction || attackResult.attackName,
                     icon: attackResult.icon,
-                    color: attackResult.color
+                    color: attackResult.color,
+                    alignmentScore: attackResult.alignmentScore || 0,
+                    policeDelta: attackResult.policeDelta || 0,
+                    crimeBossDelta: attackResult.crimeBossDelta || 0,
+                    riskDescription: attackResult.riskDescription || ''
                 };
+
+                if (this.gridState && typeof this.gridState.applyAttackConsequences === 'function') {
+                    const riskOutcomes = this.gridState.applyAttackConsequences(attackResult.policeDelta, attackResult.crimeBossDelta);
+                    if (this.renderer && Array.isArray(riskOutcomes)) {
+                        const cs = this.renderer.cellSize || 32;
+                        const px = head.x * cs + cs / 2;
+                        const py = head.y * cs;
+                        riskOutcomes.forEach((oc, i) => {
+                            const color = oc.type.includes('boss') ? '#ff0055' : oc.type.includes('remove') ? '#00f0ff' : '#0088ff';
+                            setTimeout(() => {
+                                if (this.renderer && typeof this.renderer.addFloatingText === 'function') {
+                                    this.renderer.addFloatingText(px, py - (i + 1) * 22, oc.text, color);
+                                }
+                            }, (i + 1) * 150);
+                        });
+                    }
+                }
             }
 
             if (this.adaptiveDifficultyService && typeof this.adaptiveDifficultyService.recordCapture === 'function') {

@@ -5,6 +5,7 @@
 import { RegistryService } from './services/RegistryService.js';
 import { GameLoop } from './services/GameLoop.js';
 import { Renderer } from './services/Renderer.js';
+import { RenderManager } from './services/RenderManager.js';
 import { InputHandler } from './services/InputHandler.js';
 import { GridState } from './services/GridState.js';
 import { CollisionDetector } from './services/CollisionDetector.js';
@@ -183,10 +184,62 @@ async function bootstrap() {
             }
         ],
         attackTypes: [
-            { id: 'police', key: '1', name: 'Police Custody', pastAction: 'Handed to Police', icon: '👮', multiplier: 1.0, uses: -1, color: '#00f0ff' },
-            { id: 'caging', key: '2', name: 'Brutally Caged', pastAction: 'Brutally Caged', icon: '🔒', multiplier: 1.2, uses: 5, color: '#ffb800' },
-            { id: 'shooting', key: '3', name: 'Shot Down', pastAction: 'Shot Down in Action', icon: '🎯', multiplier: 1.5, uses: 3, color: '#ff0055' },
-            { id: 'butchering', key: '4', name: 'Ruthlessly Butchered', pastAction: 'Ruthlessly Butchered', icon: '🪓', multiplier: 2.0, uses: 2, color: '#aa00ff' }
+            {
+                id: 'police',
+                key: '1',
+                name: 'Police Custody',
+                pastAction: 'Handed to Police',
+                icon: '👮',
+                multiplier: 1.0,
+                uses: -1,
+                color: '#00f0ff',
+                policeDelta: -1,
+                crimeBossDelta: 0,
+                alignmentScore: 10,
+                riskDescription: 'Low Reward, Reduces Police Heat'
+            },
+            {
+                id: 'caging',
+                key: '2',
+                name: 'Brutally Caged',
+                pastAction: 'Brutally Caged',
+                icon: '🔒',
+                multiplier: 1.2,
+                uses: 5,
+                color: '#ffb800',
+                policeDelta: 0,
+                crimeBossDelta: 0,
+                alignmentScore: -5,
+                riskDescription: '1.2x Reward, Neutral Risk'
+            },
+            {
+                id: 'shooting',
+                key: '3',
+                name: 'Shot Down',
+                pastAction: 'Shot Down in Action',
+                icon: '🎯',
+                multiplier: 1.5,
+                uses: 3,
+                color: '#ff0055',
+                policeDelta: 1,
+                crimeBossDelta: 0,
+                alignmentScore: -15,
+                riskDescription: '1.5x Reward, Spawns +1 Police Patrol'
+            },
+            {
+                id: 'butchering',
+                key: '4',
+                name: 'Ruthlessly Butchered',
+                pastAction: 'Ruthlessly Butchered',
+                icon: '🪓',
+                multiplier: 2.0,
+                uses: 2,
+                color: '#aa00ff',
+                policeDelta: 1,
+                crimeBossDelta: 1,
+                alignmentScore: -30,
+                riskDescription: '2.0x Reward, Spawns +1 Boss & +1 Police'
+            }
         ],
         levelHazards: [
             { level: 1, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }] },
@@ -195,7 +248,7 @@ async function bootstrap() {
         ],
         enableGeminiAI: firebaseConfig?.enableGeminiAI !== false,
         enableWeatherSystem: firebaseConfig?.enableWeatherSystem !== false,
-        geminiApiKey: firebaseConfig?.geminiApiKey || ''
+        geminiProxyUrl: firebaseConfig?.geminiProxyUrl || ''
     };
 
     let gameRules = { ...defaultRules };
@@ -220,15 +273,15 @@ async function bootstrap() {
     }
 
     const isGeminiEnabled = firebaseConfig?.enableGeminiAI !== false && gameRules.enableGeminiAI !== false;
-    const rawKey = (gameRules.geminiApiKey && gameRules.geminiApiKey.trim()) || (firebaseConfig && firebaseConfig.geminiApiKey && firebaseConfig.geminiApiKey.trim()) || '';
-    const adminGeminiKey = isGeminiEnabled ? rawKey : '';
-    
-    // UI Status Badge for Admin Configured Gemini API Key
+    const rawProxyUrl = (gameRules.geminiProxyUrl && gameRules.geminiProxyUrl.trim()) || (firebaseConfig && firebaseConfig.geminiProxyUrl && firebaseConfig.geminiProxyUrl.trim()) || '';
+    const activeProxyUrl = isGeminiEnabled ? rawProxyUrl : '';
+
+    // UI Status Badge for Serverless Cloud Function Proxy
     const geminiStatusBadge = document.getElementById('gemini-status-badge');
     if (geminiStatusBadge) {
-        if (adminGeminiKey) {
+        if (activeProxyUrl) {
             geminiStatusBadge.classList.add('active');
-            geminiStatusBadge.innerText = '⚡ GEMINI AI ONLINE (ADMIN CONFIG)';
+            geminiStatusBadge.innerText = '⚡ GEMINI AI ONLINE (SECURE PROXY)';
         } else {
             geminiStatusBadge.classList.remove('active');
             geminiStatusBadge.innerText = '⚙️ PROCEDURAL ENGINE';
@@ -268,6 +321,15 @@ async function bootstrap() {
     const bgmVolSlider = document.getElementById('bgm-volume-slider');
     const bgmTrackSelect = document.getElementById('bgm-track-select');
     const voiceStyleSelect = document.getElementById('voice-style-select');
+    const renderEngineDropdown = document.getElementById('render-engine-dropdown');
+
+    if (renderEngineDropdown) {
+        const savedEngineMode = localStorage.getItem('viper_hunt_render_mode') || '2d';
+        renderEngineDropdown.value = savedEngineMode;
+        renderEngineDropdown.addEventListener('change', (e) => {
+            localStorage.setItem('viper_hunt_render_mode', e.target.value);
+        });
+    }
 
     function syncAudioUi() {
         if (sfxToggleBtn) {
@@ -407,15 +469,23 @@ async function bootstrap() {
             attackButtonsContainer.innerHTML = attacks.map(att => {
                 const usesLabel = att.currentUses < 0 ? '∞' : att.currentUses;
                 const outOfAmmo = att.currentUses === 0;
+                const riskClass = att.policeDelta < 0 ? 'safe-risk' : (att.policeDelta > 0 || att.crimeBossDelta > 0) ? 'danger-risk' : 'neutral-risk';
+                const riskBadge = att.riskDescription || 'Standard Operational Risk';
                 return `
                     <div class="attack-btn ${att.isActive ? 'active' : ''} ${outOfAmmo ? 'out-of-ammo' : ''}" 
                          data-key="${att.key}" 
+                         title="${att.name} — ${riskBadge}"
                          style="--att-color: ${att.color}">
-                        <span class="attack-key-badge">[${att.key}]</span>
-                        <span class="attack-icon">${att.icon}</span>
-                        <span class="attack-name">${att.name}</span>
-                        <span class="attack-multiplier">${att.multiplier}x</span>
-                        <span class="attack-uses">(${usesLabel})</span>
+                        <div class="attack-btn-top">
+                            <span class="attack-key-badge">[${att.key}]</span>
+                            <span class="attack-icon">${att.icon}</span>
+                            <span class="attack-name">${att.name}</span>
+                            <span class="attack-multiplier">${att.multiplier}x</span>
+                            <span class="attack-uses">(${usesLabel})</span>
+                        </div>
+                        <div class="attack-risk-tag ${riskClass}">
+                            ${riskBadge}
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -458,11 +528,46 @@ async function bootstrap() {
         };
 
         const collisionDetector = new CollisionDetector();
-        const renderer = new Renderer('game-canvas', 32);
+        const renderer = new RenderManager('game-canvas', 'three-canvas', 32);
+
+        // 2D ↔ 3D Render Engine Mode Toggle Button Wiring
+        const renderModeToggleBtn = document.getElementById('render-mode-toggle-btn');
+        if (typeof renderer.setMode === 'function') {
+            const selectedEngineMode = renderEngineDropdown ? renderEngineDropdown.value : (localStorage.getItem('viper_hunt_render_mode') || '2d');
+            renderer.setMode(selectedEngineMode);
+
+            const updateToggleBtnLabel = (mode) => {
+                if (renderModeToggleBtn) {
+                    renderModeToggleBtn.classList.toggle('mode-3d', mode === '3d');
+                    renderModeToggleBtn.querySelector('span').innerText = mode === '3d' ? '🎲 VIEW: 3D' : '👁️ VIEW: 2D';
+                }
+                if (renderEngineDropdown) {
+                    renderEngineDropdown.value = mode;
+                }
+            };
+
+            updateToggleBtnLabel(renderer.getMode());
+
+            renderer.onModeChange = (mode) => {
+                localStorage.setItem('viper_hunt_render_mode', mode);
+                updateToggleBtnLabel(mode);
+            };
+
+            if (renderModeToggleBtn) {
+                const handleModeToggle = (e) => {
+                    if (e.cancelable && e.type === 'touchstart') e.preventDefault();
+                    const nextMode = renderer.getMode() === '2d' ? '3d' : '2d';
+                    renderer.setMode(nextMode);
+                };
+
+                renderModeToggleBtn.addEventListener('click', handleModeToggle);
+                renderModeToggleBtn.addEventListener('touchstart', handleModeToggle, { passive: false });
+            }
+        }
         const targetManager = new TargetManager(gridState, registryService);
         const scoreManager = new ScoreManager();
         const adaptiveDifficultyService = new AdaptiveDifficultyService();
-        const llmService = new LLMService(adminGeminiKey);
+        const llmService = new LLMService(activeProxyUrl);
         const isWeatherEnabled = firebaseConfig?.enableWeatherSystem !== false && gameRules.enableWeatherSystem !== false;
         const weatherService = new WeatherService('tokyo');
         const hudWeatherLevel = document.getElementById('hud-weather-level');
@@ -748,8 +853,54 @@ async function bootstrap() {
                 `;
             }
 
+            const alignment = breakdown.alignment || {};
+            const persona = alignment.persona || { title: 'Unrated Operative', description: 'No tactical captures completed.', color: '#888888', brutalityLabel: 'None' };
+            const netScore = alignment.netScore || 0;
+            const riskStats = alignment.riskStats || { policeDelta: 0, crimeBossDelta: 0 };
+
+            const alignmentCardHtml = selectedMode === 'mode1' ? `
+                <div class="alignment-evaluation-card" style="--persona-color: ${persona.color}">
+                    <div class="alignment-card-header">
+                        <div class="alignment-title-wrap">
+                            <span class="alignment-icon">⚖️</span>
+                            <span class="alignment-label">TACTICAL MORALITY & ALIGNMENT EVALUATION</span>
+                        </div>
+                        <div class="alignment-persona-badge" style="background-color: ${persona.color}22; border-color: ${persona.color}; color: ${persona.color};">
+                            ${persona.title.toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="alignment-card-body">
+                        <p class="alignment-desc">${persona.description}</p>
+                        <div class="alignment-stats-row">
+                            <div class="alignment-stat">
+                                <span class="stat-label">Net Alignment Score:</span>
+                                <span class="stat-value" style="color: ${netScore >= 0 ? '#00f0ff' : '#ff0055'};">${netScore > 0 ? '+' : ''}${netScore}</span>
+                            </div>
+                            <div class="alignment-stat">
+                                <span class="stat-label">Brutality Level:</span>
+                                <span class="stat-value" style="color: ${persona.color};">${persona.brutalityLabel}</span>
+                            </div>
+                            <div class="alignment-stat">
+                                <span class="stat-label">Police Heat Alteration:</span>
+                                <span class="stat-value">${riskStats.policeDelta > 0 ? `+${riskStats.policeDelta} Patrols` : riskStats.policeDelta < 0 ? `${riskStats.policeDelta} Patrols` : '0 (Neutral)'}</span>
+                            </div>
+                            <div class="alignment-stat">
+                                <span class="stat-label">Gang Retaliations:</span>
+                                <span class="stat-value" style="color: ${riskStats.crimeBossDelta > 0 ? '#ff0055' : '#00ff88'};">${riskStats.crimeBossDelta > 0 ? `+${riskStats.crimeBossDelta} Crime Bosses` : '0 (None)'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ` : '';
+
             container.innerHTML = `
+        <div class="top-replay-header">
+            <button id="top-replay-btn" class="cyber-btn primary top-replay-btn">
+                <span>🔄 PLAY AGAIN</span>
+            </button>
+        </div>
         ${slideshowHtml}
+        ${alignmentCardHtml}
         ${compactLogHtml}
         <div class="score-formula-badge">
             <div class="formula-title">SCORE CALCULATION FORMULA</div>
@@ -786,6 +937,13 @@ async function bootstrap() {
             </div>
         </div>
     `;
+
+            const topReplayBtn = container.querySelector('#top-replay-btn');
+            if (topReplayBtn) {
+                topReplayBtn.addEventListener('click', () => {
+                    window.location.reload();
+                });
+            }
 
             // Slideshow Interactivity
             let slideshowTimer = null;
