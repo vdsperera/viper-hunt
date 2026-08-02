@@ -421,16 +421,16 @@ export class AudioService {
 
             if (name.includes('police') || name === '1') {
                 if (this.sfxEnabled) this._playPoliceSiren();
-                this.playVoiceComm("Busted! One less criminal on the streets.");
+                this.playVoiceComm("Surrendered to custody! Police heat reduced.");
             } else if (name.includes('cage') || name.includes('caging') || name === '2') {
                 if (this.sfxEnabled) this._playCageLock();
                 this.playVoiceComm("Locked in the cage. Payback delivered!");
             } else if (name.includes('shot') || name.includes('shooting') || name === '3') {
                 if (this.sfxEnabled) this._playBlasterShot();
-                this.playVoiceComm("Target down! Clean hit.");
+                this.playVoiceComm("Target shot down! Gunfire alerted police patrols!");
             } else if (name.includes('butcher') || name.includes('butchering') || name === '4') {
                 if (this.sfxEnabled) this._playHeavySlash();
-                this.playVoiceComm("Scum eliminated! Contract fulfilled.");
+                this.playVoiceComm("Target eliminated! Warning: Crime Bosses and Police are retaliating!");
             } else {
                 if (this.sfxEnabled) this._playDefaultChirp();
                 this.playVoiceComm("Another target wiped out.");

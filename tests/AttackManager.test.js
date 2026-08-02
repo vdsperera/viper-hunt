@@ -71,4 +71,40 @@ describe('AttackManager Test Suite', () => {
         assert.equal(mgr.getAttackList().find(a => a.id === 'butchering').currentUses, 2);
         assert.equal(mgr.getActiveAttack().id, 'police');
     });
+
+    it('returns risk parameters and alignment scores on consumeActiveAttack', () => {
+        const mgr = new AttackManager();
+        
+        // Police Custody
+        mgr.selectAttack('1');
+        const policeRes = mgr.consumeActiveAttack(100);
+        assert.equal(policeRes.policeDelta, -1);
+        assert.equal(policeRes.crimeBossDelta, 0);
+        assert.equal(policeRes.alignmentScore, 10);
+
+        // Butchering
+        mgr.selectAttack('4');
+        const butcherRes = mgr.consumeActiveAttack(100);
+        assert.equal(butcherRes.policeDelta, 1);
+        assert.equal(butcherRes.crimeBossDelta, 1);
+        assert.equal(butcherRes.alignmentScore, -30);
+    });
+
+    it('evaluates alignment personas correctly based on accumulated scores', () => {
+        const unrated = AttackManager.evaluateAlignment(0, 0);
+        assert.equal(unrated.title, 'Unrated Operative');
+
+        const lawful = AttackManager.evaluateAlignment(20, 2);
+        assert.equal(lawful.title, 'Lawful Enforcer');
+
+        const pragmatic = AttackManager.evaluateAlignment(5, 3);
+        assert.equal(pragmatic.title, 'Pragmatic Vigilante');
+
+        const lethal = AttackManager.evaluateAlignment(-15, 2);
+        assert.equal(lethal.title, 'Lethal Executioner');
+
+        const outlaw = AttackManager.evaluateAlignment(-60, 2);
+        assert.equal(outlaw.title, 'Ruthless Outlaw');
+    });
 });
+

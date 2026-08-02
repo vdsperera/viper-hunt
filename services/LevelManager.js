@@ -187,6 +187,14 @@ export class LevelManager {
 
         // Spawn threat figures in Criminal mode (mode1) and Emotional Death mode (mode3)
         if (this.gridState.playMode === 'mode1' || this.gridState.playMode === 'mode3') {
+            // Count dynamic risk hazards accumulated from brutal player takedowns
+            const extraBossCount = (Array.isArray(this.gridState.hazards))
+                ? this.gridState.hazards.filter(h => h.id && h.id.includes('dyn-crime_boss')).length
+                : 0;
+            const extraPoliceCount = (Array.isArray(this.gridState.hazards))
+                ? this.gridState.hazards.filter(h => h.id && h.id.includes('dyn-police_patrol')).length
+                : 0;
+
             let specForLevel = null;
             if (Array.isArray(this.levelHazards)) {
                 const found = this.levelHazards.find(h => h.level === this.currentLevelIndex);
@@ -208,6 +216,14 @@ export class LevelManager {
                 ]);
             } else {
                 this.gridState.spawnBoss();
+            }
+
+            // Re-apply accumulated risk heat hazards into new level
+            for (let b = 0; b < extraBossCount; b++) {
+                this.gridState.addHazard('crime_boss');
+            }
+            for (let p = 0; p < extraPoliceCount; p++) {
+                this.gridState.addHazard('police_patrol');
             }
         }
         

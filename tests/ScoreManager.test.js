@@ -176,4 +176,26 @@ test('ScoreManager Test Suite', async (t) => {
         assert.strictEqual(breakdown.capturedCriminals[0].finalValue, 150);
     });
 
+    await t.test('TC-032: tracks alignment scores, risk stats, and evaluates persona in score breakdown', () => {
+        const scoreManager = new ScoreManager();
+        scoreManager.recordCriminalCapture(
+            { ID: 'c-1', Name: 'Criminal Alpha', Computed_Value: 100 },
+            { name: 'Police Custody', alignmentScore: 10, policeDelta: -1, crimeBossDelta: 0 },
+            100
+        );
+
+        scoreManager.recordCriminalCapture(
+            { ID: 'c-2', Name: 'Criminal Beta', Computed_Value: 100 },
+            { name: 'Ruthlessly Butchered', alignmentScore: -30, policeDelta: 1, crimeBossDelta: 1 },
+            200
+        );
+
+        const breakdown = scoreManager.getScoreBreakdown();
+        assert.strictEqual(breakdown.alignment.netScore, -20);
+        assert.strictEqual(breakdown.alignment.riskStats.policeDelta, 0);
+        assert.strictEqual(breakdown.alignment.riskStats.crimeBossDelta, 1);
+        assert.strictEqual(breakdown.alignment.persona.title, 'Lethal Executioner');
+    });
+
 });
+

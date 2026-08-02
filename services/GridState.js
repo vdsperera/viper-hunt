@@ -120,6 +120,83 @@ export class GridState {
         ]);
     }
 
+    addHazard(type = 'police_patrol') {
+        let spawned = false;
+        let attempts = 0;
+        const pos = { x: 0, y: 0 };
+        while (!spawned && attempts < 1000) {
+            pos.x = Math.floor(Math.random() * this.width);
+            pos.y = Math.floor(Math.random() * this.height);
+            if (!this.isCellOccupied(pos.x, pos.y)) {
+                spawned = true;
+            }
+            attempts++;
+        }
+        if (spawned) {
+            const isPolice = type === 'police_patrol';
+            const isReaper = type === 'death_reaper';
+            const newHazard = {
+                id: `hz-dyn-${type}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                type: type,
+                name: isPolice ? 'Police Patrol' : isReaper ? 'Death Reaper' : 'Crime Boss',
+                icon: isPolice ? '🚔' : isReaper ? '💀' : '🦹',
+                color: isPolice ? '#0088ff' : isReaper ? '#aa00ff' : '#ff0055',
+                x: pos.x,
+                y: pos.y
+            };
+            if (!Array.isArray(this.hazards)) this.hazards = [];
+            this.hazards.push(newHazard);
+            return newHazard;
+        }
+        return null;
+    }
+
+    removeHazard(type = 'police_patrol') {
+        if (!Array.isArray(this.hazards) || this.hazards.length === 0) return false;
+        const idx = this.hazards.findIndex(h => h.type === type || (type === 'crime_boss' && h.type === 'boss'));
+        if (idx !== -1) {
+            this.hazards.splice(idx, 1);
+            return true;
+        }
+        return false;
+    }
+
+    applyAttackConsequences(policeDelta = 0, crimeBossDelta = 0) {
+        const outcomes = [];
+
+        // Apply Police Delta
+        if (policeDelta > 0) {
+            for (let i = 0; i < policeDelta; i++) {
+                if (this.addHazard('police_patrol')) {
+                    outcomes.push({ type: 'police_add', text: '+1 Police Patrol 🚔 (Heat Raised)' });
+                }
+            }
+        } else if (policeDelta < 0) {
+            for (let i = 0; i < Math.abs(policeDelta); i++) {
+                if (this.removeHazard('police_patrol')) {
+                    outcomes.push({ type: 'police_remove', text: '-1 Police Heat 👮 (Heat Reduced)' });
+                }
+            }
+        }
+
+        // Apply Crime Boss Delta
+        if (crimeBossDelta > 0) {
+            for (let i = 0; i < crimeBossDelta; i++) {
+                if (this.addHazard('crime_boss')) {
+                    outcomes.push({ type: 'boss_add', text: '+1 Crime Boss 🦹 (Gang Retaliation)' });
+                }
+            }
+        } else if (crimeBossDelta < 0) {
+            for (let i = 0; i < Math.abs(crimeBossDelta); i++) {
+                if (this.removeHazard('crime_boss')) {
+                    outcomes.push({ type: 'boss_remove', text: '-1 Crime Boss 🦹' });
+                }
+            }
+        }
+
+        return outcomes;
+    }
+
     spawnHazards(hazardSpecs = null) {
         this.hazards = [];
         if (!hazardSpecs || !Array.isArray(hazardSpecs) || hazardSpecs.length === 0) {
@@ -179,15 +256,79 @@ export class GridState {
         });
     }
 
+    getThreatStatus() {
+        if (!Array.isArray(this.hazards) || this.hazards.length === 0) {
+            return {
+                label: 'SECURE (NO HAZARDS)',
+                color: '#00f0ff',
+                bossCount: 0,
+                policeCount: 0,
+                reaperCount: 0,
+                totalHazards: 0,
+                effectiveChance: 0
+            };
+        }
+
+        let bossCount = 0;
+        let policeCount = 0;
+        let reaperCount = 0;
+
+        this.hazards.forEach(h => {
+            if (h.type === 'police_patrol') policeCount++;
+            else if (h.type === 'death_reaper') reaperCount++;
+            else bossCount++;
+        });
+
+        const totalHazards = this.hazards.length;
+        const rules = this.bossRules || {};
+        const baseChance = typeof rules.bossMoveChance === 'number' ? rules.bossMoveChance : 0.4;
+        const hazardBonus = Math.max(0, totalHazards - 1) * 0.15;
+        const effectiveChance = Math.min(0.95, baseChance + hazardBonus);
+
+        let label = 'STANDARD RISK';
+        let color = '#00ff88';
+
+        if (totalHazards >= 4 || bossCount >= 2) {
+            label = `CRITICAL RISK (🦹x${bossCount} 🚔x${policeCount})`;
+            color = '#ff0055';
+        } else if (totalHazards >= 2) {
+            label = `ELEVATED RISK (🦹x${bossCount} 🚔x${policeCount})`;
+            color = '#ffb800';
+        } else {
+            label = `STANDARD RISK (🦹x${bossCount} 🚔x${policeCount})`;
+            color = '#00ff88';
+        }
+
+        return {
+            label,
+            color,
+            bossCount,
+            policeCount,
+            reaperCount,
+            totalHazards,
+            effectiveChance
+        };
+    }
+
     moveHazards(overrideRules = null) {
         if (!this.hazards || this.hazards.length === 0 || (this.playMode !== 'mode1' && this.playMode !== 'mode3')) return;
 
         const rules = overrideRules || this.bossRules || {};
-        const chance = typeof rules.bossMoveChance === 'number' ? rules.bossMoveChance : 0.4;
-        const aggressiveness = typeof rules.bossAggressiveness === 'number' ? rules.bossAggressiveness : 0.6;
+        const baseChance = typeof rules.bossMoveChance === 'number' ? rules.bossMoveChance : 0.4;
+        const baseAggressiveness = typeof rules.bossAggressiveness === 'number' ? rules.bossAggressiveness : 0.6;
         const moveRange = typeof rules.bossMoveRange === 'number' ? rules.bossMoveRange : 1;
 
-        if (Math.random() > chance) return;
+        // Dynamic Risk Scaling: Each active hazard beyond 1 increases move frequency (+0.15) and pursuit aggressiveness (+0.10) for default rules
+        const totalHazards = this.hazards.length;
+        const hazardBonus = Math.max(0, totalHazards - 1) * 0.15;
+        const effectiveChance = (typeof rules.bossMoveChance === 'number')
+            ? rules.bossMoveChance
+            : Math.min(0.95, baseChance + hazardBonus);
+        const effectiveAggressiveness = (typeof rules.bossAggressiveness === 'number')
+            ? rules.bossAggressiveness
+            : Math.min(0.95, baseAggressiveness + (hazardBonus * 0.67));
+
+        if (effectiveChance <= 0 || Math.random() > effectiveChance) return;
 
         // Build obstacle set (hunter body segments & active targets)
         const obstacles = new Set();
@@ -210,7 +351,7 @@ export class GridState {
         this.hazards.forEach(hazard => {
             for (let step = 0; step < moveRange; step++) {
                 let nextStep = null;
-                const isAggressive = this.hunter && Math.random() < aggressiveness;
+                const isAggressive = this.hunter && Math.random() < effectiveAggressiveness;
 
                 if (!isAggressive) {
                     // Random adjacent valid step
