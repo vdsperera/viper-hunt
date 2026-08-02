@@ -641,6 +641,7 @@ async function bootstrap() {
         };
 
         let prevTargetSignature = '';
+        let prevAttackSignature = '';
         hudInterval = setInterval(() => {
             if (gameLoop.running) {
                 hudScore.innerText = scoreManager.getSessionScore();
@@ -673,7 +674,12 @@ async function bootstrap() {
                     }
                 }
                 if (selectedMode === 'mode1') {
-                    renderAttackSelectorHud();
+                    const attacks = attackManager.getAttackList();
+                    const attackSig = attacks.map(a => `${a.id}-${a.currentUses}-${a.isActive}`).join('|');
+                    if (attackSig !== prevAttackSignature) {
+                        prevAttackSignature = attackSig;
+                        renderAttackSelectorHud();
+                    }
                 }
             }
         }, 100);
