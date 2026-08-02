@@ -53,7 +53,7 @@ async function init() {
             bossMoveChance: { doubleValue: 0.4 },
             bossAggressiveness: { doubleValue: 0.6 },
             bossMoveRange: { integerValue: "1" },
-            geminiApiKey: { stringValue: "" }
+            geminiProxyUrl: { stringValue: "https://us-central1-viper-hunt.cloudfunctions.net/generateNarration" }
         }
     };
 

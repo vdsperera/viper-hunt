@@ -14,6 +14,6 @@ export const firebaseConfig = {
     enableGeminiAI: true,
     // Enable/Disable live Real-Time Cyberpunk Weather & Volumetric Fog System (Open-Meteo API)
     enableWeatherSystem: true,
-    // Admin Google AI Studio Gemini API key for real-time boss taunts & LLM features
-    geminiApiKey: "YOUR_GEMINI_API_KEY"
+    // Serverless Firebase Cloud Function Proxy Endpoint for real-time boss taunts & LLM narration features
+    geminiProxyUrl: "https://YOUR_REGION-YOUR_PROJECT_ID.cloudfunctions.net/generateNarration"
 };

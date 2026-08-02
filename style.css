@@ -427,6 +427,142 @@ body {
     color: #aaaaaa;
 }
 
+.attack-btn {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding: 6px 10px;
+}
+
+.attack-btn-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.attack-risk-tag {
+    font-family: var(--font-heading);
+    font-size: 0.58rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.attack-risk-tag.safe-risk {
+    background: rgba(0, 240, 255, 0.15);
+    color: #00f0ff;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.attack-risk-tag.neutral-risk {
+    background: rgba(255, 184, 0, 0.15);
+    color: #ffb800;
+    border: 1px solid rgba(255, 184, 0, 0.3);
+}
+
+.attack-risk-tag.danger-risk {
+    background: rgba(255, 0, 85, 0.18);
+    color: #ff0055;
+    border: 1px solid rgba(255, 0, 85, 0.4);
+}
+
+/* Tactical Morality & Alignment Evaluation Card */
+.alignment-evaluation-card {
+    background: rgba(10, 16, 26, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--persona-color, #00f0ff);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 12px 0 18px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.03);
+}
+
+.alignment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+}
+
+.alignment-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alignment-icon {
+    font-size: 1.1rem;
+}
+
+.alignment-label {
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+.alignment-persona-badge {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid;
+    letter-spacing: 0.8px;
+}
+
+.alignment-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.alignment-desc {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: #cccccc;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.alignment-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.alignment-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.alignment-stat .stat-label {
+    font-family: var(--font-heading);
+    font-size: 0.62rem;
+    color: #888888;
+    letter-spacing: 0.5px;
+}
+
+.alignment-stat .stat-value {
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
 /* Glassmorphism Overlay UI - Fixed Centering for Mobile & Desktop */
 .overlay {
     position: fixed;
@@ -1074,6 +1210,47 @@ select option {
 
 .overlay-card.has-breakdown {
     max-width: 580px;
+    padding-bottom: 24px;
+}
+
+/* Sticky Replay Action Bar & Top Replay Bar for Seamless UX */
+.top-replay-header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 10px 14px;
+    background: rgba(0, 240, 255, 0.08);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+}
+
+.top-replay-btn {
+    width: 100%;
+    max-width: 340px;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 800;
+    padding: 12px 24px;
+    letter-spacing: 1.5px;
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+}
+
+.overlay-card.has-breakdown #start-btn {
+    position: sticky;
+    bottom: -1px;
+    z-index: 30;
+    width: 100%;
+    max-width: 340px;
+    margin-top: 14px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    box-shadow: 0 -8px 25px rgba(4, 7, 14, 0.95), 0 0 25px rgba(0, 255, 136, 0.5);
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.95), rgba(0, 200, 100, 0.95));
 }
 
 #score-breakdown-container {
@@ -1965,6 +2142,53 @@ select option {
     justify-content: center;
     width: 100%;
 }
+
+/* 3D WebGL Canvas Styling */
+#three-canvas {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    display: block;
+}
+
+#three-canvas.hidden {
+    display: none !important;
+}
+
+/* Render Mode Toggle HUD Button */
+.render-mode-badge {
+    padding: 2px 4px !important;
+}
+
+.hud-toggle-btn {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(170, 0, 255, 0.2));
+    border: 1px solid var(--primary-cyan);
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.hud-toggle-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(170, 0, 255, 0.4));
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+    transform: scale(1.05);
+}
+
+.hud-toggle-btn.mode-3d {
+    background: linear-gradient(135deg, rgba(255, 0, 85, 0.3), rgba(170, 0, 255, 0.3));
+    border-color: #ff0055;
+    box-shadow: 0 0 12px rgba(255, 0, 85, 0.4);
+}
+
 
 
 

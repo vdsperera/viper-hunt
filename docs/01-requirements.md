@@ -178,7 +178,7 @@ _Last updated: 2026-07-23_
 
 ### 18. Google Gemini API Integration
 
-- **18.1 [REFINED]** `LLMService` integrates with Google AI Studio Gemini API (`gemini-1.5-flash`) via user-configured API key or local storage persistence.
+- **18.1 [REFINED]** `LLMService` integrates with Google AI Studio Gemini models via a secure serverless backend proxy (Firebase Cloud Function) holding the API key server-side to prevent client credential exposure, enable rate-limiting, and eliminate user UX key setup.
 - **18.2 [REFINED]** System generates real-time hazard radio dispatches (`generateHazardTaunt`), post-match Cyberpunk News Broadcast reports (`generateNewsBroadcast`), criminal rap sheet backstories (`generateTargetBackstory`), and dynamic Mode 3 soul questions (`generateQuestQuestion`).
 - **18.3 [REFINED]** All AI endpoints feature an automatic 4-second timeout and instant procedural fallback engines to guarantee 100% offline gameplay compatibility.
 

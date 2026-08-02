@@ -1,3 +1,5 @@
+import { AttackManager } from './AttackManager.js';
+
 export class ScoreManager {
     constructor() {
         this.sessionScore = 0;
@@ -5,16 +7,31 @@ export class ScoreManager {
         this.currentLevelTargetsCount = 0;
         this.levelHistory = [];
         this.capturedCriminals = [];
+        this.netAlignmentScore = 0;
+        this.riskStats = {
+            policeDelta: 0,
+            crimeBossDelta: 0
+        };
     }
 
     /**
      * Records a detailed log entry for a captured target and the action taken by the player.
      * @param {Object} criminalRecord Criminal target record
-     * @param {Object} attackInfo { name, icon, color, id } Attack or action details
+     * @param {Object} attackInfo { name, icon, color, id, alignmentScore, policeDelta, crimeBossDelta, riskDescription } Attack or action details
      * @param {number} finalValue Awarded score points
+     * @param {string} confession Dynamic AI confession or procedural text
      */
     recordCriminalCapture(criminalRecord, attackInfo = null, finalValue = 0, confession = '') {
         if (!criminalRecord) return;
+        
+        const alignmentScore = attackInfo?.alignmentScore || 0;
+        const policeDelta = attackInfo?.policeDelta || 0;
+        const crimeBossDelta = attackInfo?.crimeBossDelta || 0;
+
+        this.netAlignmentScore += alignmentScore;
+        this.riskStats.policeDelta += policeDelta;
+        this.riskStats.crimeBossDelta += crimeBossDelta;
+
         this.capturedCriminals.push({
             id: criminalRecord.ID || `cap-${this.capturedCriminals.length + 1}`,
             name: criminalRecord.Name || 'Unknown Target',
@@ -27,6 +44,10 @@ export class ScoreManager {
             pastAction: attackInfo?.pastAction || attackInfo?.name || 'Handed to Police Custody',
             attackIcon: attackInfo?.icon || '👮',
             attackColor: attackInfo?.color || '#00f0ff',
+            alignmentScore,
+            policeDelta,
+            crimeBossDelta,
+            riskDescription: attackInfo?.riskDescription || '',
             interpol: criminalRecord.Interpol_Red_Notice || false,
             fbi: criminalRecord.FBI_Most_Wanted || false,
             conviction: criminalRecord.Conviction_Status || false
@@ -110,9 +131,16 @@ export class ScoreManager {
         totalTargetValueSum += partialCapturedSum;
         totalTargetScore += partialValueScore;
 
+        const persona = AttackManager.evaluateAlignment(this.netAlignmentScore, this.capturedCriminals.length);
+
         return {
             levelHistory: [...this.levelHistory],
             capturedCriminals: [...this.capturedCriminals],
+            alignment: {
+                netScore: this.netAlignmentScore,
+                persona,
+                riskStats: { ...this.riskStats }
+            },
             partialLevel: (partialCapturedSum > 0 || partialTargetsCaptured > 0) ? {
                 level: this.levelHistory.length + 1,
                 targetsCaptured: partialTargetsCaptured,
@@ -133,3 +161,4 @@ export class ScoreManager {
         };
     }
 }
+
