@@ -36,13 +36,19 @@ test('LLMService Test Suite', async (t) => {
         assert.strictEqual(quest.answers.filter(a => a.isCorrect).length, 1);
     });
 
-    await t.test('TC-074: manages Gemini API Key state correctly', () => {
+    await t.test('TC-074: manages Gemini Proxy URL state correctly', () => {
         const llm = new LLMService();
+        assert.strictEqual(llm.hasProxyUrl(), false);
         assert.strictEqual(llm.hasApiKey(), false);
-        llm.setApiKey('test_key_123');
-        assert.strictEqual(llm.getApiKey(), 'test_key_123');
+        
+        const testProxyUrl = 'https://us-central1-viper-hunt.cloudfunctions.net/generateNarration';
+        llm.setProxyUrl(testProxyUrl);
+        assert.strictEqual(llm.getProxyUrl(), testProxyUrl);
+        assert.strictEqual(llm.hasProxyUrl(), true);
         assert.strictEqual(llm.hasApiKey(), true);
-        llm.setApiKey(null);
+
+        llm.setProxyUrl(null);
+        assert.strictEqual(llm.hasProxyUrl(), false);
         assert.strictEqual(llm.hasApiKey(), false);
     });
 
@@ -80,15 +86,15 @@ test('LLMService Test Suite', async (t) => {
         assert.ok(backstory.length > 10);
     });
 
-    await t.test('TC-078: handles mock Gemini API calls gracefully', async () => {
-        const llm = new LLMService('mock_api_key');
-        // Override _callGeminiApi for deterministic testing
-        llm._callGeminiApi = async () => 'Mock Gemini AI Generated Response';
+    await t.test('TC-078: handles mock serverless proxy calls gracefully', async () => {
+        const llm = new LLMService('https://us-central1-viper-hunt.cloudfunctions.net/generateNarration');
+        // Override _callProxy for deterministic testing
+        llm._callProxy = async () => 'Mock Serverless Gemini Proxy Response';
 
         const confession = await llm.generateConfession('Viper Target', 'Trial', 'Police Custody');
-        assert.strictEqual(confession, '"Mock Gemini AI Generated Response"');
+        assert.strictEqual(confession, '"Mock Serverless Gemini Proxy Response"');
 
         const taunt = await llm.generateHazardTaunt('police_patrol', 'Police', 2);
-        assert.strictEqual(taunt, 'Mock Gemini AI Generated Response');
+        assert.strictEqual(taunt, 'Mock Serverless Gemini Proxy Response');
     });
 });

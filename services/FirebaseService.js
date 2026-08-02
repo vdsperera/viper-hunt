@@ -173,7 +173,8 @@ export class FirebaseService {
                         growthElite: typeof data.growthElite === 'number' ? data.growthElite : undefined,
                         bossMoveChance: typeof data.bossMoveChance === 'number' ? data.bossMoveChance : undefined,
                         bossAggressiveness: typeof data.bossAggressiveness === 'number' ? data.bossAggressiveness : undefined,
-                        bossMoveRange: typeof data.bossMoveRange === 'number' ? data.bossMoveRange : undefined
+                        bossMoveRange: typeof data.bossMoveRange === 'number' ? data.bossMoveRange : undefined,
+                        geminiProxyUrl: typeof data.geminiProxyUrl === 'string' ? data.geminiProxyUrl : undefined
                     };
                 }
             }

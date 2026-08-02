@@ -1,83 +1,76 @@
 export class LLMService {
-    constructor(apiKey = null) {
-        this.apiKey = apiKey || (typeof localStorage !== 'undefined' ? localStorage.getItem('gemini_api_key') : null) || null;
+    /**
+     * @param {string|null} proxyUrl Optional serverless Cloud Function proxy endpoint URL
+     */
+    constructor(proxyUrl = null) {
+        this.proxyUrl = proxyUrl || null;
         this.hasNativeAi = typeof window !== 'undefined' && Boolean(window.ai && window.ai.languageModel);
-        this.geminiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
     }
 
-    setApiKey(key) {
-        this.apiKey = key || null;
-        if (typeof localStorage !== 'undefined') {
-            if (key) localStorage.setItem('gemini_api_key', key);
-            else localStorage.removeItem('gemini_api_key');
-        }
+    setProxyUrl(url) {
+        this.proxyUrl = url || null;
+    }
+
+    getProxyUrl() {
+        return this.proxyUrl;
+    }
+
+    hasProxyUrl() {
+        return Boolean(this.proxyUrl && String(this.proxyUrl).trim().length > 0);
+    }
+
+    // Backwards compatibility aliases (migrated from client-side direct API key to serverless proxy)
+    setApiKey(keyOrUrl) {
+        this.setProxyUrl(keyOrUrl);
     }
 
     getApiKey() {
-        return this.apiKey;
+        return this.getProxyUrl();
     }
 
     hasApiKey() {
-        return Boolean(this.apiKey && String(this.apiKey).trim().length > 0);
+        return this.hasProxyUrl();
     }
 
     /**
-     * Call Google AI Studio Gemini / Gemma API endpoint with model fallbacks, timeout, and error handling
+     * Call secure backend serverless proxy endpoint for narration content
      * @param {string} prompt
      * @param {string} systemInstruction
      * @returns {Promise<string|null>}
      */
-    async _callGeminiApi(prompt, systemInstruction = "You are a dramatic cyberpunk game narrator.") {
-        if (!this.hasApiKey()) return null;
+    async _callProxy(prompt, systemInstruction = "You are a dramatic cyberpunk game narrator.") {
+        if (!this.hasProxyUrl()) return null;
 
-        const candidateModels = [
-            'gemma-4-26b-a4b-it',
-            'gemma-4-31b-it',
-            'gemini-3.6-flash',
-            'gemini-3.5-flash'
-        ];
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
 
-        for (const model of candidateModels) {
-            const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-            const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+        try {
+            const response = await fetch(this.proxyUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, systemInstruction }),
+                signal: controller ? controller.signal : undefined
+            });
 
-            try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(this.apiKey)}`;
-                const payload = {
-                    contents: [
-                        {
-                            parts: [{ text: `${systemInstruction}\n\nTask: ${prompt}` }]
-                        }
-                    ],
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 150
-                    }
-                };
+            if (timeoutId) clearTimeout(timeoutId);
 
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                    signal: controller ? controller.signal : undefined
-                });
-
-                if (timeoutId) clearTimeout(timeoutId);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (text && text.trim()) return text.trim();
-                } else {
-                    console.warn(`[LLMService] Gemini API model ${model} returned status ${response.status}`);
-                }
-            } catch (e) {
-                if (timeoutId) clearTimeout(timeoutId);
-                console.warn(`[LLMService] Gemini API call for ${model} failed:`, e.message || e);
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.text) return data.text.trim();
+            } else {
+                console.warn(`[LLMService] Narration proxy returned status ${response.status}`);
             }
+        } catch (e) {
+            if (timeoutId) clearTimeout(timeoutId);
+            console.warn(`[LLMService] Narration proxy call failed:`, e.message || e);
         }
 
         return null;
+    }
+
+    // Deprecated alias for backwards compatibility
+    async _callGeminiApi(prompt, systemInstruction = "You are a dramatic cyberpunk game narrator.") {
+        return this._callProxy(prompt, systemInstruction);
     }
 
     /**
@@ -91,11 +84,11 @@ export class LLMService {
         const name = criminalName || 'Fugitive';
         const action = (attackName || '').toLowerCase();
 
-        // 1. Attempt Gemini API if key exists
-        if (this.hasApiKey()) {
+        // 1. Attempt Secure Serverless Proxy if configured
+        if (this.hasProxyUrl()) {
             const prompt = `Generate a realistic 1-sentence cyberpunk criminal confession quote for fugitive "${name}" captured via "${attackName}". Keep it under 20 words.`;
-            const geminiResponse = await this._callGeminiApi(prompt, "You are a cyberpunk game narrator.");
-            if (geminiResponse) return `"${geminiResponse.replace(/^"|"$/g, '')}"`;
+            const proxyResponse = await this._callProxy(prompt, "You are a cyberpunk game narrator.");
+            if (proxyResponse) return `"${proxyResponse.replace(/^"|"$/g, '')}"`;
         }
 
         // 2. Attempt Native Browser Local LLM (window.ai) if available
@@ -128,9 +121,9 @@ export class LLMService {
     async generateHazardTaunt(hazardType, hazardName, distanceToPlayer = 3) {
         const name = hazardName || hazardType;
 
-        if (this.hasApiKey()) {
+        if (this.hasProxyUrl()) {
             const prompt = `Generate a single short tactical radio dispatch/taunt line (under 12 words) from "${name}" closing in on the player hunter at distance ${distanceToPlayer} grid cells.`;
-            const result = await this._callGeminiApi(prompt, "You are a cyberpunk police and boss hazard voice radio actor.");
+            const result = await this._callProxy(prompt, "You are a cyberpunk police and boss hazard voice radio actor.");
             if (result) return result.replace(/^"|"$/g, '');
         }
 
@@ -168,9 +161,9 @@ export class LLMService {
         const captures = sessionSummary.capturesCount || 0;
         const cause = sessionSummary.causeOfDeath || 'System Shutdown';
 
-        if (this.hasApiKey()) {
+        if (this.hasProxyUrl()) {
             const prompt = `Write a dramatic 2-sentence cyberpunk news broadcast summary for a hunter run: Score ${score}, Criminals Captured ${captures}, Death Cause "${cause}".`;
-            const result = await this._callGeminiApi(prompt, "You are a news anchor reporting live on Night City news network.");
+            const result = await this._callProxy(prompt, "You are a news anchor reporting live on Night City news network.");
             if (result) return result;
         }
 
@@ -184,9 +177,9 @@ export class LLMService {
      * @returns {Promise<string>}
      */
     async generateTargetBackstory(targetName, value = 50) {
-        if (this.hasApiKey()) {
+        if (this.hasProxyUrl()) {
             const prompt = `Generate a 1-sentence cyberpunk criminal rap sheet backstory for target "${targetName}" with bounty value ${value}. Under 15 words.`;
-            const result = await this._callGeminiApi(prompt, "You are an Interpol database archivist.");
+            const result = await this._callProxy(prompt, "You are an Interpol database archivist.");
             if (result) return result;
         }
 
@@ -199,9 +192,9 @@ export class LLMService {
      * @returns {Promise<{question: string, answers: Array<{text: string, isCorrect: boolean}>}>}
      */
     async generateQuestQuestion(level) {
-        if (this.hasApiKey()) {
+        if (this.hasProxyUrl()) {
             const prompt = `Generate a cyberpunk philosophical question with 3 choices (1 true/wise answer and 2 wrong/reckless answers) for Level ${level}. Return strictly JSON format: {"question": "...", "answers": [{"text": "...", "isCorrect": true}, {"text": "...", "isCorrect": false}, {"text": "...", "isCorrect": false}]}`;
-            const result = await this._callGeminiApi(prompt, "You are a philosophical AI entity testing a human soul on the digital grid. Respond ONLY in valid JSON.");
+            const result = await this._callProxy(prompt, "You are a philosophical AI entity testing a human soul on the digital grid. Respond ONLY in valid JSON.");
             if (result) {
                 try {
                     const parsed = JSON.parse(result.replace(/```json|```/g, '').trim());
