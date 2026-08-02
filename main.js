@@ -458,8 +458,10 @@ async function bootstrap() {
         if (attackSelectorHud) {
             if (selectedMode === 'mode1') {
                 attackSelectorHud.classList.remove('hidden');
+                if (hud) hud.classList.add('mode1-hud');
             } else {
                 attackSelectorHud.classList.add('hidden');
+                if (hud) hud.classList.remove('mode1-hud');
             }
         }
 

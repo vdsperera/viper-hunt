@@ -19,38 +19,39 @@
     <div id="game-container">
         <!-- Modern Cyberpunk Top Header HUD Bar (Outside Grid) -->
         <div id="hud" class="hidden">
-            <div class="hud-left-group">
-                <div class="hud-badge player-badge">
-                    <span class="hud-label">PLAYER</span>
-                    <span id="hud-player" class="hud-value">---</span>
+            <!-- Row 1: Status Badges & Score -->
+            <div class="hud-top-row">
+                <div class="hud-left-group">
+                    <div class="hud-badge player-badge">
+                        <span class="hud-label">PLAYER</span>
+                        <span id="hud-player" class="hud-value">---</span>
+                    </div>
+                    <div class="hud-badge level-badge">
+                        <span class="hud-label">LEVEL</span>
+                        <span id="hud-level" class="hud-value">1</span>
+                    </div>
+                    <div id="ai-threat-badge" class="hud-badge threat-badge" title="Dynamic AI Threat Level">
+                        <span class="hud-label">AI THREAT</span>
+                        <span id="hud-threat-level" class="hud-value threat-value" style="color: #00ff88;">🎯 STANDARD</span>
+                    </div>
+                    <div id="weather-badge" class="hud-badge weather-badge" title="Live Sector Weather Status">
+                        <span class="hud-label">WEATHER</span>
+                        <span id="hud-weather-level" class="hud-value weather-value" style="color: #00f0ff;">🌧️ CYBER RAIN</span>
+                    </div>
+                    <div id="render-mode-badge" class="hud-badge render-mode-badge" title="Toggle 2D / 3D Render Engine">
+                        <button id="render-mode-toggle-btn" class="hud-toggle-btn"><span>👁️ VIEW: 2D</span></button>
+                    </div>
                 </div>
-                <div class="hud-badge level-badge">
-                    <span class="hud-label">LEVEL</span>
-                    <span id="hud-level" class="hud-value">1</span>
-                </div>
-                <div id="ai-threat-badge" class="hud-badge threat-badge" title="Dynamic AI Threat Level">
-                    <span class="hud-label">AI THREAT</span>
-                    <span id="hud-threat-level" class="hud-value threat-value" style="color: #00ff88;">🎯
-                        STANDARD</span>
-                </div>
-                <div id="weather-badge" class="hud-badge weather-badge" title="Live Sector Weather Status">
-                    <span class="hud-label">WEATHER</span>
-                    <span id="hud-weather-level" class="hud-value weather-value" style="color: #00f0ff;">🌧️ CYBER
-                        RAIN</span>
-                </div>
-                <div id="render-mode-badge" class="hud-badge render-mode-badge" title="Toggle 2D / 3D Render Engine">
-                    <button id="render-mode-toggle-btn" class="hud-toggle-btn"><span>👁️ VIEW: 2D</span></button>
+
+                <div class="hud-badge score-badge">
+                    <span class="hud-label">SCORE</span>
+                    <span id="hud-score" class="hud-value">0</span>
                 </div>
             </div>
 
-            <!-- Attack & Punishment Selector HUD Bar for Mode 1 -->
+            <!-- Row 2: Attack & Punishment Selector HUD Bar for Mode 1 -->
             <div id="attack-selector-hud" class="hidden">
                 <div id="attack-buttons-container" class="attack-buttons-list"></div>
-            </div>
-
-            <div class="hud-badge score-badge">
-                <span class="hud-label">SCORE</span>
-                <span id="hud-score" class="hud-value">0</span>
             </div>
         </div>
 
