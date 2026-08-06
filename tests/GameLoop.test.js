@@ -1,4 +1,5 @@
 import { GameLoop } from '../services/GameLoop.js';
+import { eventBus, EVENTS } from '../services/EventBus.js';
 import assert from 'node:assert';
 import test from 'node:test';
 
@@ -105,10 +106,16 @@ test('GameLoop Test Suite', async (t) => {
         
         let addedScore = 0;
         let grew = false;
-        mockScoreManager.addCaptureValue = (val) => { addedScore = val; };
         mockGridState.growHunter = () => { grew = true; };
         
+        const onCapture = (payload) => {
+            addedScore = payload.addedScore;
+        };
+        eventBus.on(EVENTS.TARGET_CAPTURED, onCapture);
+        
         loop.update();
+        
+        eventBus.off(EVENTS.TARGET_CAPTURED, onCapture);
         
         assert.strictEqual(addedScore, 100); // from mockTargetManager
         assert.strictEqual(grew, true);

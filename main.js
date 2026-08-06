@@ -19,6 +19,7 @@ import { AudioService } from './services/AudioService.js';
 import { AdaptiveDifficultyService } from './services/AdaptiveDifficultyService.js';
 import { LLMService } from './services/LLMService.js';
 import { WeatherService, WeatherType } from './services/WeatherService.js';
+import { eventBus, EVENTS } from './services/EventBus.js';
 
 const uiOverlay = document.getElementById('overlay-ui');
 const uiTitle = document.getElementById('overlay-title');
@@ -617,7 +618,7 @@ async function bootstrap() {
         }
 
         gameLoop = new GameLoop(gameRules.fps, {
-            inputHandler, gridState, collisionDetector, targetManager, renderer, scoreManager, attackManager, audioService, adaptiveDifficultyService, llmService, weatherService, playMode: selectedMode
+            inputHandler, gridState, collisionDetector, targetManager, playMode: selectedMode, attackManager, adaptiveDifficultyService
         });
 
         const levelManager = new LevelManager(
@@ -631,7 +632,90 @@ async function bootstrap() {
             gameRules.emotionalQuestions,
             gameRules.levelHazards
         );
-        gameLoop.levelManager = levelManager;
+
+        // --- Event Bus Wiring (Decoupling) ---
+        eventBus.on(EVENTS.GAME_STARTED, () => {
+            if (audioService && typeof audioService.startBGM === 'function') {
+                audioService.startBGM();
+            }
+        });
+
+        eventBus.on(EVENTS.GAME_STOPPED, () => {
+            if (audioService && typeof audioService.stopBGM === 'function') {
+                audioService.stopBGM();
+            }
+        });
+
+        eventBus.on(EVENTS.TARGET_CAPTURED, (payload) => {
+            let confession = '';
+            if (llmService && typeof llmService._synthesizeProceduralConfession === 'function') {
+                confession = llmService._synthesizeProceduralConfession(payload.target.Name, payload.target.Incident, payload.attackInfo.name);
+            }
+
+            if (scoreManager) {
+                if (typeof scoreManager.recordCriminalCapture === 'function') {
+                    scoreManager.recordCriminalCapture(payload.target, payload.attackInfo, payload.addedScore, confession);
+                }
+                scoreManager.addCaptureValue(payload.addedScore);
+            }
+
+            if (levelManager) {
+                levelManager.handleCapture();
+            }
+
+            if (audioService && typeof audioService.playAttackSound === 'function') {
+                audioService.playAttackSound(payload.attackIdToPlay);
+            }
+
+            if (renderer) {
+                const cs = renderer.cellSize || 32;
+                const px = payload.position.x * cs + cs / 2;
+                const py = payload.position.y * cs;
+                if (typeof renderer.emitSparks === 'function') {
+                    renderer.emitSparks(px, py + cs / 2, payload.popupColor, 18);
+                }
+                if (typeof renderer.addFloatingText === 'function') {
+                    renderer.addFloatingText(px, py, payload.popupText, payload.popupColor);
+                }
+            }
+        });
+
+        eventBus.on(EVENTS.GAME_OVER, (payload) => {
+            if (audioService && typeof audioService.playGameOverSound === 'function') {
+                audioService.playGameOverSound();
+            }
+        });
+
+        eventBus.on(EVENTS.RENDER_TICK, (state) => {
+            if (renderer && typeof renderer.renderFrame === 'function') {
+                renderer.renderFrame(state);
+            }
+        });
+
+        eventBus.on(EVENTS.THREAT_LEVEL_CHANGED, (threat) => {
+            const hudThreat = document.getElementById('hud-threat-level');
+            if (hudThreat) {
+                hudThreat.innerText = threat.label;
+                hudThreat.style.color = threat.color;
+            }
+        });
+
+        eventBus.on(EVENTS.RISK_OUTCOMES_APPLIED, (payload) => {
+            if (renderer && Array.isArray(payload.outcomes)) {
+                const cs = renderer.cellSize || 32;
+                const px = payload.position.x * cs + cs / 2;
+                const py = payload.position.y * cs;
+                payload.outcomes.forEach((oc, i) => {
+                    const color = oc.type.includes('boss') ? '#ff0055' : oc.type.includes('remove') ? '#00f0ff' : '#0088ff';
+                    setTimeout(() => {
+                        if (renderer && typeof renderer.addFloatingText === 'function') {
+                            renderer.addFloatingText(px, py - (i + 1) * 22, oc.text, color);
+                        }
+                    }, (i + 1) * 150);
+                });
+            }
+        });
+        // --- End Event Bus Wiring ---
 
         // HUD Update Loop
         let currentLevel = 1;

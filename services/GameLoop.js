@@ -1,3 +1,5 @@
+import { eventBus, EVENTS } from './EventBus.js';
+
 export class GameLoop {
     constructor(fps, deps) {
         this.fps = fps;
@@ -6,27 +8,21 @@ export class GameLoop {
         this.running = false;
         this.animationId = null;
 
-        // Injected dependencies
+        // Core logic dependencies
         this.inputHandler = deps.inputHandler;
         this.gridState = deps.gridState;
         this.collisionDetector = deps.collisionDetector;
         this.targetManager = deps.targetManager;
-        this.renderer = deps.renderer;
-        this.scoreManager = deps.scoreManager;
-        this.audioService = deps.audioService;
-        this.adaptiveDifficultyService = deps.adaptiveDifficultyService;
-        this.llmService = deps.llmService;
         this.playMode = deps.playMode || 'mode1';
         this.attackManager = deps.attackManager;
+        this.adaptiveDifficultyService = deps.adaptiveDifficultyService;
     }
 
     start() {
         if (this.running) return;
         this.running = true;
         this.lastTime = performance.now();
-        if (this.audioService && typeof this.audioService.startBGM === 'function') {
-            this.audioService.startBGM();
-        }
+        eventBus.emit(EVENTS.GAME_STARTED);
         this.animationId = requestAnimationFrame((t) => this.tick(t));
     }
 
@@ -36,9 +32,7 @@ export class GameLoop {
             cancelAnimationFrame(this.animationId);
             this.animationId = null;
         }
-        if (this.audioService && typeof this.audioService.stopBGM === 'function') {
-            this.audioService.stopBGM();
-        }
+        eventBus.emit(EVENTS.GAME_STOPPED);
     }
 
     tick(timestamp) {
@@ -66,17 +60,17 @@ export class GameLoop {
     update() {
         if (!this.gridState || !this.gridState.hunter) return;
 
+        eventBus.emit(EVENTS.TICK);
+
         if (this.adaptiveDifficultyService && typeof this.adaptiveDifficultyService.tick === 'function') {
             this.adaptiveDifficultyService.tick();
         }
 
         // Update real-time HUD threat status badge based on active grid risk & hazard count
         if (typeof document !== 'undefined') {
-            const hudThreat = document.getElementById('hud-threat-level');
-            if (hudThreat && this.gridState && typeof this.gridState.getThreatStatus === 'function') {
+            if (this.gridState && typeof this.gridState.getThreatStatus === 'function') {
                 const threat = this.gridState.getThreatStatus();
-                hudThreat.innerText = threat.label;
-                hudThreat.style.color = threat.color;
+                eventBus.emit(EVENTS.THREAT_LEVEL_CHANGED, threat);
             }
         }
 
@@ -110,12 +104,16 @@ export class GameLoop {
             const lastRes = this.collisionDetector.lastResult || {};
             this.lastCollisionReason = lastRes.reason || 'Tactical Operation Failed';
             this.lastHazardName = lastRes.hazardName || null;
+            
             if (this.adaptiveDifficultyService && typeof this.adaptiveDifficultyService.recordFailure === 'function') {
                 this.adaptiveDifficultyService.recordFailure();
             }
-            if (this.audioService && typeof this.audioService.playGameOverSound === 'function') {
-                this.audioService.playGameOverSound();
-            }
+            
+            eventBus.emit(EVENTS.GAME_OVER, {
+                reason: this.lastCollisionReason,
+                hazardName: this.lastHazardName
+            });
+            
             this.stop();
             return;
         }
@@ -151,19 +149,7 @@ export class GameLoop {
 
                 if (this.gridState && typeof this.gridState.applyAttackConsequences === 'function') {
                     const riskOutcomes = this.gridState.applyAttackConsequences(attackResult.policeDelta, attackResult.crimeBossDelta);
-                    if (this.renderer && Array.isArray(riskOutcomes)) {
-                        const cs = this.renderer.cellSize || 32;
-                        const px = head.x * cs + cs / 2;
-                        const py = head.y * cs;
-                        riskOutcomes.forEach((oc, i) => {
-                            const color = oc.type.includes('boss') ? '#ff0055' : oc.type.includes('remove') ? '#00f0ff' : '#0088ff';
-                            setTimeout(() => {
-                                if (this.renderer && typeof this.renderer.addFloatingText === 'function') {
-                                    this.renderer.addFloatingText(px, py - (i + 1) * 22, oc.text, color);
-                                }
-                            }, (i + 1) * 150);
-                        });
-                    }
+                    eventBus.emit(EVENTS.RISK_OUTCOMES_APPLIED, { outcomes: riskOutcomes, position: head });
                 }
             }
 
@@ -175,41 +161,17 @@ export class GameLoop {
                 }
             }
 
-            if (this.audioService && typeof this.audioService.playAttackSound === 'function') {
-                this.audioService.playAttackSound(attackIdToPlay);
-            }
-
-            let confession = '';
-            if (this.llmService && typeof this.llmService._synthesizeProceduralConfession === 'function') {
-                confession = this.llmService._synthesizeProceduralConfession(capturedTarget.Name, capturedTarget.Incident, attackInfo.name);
-            }
-
-            if (this.scoreManager) {
-                if (typeof this.scoreManager.recordCriminalCapture === 'function') {
-                    this.scoreManager.recordCriminalCapture(capturedTarget, attackInfo, addedScore, confession);
-                }
-                this.scoreManager.addCaptureValue(addedScore);
-            }
-
-            if (this.renderer) {
-                const cs = this.renderer.cellSize || 32;
-                const px = head.x * cs + cs / 2;
-                const py = head.y * cs;
-                if (typeof this.renderer.emitSparks === 'function') {
-                    this.renderer.emitSparks(px, py + cs / 2, popupColor, 18);
-                }
-                if (typeof this.renderer.addFloatingText === 'function') {
-                    this.renderer.addFloatingText(px, py, popupText, popupColor);
-                }
-            }
-
-            if (this.levelManager) {
-                this.levelManager.handleCapture();
-            }
+            eventBus.emit(EVENTS.TARGET_CAPTURED, {
+                target: capturedTarget,
+                attackInfo: attackInfo,
+                addedScore: addedScore,
+                attackIdToPlay: attackIdToPlay,
+                position: head,
+                popupText: popupText,
+                popupColor: popupColor
+            });
         }
 
-        if (this.renderer && typeof this.renderer.renderFrame === 'function') {
-            this.renderer.renderFrame(this.gridState);
-        }
+        eventBus.emit(EVENTS.RENDER_TICK, this.gridState);
     }
 }
