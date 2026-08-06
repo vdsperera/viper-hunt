@@ -49,6 +49,29 @@ export class GridState {
         this.hunter = hunterEntity;
     }
 
+    resetHunterPosition() {
+        if (!this.hunter) return;
+        
+        const newHead = { 
+            x: Math.floor(this.width / 2), 
+            y: Math.floor(this.height / 2) 
+        };
+        this.hunter.HeadCoordinate = newHead;
+        
+        const currentLength = this.hunter.BodySegments ? this.hunter.BodySegments.length : 0;
+        const dir = this.hunter.Direction || 'RIGHT';
+        const newBody = [];
+        
+        for (let i = 1; i <= currentLength; i++) {
+            if (dir === 'UP') newBody.push({ x: newHead.x, y: newHead.y + i });
+            else if (dir === 'DOWN') newBody.push({ x: newHead.x, y: newHead.y - i });
+            else if (dir === 'LEFT') newBody.push({ x: newHead.x + i, y: newHead.y });
+            else newBody.push({ x: newHead.x - i, y: newHead.y }); // RIGHT
+        }
+        
+        this.hunter.BodySegments = newBody;
+    }
+
     setGrowthRules(rules) {
         this.growthRules = rules;
     }

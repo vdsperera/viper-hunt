@@ -133,27 +133,8 @@ export class LevelManager {
         }
         this.activeTargetsPerLevel = activeCount;
 
-        if (this.gridState.hunter) {
-            // Seamlessly snap Hunter head back to mathematical center of the grid
-            const newHead = { 
-                x: Math.floor(this.gridState.width / 2), 
-                y: Math.floor(this.gridState.height / 2) 
-            };
-            this.gridState.hunter.HeadCoordinate = newHead;
-            
-            // Retain length but straighten body behind the head to prevent instant self-collision
-            const currentLength = this.gridState.hunter.BodySegments.length;
-            const dir = this.gridState.hunter.Direction || 'RIGHT';
-            const newBody = [];
-            
-            for (let i = 1; i <= currentLength; i++) {
-                if (dir === 'UP') newBody.push({ x: newHead.x, y: newHead.y + i });
-                else if (dir === 'DOWN') newBody.push({ x: newHead.x, y: newHead.y - i });
-                else if (dir === 'LEFT') newBody.push({ x: newHead.x + i, y: newHead.y });
-                else newBody.push({ x: newHead.x - i, y: newHead.y }); // RIGHT
-            }
-            
-            this.gridState.hunter.BodySegments = newBody;
+        if (this.gridState && typeof this.gridState.resetHunterPosition === 'function') {
+            this.gridState.resetHunterPosition();
         }
 
         // Clear any uncaptured targets from previous level
