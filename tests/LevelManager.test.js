@@ -4,7 +4,27 @@ import test from 'node:test';
 
 test('LevelManager Test Suite', async (t) => {
 
-    const mockGridState = { width: 11, height: 11, hunter: null, activeTargets: new Map() };
+    const mockGridState = { 
+        width: 11, 
+        height: 11, 
+        hunter: null, 
+        activeTargets: new Map(),
+        resetHunterPosition: function() {
+            if (!this.hunter) return;
+            const newHead = { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) };
+            this.hunter.HeadCoordinate = newHead;
+            const currentLength = this.hunter.BodySegments ? this.hunter.BodySegments.length : 0;
+            const dir = this.hunter.Direction || 'RIGHT';
+            const newBody = [];
+            for (let i = 1; i <= currentLength; i++) {
+                if (dir === 'UP') newBody.push({ x: newHead.x, y: newHead.y + i });
+                else if (dir === 'DOWN') newBody.push({ x: newHead.x, y: newHead.y - i });
+                else if (dir === 'LEFT') newBody.push({ x: newHead.x + i, y: newHead.y });
+                else newBody.push({ x: newHead.x - i, y: newHead.y });
+            }
+            this.hunter.BodySegments = newBody;
+        }
+    };
     const mockTargetManager = { spawnTarget: () => ({ ID: 'T1' }) };
     const mockGameLoop = { stop: () => {} };
 
@@ -86,7 +106,13 @@ test('LevelManager Test Suite', async (t) => {
     Acceptance link: US-008 Scenario 1
     */
     await t.test('TC-045: recenters hunter correctly on even grid dimensions', () => {
-        const evenGrid = { width: 10, height: 10, hunter: { HeadCoordinate: {x: 0, y: 0}, BodySegments: [] }, activeTargets: new Map() };
+        const evenGrid = { 
+            width: 10, 
+            height: 10, 
+            hunter: { HeadCoordinate: {x: 0, y: 0}, BodySegments: [] }, 
+            activeTargets: new Map(),
+            resetHunterPosition: mockGridState.resetHunterPosition
+        };
         const levelManager = new LevelManager(evenGrid, mockTargetManager, mockGameLoop, 1);
         
         levelManager.advanceLevel();
