@@ -38,18 +38,36 @@ export class GameLoop {
     tick(timestamp) {
         if (!this.running) return;
 
-        const deltaTime = timestamp - this.lastTime;
+        // Initialize accumulator if not exists
+        if (typeof this.accumulator === 'undefined') {
+            this.accumulator = 0;
+        }
 
-        // Cap execution to intended tick interval (fps)
-        if (deltaTime >= this.interval) {
-            this.lastTime = timestamp - (deltaTime % this.interval);
-            
+        const deltaTime = timestamp - this.lastTime;
+        this.lastTime = timestamp;
+
+        this.accumulator += deltaTime;
+
+        // Prevent spiral of death on long browser pauses
+        if (this.accumulator > 1000) {
+            this.accumulator = 1000;
+        }
+
+        let updated = false;
+        while (this.accumulator >= this.interval) {
             try {
                 this.update();
+                updated = true;
             } catch (e) {
                 console.error("Uncaught exception in GameLoop update tick:", e);
                 this.stop();
+                return;
             }
+            this.accumulator -= this.interval;
+        }
+
+        if (updated && this.running) {
+            eventBus.emit(EVENTS.RENDER_TICK, this.gridState);
         }
 
         if (this.running) {
@@ -168,7 +186,5 @@ export class GameLoop {
                 popupColor: popupColor
             });
         }
-
-        eventBus.emit(EVENTS.RENDER_TICK, this.gridState);
     }
 }
