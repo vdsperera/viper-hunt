@@ -20,6 +20,7 @@ import { AdaptiveDifficultyService } from './services/AdaptiveDifficultyService.
 import { LLMService } from './services/LLMService.js';
 import { WeatherService, WeatherType } from './services/WeatherService.js';
 import { eventBus, EVENTS } from './services/EventBus.js';
+import { configManager } from './services/ConfigManager.js';
 
 const uiOverlay = document.getElementById('overlay-ui');
 const uiTitle = document.getElementById('overlay-title');
@@ -94,23 +95,12 @@ async function updateHighScore(name, score) {
 }
 
 async function bootstrap() {
-    // Dynamically attempt to load Firebase config & SDK (ensures offline safety and 404 safety)
-    let firebaseConfig = null;
+    await configManager.loadLocalConfig();
+    const firebaseConfig = configManager.getRawFirebaseConfig();
     let firebaseSdk = null;
 
-    try {
-        const configModule = await import('./firebase-config.js?t=' + Date.now());
-        const rawConfig = configModule.firebaseConfig || configModule.default || configModule;
-        if (rawConfig && rawConfig.apiKey) {
-            firebaseConfig = rawConfig;
-        }
-
-        const isPlaceholder = !firebaseConfig ||
-            !firebaseConfig.apiKey ||
-            firebaseConfig.apiKey.includes("YOUR_") ||
-            firebaseConfig.projectId.includes("YOUR_");
-
-        if (firebaseConfig && !isPlaceholder) {
+    if (firebaseConfig) {
+        try {
             // Load Firebase modules dynamically
             const [appModule, firestoreModule] = await Promise.all([
                 import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js'),
@@ -126,156 +116,17 @@ async function bootstrap() {
                 getDoc: firestoreModule.getDoc,
                 setDoc: firestoreModule.setDoc
             };
+        } catch (e) {
+            console.warn("[main] Firebase setup skipped/failed. Local fallback enabled.", e);
         }
-    } catch (e) {
-        console.warn("[main] Firebase setup skipped/failed. Local fallback enabled.", e);
     }
 
     firebaseService = new FirebaseService(firebaseSdk, firebaseConfig);
+    await configManager.syncWithCloud(firebaseService);
 
-    const defaultRules = {
-        // Set useCloudConfig to false for local testing (uses local default rules directly),
-        // or true to fetch and sync live rules with Firebase Firestore.
-        useCloudConfig: true,
-        showCriminalPunishmentLog: false, // Admin System Level Configuration (default: false / hidden)
-        voiceStyle: 'tactical_swat', // Admin System Level Configuration ('tactical_swat', 'gritty_syndicate', 'cyber_command')
-        fps: 12,
-        targetsPerLevel: 5,
-        maxSimultaneousTargets: 3,
-        maxLevels: 1,
-        levelTargetSpecs: [
-            { level: 1, targetValues: [20, 20, 50, 70, 100] },
-            { level: 2, targetValues: [30, 40, 60, 80, 100] },
-            { level: 3, targetValues: [50, 60, 75, 90, 100] }
-        ],
-        growthLow: 1,
-        growthMedium: 2,
-        growthHigh: 3,
-        growthElite: 4,
-        bossMoveChance: 0.4,
-        bossAggressiveness: 0.6,
-        bossMoveRange: 1,
-        emotionalQuestions: [
-            {
-                level: 1,
-                question: "What gives you strength when facing despair?",
-                answers: [
-                    { text: "Unwavering Hope", value: 50 },
-                    { text: "Fiery Passion", value: 70 },
-                    { text: "Silent Resilience", value: 90 }
-                ]
-            },
-            {
-                level: 2,
-                question: "What is your greatest vulnerability?",
-                answers: [
-                    { text: "Blind Trust", value: 40 },
-                    { text: "Fear of Failure", value: 60 },
-                    { text: "Solitude", value: 80 }
-                ]
-            },
-            {
-                level: 3,
-                question: "What guides your ultimate destiny?",
-                answers: [
-                    { text: "Duty & Honor", value: 60 },
-                    { text: "Free Will", value: 85 },
-                    { text: "Courage", value: 100 }
-                ]
-            }
-        ],
-        attackTypes: [
-            {
-                id: 'police',
-                key: '1',
-                name: 'Police Custody',
-                pastAction: 'Handed to Police',
-                icon: '👮',
-                multiplier: 1.0,
-                uses: -1,
-                color: '#00f0ff',
-                policeDelta: -1,
-                crimeBossDelta: 0,
-                alignmentScore: 10,
-                riskDescription: 'Low Reward, Reduces Police Heat'
-            },
-            {
-                id: 'caging',
-                key: '2',
-                name: 'Brutally Caged',
-                pastAction: 'Brutally Caged',
-                icon: '🔒',
-                multiplier: 1.2,
-                uses: 5,
-                color: '#ffb800',
-                policeDelta: 0,
-                crimeBossDelta: 0,
-                alignmentScore: -5,
-                riskDescription: '1.2x Reward, Neutral Risk'
-            },
-            {
-                id: 'shooting',
-                key: '3',
-                name: 'Shot Down',
-                pastAction: 'Shot Down in Action',
-                icon: '🎯',
-                multiplier: 1.5,
-                uses: 3,
-                color: '#ff0055',
-                policeDelta: 1,
-                crimeBossDelta: 0,
-                alignmentScore: -15,
-                riskDescription: '1.5x Reward, Spawns +1 Police Patrol'
-            },
-            {
-                id: 'butchering',
-                key: '4',
-                name: 'Ruthlessly Butchered',
-                pastAction: 'Ruthlessly Butchered',
-                icon: '🪓',
-                multiplier: 2.0,
-                uses: 2,
-                color: '#aa00ff',
-                policeDelta: 1,
-                crimeBossDelta: 1,
-                alignmentScore: -30,
-                riskDescription: '2.0x Reward, Spawns +1 Boss & +1 Police'
-            }
-        ],
-        levelHazards: [
-            { level: 1, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }] },
-            { level: 2, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }] },
-            { level: 3, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }] }
-        ],
-        enableGeminiAI: firebaseConfig?.enableGeminiAI !== false,
-        enableWeatherSystem: firebaseConfig?.enableWeatherSystem !== false,
-        geminiProxyUrl: firebaseConfig?.geminiProxyUrl || ''
-    };
-
-    let gameRules = { ...defaultRules };
-    const allowCloud = firebaseConfig?.useCloudConfig !== false && defaultRules.useCloudConfig !== false;
-
-    if (allowCloud) {
-        try {
-            const cloudRules = await firebaseService.getGameRules();
-            if (cloudRules) {
-                Object.keys(cloudRules).forEach(key => {
-                    if (cloudRules[key] !== undefined) {
-                        gameRules[key] = cloudRules[key];
-                    }
-                });
-                console.log("[main] Game rules successfully loaded from Firestore:", gameRules);
-            }
-        } catch (e) {
-            console.warn("[main] Failed to load rules from Firestore. Using local defaults.", e);
-        }
-    } else {
-        console.log("[main] Local testing mode active (useCloudConfig: false). Using local default rules directly:", gameRules);
-    }
-
-    const isGeminiEnabled = firebaseConfig?.enableGeminiAI !== false && gameRules.enableGeminiAI !== false;
-    const rawProxyUrl = (gameRules.geminiProxyUrl && gameRules.geminiProxyUrl.trim()) || (firebaseConfig && firebaseConfig.geminiProxyUrl && firebaseConfig.geminiProxyUrl.trim()) || '';
-    const activeProxyUrl = isGeminiEnabled ? rawProxyUrl : '';
+    const gameRules = configManager.getAll();
+    const isGeminiEnabled = configManager.isFeatureEnabled('GEMINI');
+    const activeProxyUrl = isGeminiEnabled ? configManager.getGeminiProxyUrl() : '';
 
     // UI Status Badge for Serverless Cloud Function Proxy
     const geminiStatusBadge = document.getElementById('gemini-status-badge');
