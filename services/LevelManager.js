@@ -97,10 +97,6 @@ export class LevelManager {
             const qConfig = qList.find(q => q.level === this.currentLevelIndex) || qList[(this.currentLevelIndex - 1) % (qList.length || 1)];
             this.currentQuestion = qConfig ? qConfig.question : "Choose your path...";
 
-            // Update UI HUD if available
-            const eqTextElem = typeof document !== 'undefined' ? document.getElementById('eq-question-text') : null;
-            if (eqTextElem) eqTextElem.innerText = this.currentQuestion;
-
             const optionLabels = ['A', 'B', 'C', 'D', 'E'];
             const colorMap = ['#00f0ff', '#ff00aa', '#ffd700', '#00ff88', '#ff7700'];
             const answers = qConfig?.answers || [
@@ -118,21 +114,7 @@ export class LevelManager {
                 Avatar_Asset_Path: 'assets/avatars/placeholder.png'
             }));
 
-            // Populate Legend Pills in HUD container if document is available
-            const eqAnswersElem = typeof document !== 'undefined' ? document.getElementById('eq-answers-container') : null;
-            if (eqAnswersElem) {
-                let html = '';
-                recordsForLevel.forEach(r => {
-                    html += `
-                        <div class="eq-answer-pill">
-                            <span class="eq-badge-letter" style="--pill-color: ${r.Color};">${r.Option_Label}</span>
-                            <span class="eq-answer-text">${r.Answer_Text}</span>
-                            <span class="eq-answer-pts">+${r.Computed_Value}</span>
-                        </div>
-                    `;
-                });
-                eqAnswersElem.innerHTML = html;
-            }
+            this.currentRecordsForLevel = recordsForLevel;
 
             if (this.targetManager) {
                 this.targetManager.setLevelPool(recordsForLevel);
