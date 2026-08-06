@@ -248,6 +248,10 @@ export class App {
             currentLevel++;
             this.uiController.updateLevelHUD(currentLevel);
             originalAdvanceLevel();
+            
+            if (selectedMode === 'mode3') {
+                this.uiController.renderEQHUD(this.levelManager.currentQuestion, this.levelManager.currentRecordsForLevel);
+            }
         };
 
         // Intercept GameLoop stop to show Game Over UI

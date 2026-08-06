@@ -252,6 +252,26 @@ export class UIController {
         this.app.startGame(this.selectedMode, this.selectedProfile);
     }
 
+    renderEQHUD(question, records) {
+        const eqTextElem = document.getElementById('eq-question-text');
+        if (eqTextElem) eqTextElem.innerText = question;
+
+        const eqAnswersElem = document.getElementById('eq-answers-container');
+        if (eqAnswersElem) {
+            let html = '';
+            records.forEach(r => {
+                html += `
+                    <div class="eq-answer-pill">
+                        <span class="eq-badge-letter" style="--pill-color: ${r.Color};">${r.Option_Label}</span>
+                        <span class="eq-answer-text">${r.Answer_Text}</span>
+                        <span class="eq-answer-pts">+${r.Computed_Value}</span>
+                    </div>
+                `;
+            });
+            eqAnswersElem.innerHTML = html;
+        }
+    }
+
     renderAttackSelectorHud(attackManager) {
         if (!this.attackButtonsContainer || this.selectedMode !== 'mode1') return;
         const attacks = attackManager.getAttackList();

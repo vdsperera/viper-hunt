@@ -66,12 +66,9 @@ export class GameLoop {
             this.adaptiveDifficultyService.tick();
         }
 
-        // Update real-time HUD threat status badge based on active grid risk & hazard count
-        if (typeof document !== 'undefined') {
-            if (this.gridState && typeof this.gridState.getThreatStatus === 'function') {
-                const threat = this.gridState.getThreatStatus();
-                eventBus.emit(EVENTS.THREAT_LEVEL_CHANGED, threat);
-            }
+        if (this.gridState && typeof this.gridState.getThreatStatus === 'function') {
+            const threat = this.gridState.getThreatStatus();
+            eventBus.emit(EVENTS.THREAT_LEVEL_CHANGED, threat);
         }
 
         // 1. Process Input
