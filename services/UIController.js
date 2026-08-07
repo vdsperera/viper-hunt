@@ -692,11 +692,11 @@ export class UIController {
                         </div>
                         <div class="alignment-stat">
                             <span class="stat-label">Police Heat Alteration:</span>
-                            <span class="stat-value">${riskStats.policeDelta > 0 ? \`+\${riskStats.policeDelta} Patrols\` : riskStats.policeDelta < 0 ? \`\${riskStats.policeDelta} Patrols\` : '0 (Neutral)'}</span>
+                            <span class="stat-value">${riskStats.policeDelta > 0 ? `+${riskStats.policeDelta} Patrols` : riskStats.policeDelta < 0 ? `${riskStats.policeDelta} Patrols` : '0 (Neutral)'}</span>
                         </div>
                         <div class="alignment-stat">
                             <span class="stat-label">Gang Retaliations:</span>
-                            <span class="stat-value" style="color: ${riskStats.crimeBossDelta > 0 ? '#ff0055' : '#00ff88'};">${riskStats.crimeBossDelta > 0 ? \`+\${riskStats.crimeBossDelta} Crime Bosses\` : '0 (None)'}</span>
+                            <span class="stat-value" style="color: ${riskStats.crimeBossDelta > 0 ? '#ff0055' : '#00ff88'};">${riskStats.crimeBossDelta > 0 ? `+${riskStats.crimeBossDelta} Crime Bosses` : '0 (None)'}</span>
                         </div>
                     </div>
                 </div>
