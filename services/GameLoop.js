@@ -22,6 +22,10 @@ export class GameLoop {
         this.interval = 1000 / (this.fps * multiplier);
     }
 
+    freeze(durationMs) {
+        this.freezeUntil = performance.now() + durationMs;
+    }
+
     start() {
         if (this.running) return;
         this.running = true;
@@ -50,7 +54,11 @@ export class GameLoop {
         const deltaTime = timestamp - this.lastTime;
         this.lastTime = timestamp;
 
-        this.accumulator += deltaTime;
+        if (this.freezeUntil && timestamp < this.freezeUntil) {
+            // Hit freeze active, do not accumulate time
+        } else {
+            this.accumulator += deltaTime;
+        }
 
         // Prevent spiral of death on long browser pauses
         if (this.accumulator > 1000) {
