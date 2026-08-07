@@ -4,6 +4,7 @@ export class ConfigManager {
         
         this.defaultRules = {
             useCloudConfig: true,
+            enableHitFreeze: false,
             showCriminalPunishmentLog: false,
             voiceStyle: 'tactical_swat',
             fps: 12,
@@ -192,6 +193,8 @@ export class ConfigManager {
                 return this.gameRules.enableGeminiAI !== false;
             case 'WEATHER':
                 return this.gameRules.enableWeatherSystem !== false;
+            case 'HIT_FREEZE':
+                return this.gameRules.enableHitFreeze === true;
             default:
                 return false;
         }
