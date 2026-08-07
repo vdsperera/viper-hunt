@@ -195,7 +195,7 @@ export class App {
         });
 
         eventBus.on(EVENTS.TARGET_CAPTURED, (payload) => {
-            if (this.gameLoop && typeof this.gameLoop.freeze === 'function') {
+            if (configManager.isFeatureEnabled('HIT_FREEZE') && this.gameLoop && typeof this.gameLoop.freeze === 'function') {
                 this.gameLoop.freeze(100);
             }
             if (this.uiController && typeof this.uiController.triggerScreenShake === 'function') {
@@ -241,6 +241,9 @@ export class App {
         });
 
         eventBus.on(EVENTS.GAME_OVER, (payload) => {
+            if (configManager.isFeatureEnabled('HIT_FREEZE') && this.gameLoop && typeof this.gameLoop.freeze === 'function') {
+                this.gameLoop.freeze(300);
+            }
             if (this.uiController && typeof this.uiController.triggerScreenShake === 'function') {
                 this.uiController.triggerScreenShake('shake-heavy', 400);
             }
