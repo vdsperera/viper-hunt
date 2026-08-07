@@ -8,9 +8,10 @@ export class CollisionDetector {
      * @param {{width: number, height: number}} gridBounds 
      * @param {Array<{x: number, y: number}>} bodySegments 
      * @param {Object|Array|null} bossPositionOrHazards
+     * @param {Array<{x: number, y: number}>|null} barricades
      * @returns {boolean} True if collision detected, False otherwise
      */
-    checkCollision(headCoord, gridBounds, bodySegments, bossPositionOrHazards = null) {
+    checkCollision(headCoord, gridBounds, bodySegments, bossPositionOrHazards = null, barricades = null) {
         this.lastResult = null;
 
         if (!headCoord || !gridBounds || !Array.isArray(bodySegments)) {
@@ -61,6 +62,16 @@ export class CollisionDetector {
             }
         }
         
+        // Barricades collision
+        if (barricades && Array.isArray(barricades)) {
+            for (const b of barricades) {
+                if (headCoord.x === b.x && headCoord.y === b.y) {
+                    this.lastResult = { collided: true, reason: 'Impacted Barricade', hazardName: null, hazardType: null };
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 }

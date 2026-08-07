@@ -63,6 +63,11 @@ export class Renderer {
             }
         }
 
+        // 3.5 Draw Barricades
+        if (gridState.barricades && gridState.barricades.length > 0) {
+            this._drawBarricades(gridState.barricades);
+        }
+
         // 4. Draw Criminal Hazards / Boss threat figures (if active in mode1 or mode3)
         if (gridState.playMode === 'mode1' || gridState.playMode === 'mode3') {
             if (Array.isArray(gridState.hazards) && gridState.hazards.length > 0) {
@@ -113,15 +118,49 @@ export class Renderer {
         }
 
         // Intersection dots
-        if (this.ctx.beginPath && this.ctx.arc) {
-            this.ctx.fillStyle = 'rgba(0, 240, 255, 0.12)';
-            for (let x = 0; x <= width; x += size * 2) {
-                for (let y = 0; y <= height; y += size * 2) {
-                    this.ctx.beginPath();
-                    this.ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-                    this.ctx.fill?.();
-                }
+        // Draw glowing neon dots at grid intersections for depth
+        this.ctx.fillStyle = 'rgba(0, 240, 255, 0.2)';
+        for (let x = 0; x <= width; x += size) {
+            for (let y = 0; y <= height; y += size) {
+                this.ctx.fillRect(x - 1, y - 1, 2, 2);
             }
+        }
+    }
+
+    _drawBarricades(barricades) {
+        const size = this.cellSize;
+        
+        for (const b of barricades) {
+            const px = b.x * size;
+            const py = b.y * size;
+
+            // Base concrete block
+            this.ctx.fillStyle = '#1a1a24';
+            this.ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
+
+            // Hazard border
+            this.ctx.strokeStyle = '#ff3300';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(px + 2, py + 2, size - 4, size - 4);
+            
+            // Diagonal hazard stripes
+            this.ctx.strokeStyle = 'rgba(255, 51, 0, 0.4)';
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.moveTo(px, py + size);
+            this.ctx.lineTo(px + size, py);
+            this.ctx.moveTo(px + size / 2, py + size);
+            this.ctx.lineTo(px + size, py + size / 2);
+            this.ctx.moveTo(px, py + size / 2);
+            this.ctx.lineTo(px + size / 2, py);
+            this.ctx.stroke();
+            
+            // Neon glow effect on top edge
+            this.ctx.shadowBlur = 10;
+            this.ctx.shadowColor = '#ff3300';
+            this.ctx.fillStyle = '#ff7700';
+            this.ctx.fillRect(px + 2, py + 2, size - 4, 3);
+            this.ctx.shadowBlur = 0; // reset
         }
     }
 

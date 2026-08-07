@@ -140,6 +140,11 @@ export class LevelManager {
         // Clear any uncaptured targets from previous level
         this.gridState.activeTargets.clear();
 
+        // Spawn barricades for this level
+        if (typeof this.gridState.spawnBarricades === 'function') {
+            this.gridState.spawnBarricades(this.currentLevelIndex);
+        }
+
         // Spawn all configured targets for this level up front
         let spawnedAny = false;
         const countToSpawn = this.activeTargetsPerLevel || this.targetsPerLevel;
