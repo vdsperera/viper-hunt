@@ -195,6 +195,13 @@ export class App {
         });
 
         eventBus.on(EVENTS.TARGET_CAPTURED, (payload) => {
+            if (this.gameLoop && typeof this.gameLoop.freeze === 'function') {
+                this.gameLoop.freeze(100);
+            }
+            if (this.uiController && typeof this.uiController.triggerScreenShake === 'function') {
+                this.uiController.triggerScreenShake('shake', 200);
+            }
+
             if (this.streakManager) {
                 this.streakManager.handleCapture();
                 payload.addedScore = Math.round(payload.addedScore * this.streakManager.scoreMultiplier);
@@ -234,6 +241,9 @@ export class App {
         });
 
         eventBus.on(EVENTS.GAME_OVER, (payload) => {
+            if (this.uiController && typeof this.uiController.triggerScreenShake === 'function') {
+                this.uiController.triggerScreenShake('shake-heavy', 400);
+            }
             if (this.audioService && typeof this.audioService.playGameOverSound === 'function') {
                 this.audioService.playGameOverSound();
             }

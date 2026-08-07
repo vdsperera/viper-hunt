@@ -426,6 +426,22 @@ export class UIController {
         }
     }
 
+    triggerScreenShake(intensityClass = 'shake', durationMs = 200) {
+        const viewport = document.getElementById('game-viewport');
+        if (!viewport) return;
+        
+        viewport.classList.remove('shake', 'shake-heavy');
+        
+        // Force reflow
+        void viewport.offsetWidth;
+        
+        viewport.classList.add(intensityClass);
+        
+        setTimeout(() => {
+            if (viewport) viewport.classList.remove(intensityClass);
+        }, durationMs);
+    }
+
     startGameHUDLoop(gameLoop, scoreManager, selectedMode, gridState, attackManager) {
         this.hudInterval = setInterval(() => {
             if (gameLoop.running) {
