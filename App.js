@@ -17,6 +17,7 @@ import { WeatherService } from './services/WeatherService.js';
 import { eventBus, EVENTS } from './services/EventBus.js';
 import { configManager } from './services/ConfigManager.js';
 import { UIController } from './services/UIController.js';
+import { StreakManager } from './services/StreakManager.js';
 
 export class App {
     constructor() {
@@ -113,6 +114,7 @@ export class App {
 
         const targetManager = new TargetManager(gridState, this.registryService);
         this.scoreManager = new ScoreManager();
+        this.streakManager = new StreakManager(5000); // 5 seconds window
         const adaptiveDifficultyService = new AdaptiveDifficultyService();
         const llmService = new LLMService(activeProxyUrl);
         const weatherService = new WeatherService('tokyo');
@@ -179,7 +181,25 @@ export class App {
             }
         });
 
+        eventBus.on(EVENTS.TICK, () => {
+            if (this.streakManager) this.streakManager.tick();
+        });
+
+        eventBus.on(EVENTS.STREAK_UPDATED, (payload) => {
+            if (this.gameLoop) {
+                this.gameLoop.setSpeedMultiplier(payload.speedMultiplier);
+            }
+            if (this.uiController && typeof this.uiController.updateStreakHUD === 'function') {
+                this.uiController.updateStreakHUD(payload);
+            }
+        });
+
         eventBus.on(EVENTS.TARGET_CAPTURED, (payload) => {
+            if (this.streakManager) {
+                this.streakManager.handleCapture();
+                payload.addedScore = Math.round(payload.addedScore * this.streakManager.scoreMultiplier);
+            }
+
             let confession = '';
             if (llmService && typeof llmService._synthesizeProceduralConfession === 'function') {
                 confession = llmService._synthesizeProceduralConfession(payload.target.Name, payload.target.Incident, payload.attackInfo.name);

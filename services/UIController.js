@@ -28,6 +28,12 @@ export class UIController {
         this.hudWeatherLevel = document.getElementById('hud-weather-level');
         this.hudThreatLevel = document.getElementById('hud-threat-level');
         
+        // Streak HUD Elements
+        this.streakBadge = document.getElementById('streak-badge');
+        this.hudStreakCount = document.getElementById('hud-streak-count');
+        this.hudStreakMult = document.getElementById('hud-streak-mult');
+        this.streakProgressBar = document.getElementById('streak-progress-bar');
+        
         // Mode specific HUDs
         this.eqHud = document.getElementById('emotional-question-hud');
         this.wantedRosterHud = document.getElementById('wanted-roster-hud');
@@ -402,10 +408,33 @@ export class UIController {
         if (this.hudLevel) this.hudLevel.innerText = level;
     }
 
+    updateStreakHUD(payload) {
+        if (!this.streakBadge) return;
+
+        if (payload.active && payload.count > 1) {
+            this.streakBadge.classList.remove('hidden');
+            if (payload.count >= 3) {
+                this.streakBadge.classList.add('active-streak');
+            } else {
+                this.streakBadge.classList.remove('active-streak');
+            }
+            if (this.hudStreakCount) this.hudStreakCount.innerText = payload.count;
+            if (this.hudStreakMult) this.hudStreakMult.innerText = `(x${payload.scoreMultiplier.toFixed(1)})`;
+        } else {
+            this.streakBadge.classList.add('hidden');
+            this.streakBadge.classList.remove('active-streak');
+        }
+    }
+
     startGameHUDLoop(gameLoop, scoreManager, selectedMode, gridState, attackManager) {
         this.hudInterval = setInterval(() => {
             if (gameLoop.running) {
                 if (this.hudScore) this.hudScore.innerText = scoreManager.getSessionScore();
+                
+                if (this.app.streakManager && this.streakProgressBar) {
+                    const percent = this.app.streakManager.getRemainingPercent();
+                    this.streakProgressBar.style.width = `${percent}%`;
+                }
 
                 if (selectedMode === 'mode1' && this.wantedTargetsContainer) {
                     const activeTargets = gridState.activeTargets;
