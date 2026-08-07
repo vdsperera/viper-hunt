@@ -8,6 +8,7 @@ export class GridState {
         this.hunter = null;
         this.activeTargets = new Map(); // key: "x,y", value: CriminalRecord
         this.hazards = []; // Array of active hazard objects { id, type, name, icon, color, x, y, squadAlert }
+        this.barricades = []; // Array of {x, y} coordinates for obstacle walls
         this.growthRules = null;
         this.playMode = 'mode1';
         this.squadBackupTriggered = false;
@@ -130,7 +131,31 @@ export class GridState {
         }
         if (this.hazards && this.hazards.some(h => h.x === x && h.y === y)) return true;
         if (this.activeTargets && this.activeTargets.has(`${x},${y}`)) return true;
+        if (this.barricades && this.barricades.some(b => b.x === x && b.y === y)) return true;
         return false;
+    }
+
+    spawnBarricades(level = 1) {
+        this.barricades = [];
+        const numBarricades = 5 + (level * 2);
+        let attempts = 0;
+        
+        for (let i = 0; i < numBarricades; i++) {
+            let spawned = false;
+            while (!spawned && attempts < 1000) {
+                const x = Math.floor(Math.random() * this.width);
+                const y = Math.floor(Math.random() * this.height);
+                
+                if (!this.isCellOccupied(x, y)) {
+                    const centerDist = Math.abs(x - this.width / 2) + Math.abs(y - this.height / 2);
+                    if (centerDist > 3) {
+                        this.barricades.push({ x, y });
+                        spawned = true;
+                    }
+                }
+                attempts++;
+            }
+        }
     }
 
     setBossRules(rules) {
