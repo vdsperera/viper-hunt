@@ -18,6 +18,10 @@ export class GameLoop {
         this.adaptiveDifficultyService = deps.adaptiveDifficultyService;
     }
 
+    setSpeedMultiplier(multiplier = 1.0) {
+        this.interval = 1000 / (this.fps * multiplier);
+    }
+
     start() {
         if (this.running) return;
         this.running = true;
