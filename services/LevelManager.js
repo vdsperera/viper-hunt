@@ -1,3 +1,5 @@
+import { configManager } from './ConfigManager.js';
+
 export class LevelManager {
     constructor(
         gridState, 
@@ -140,8 +142,8 @@ export class LevelManager {
         // Clear any uncaptured targets from previous level
         this.gridState.activeTargets.clear();
 
-        // Spawn barricades for this level
-        if (typeof this.gridState.spawnBarricades === 'function') {
+        // Spawn barricades for this level if enabled
+        if (configManager.isFeatureEnabled('BARRICADES') && typeof this.gridState.spawnBarricades === 'function') {
             this.gridState.spawnBarricades(this.currentLevelIndex);
         }
 

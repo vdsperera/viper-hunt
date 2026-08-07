@@ -5,6 +5,7 @@ export class ConfigManager {
         this.defaultRules = {
             useCloudConfig: true,
             enableHitFreeze: false,
+            enableBarricades: false,
             showCriminalPunishmentLog: false,
             voiceStyle: 'tactical_swat',
             fps: 12,
@@ -195,6 +196,8 @@ export class ConfigManager {
                 return this.gameRules.enableWeatherSystem !== false;
             case 'HIT_FREEZE':
                 return this.gameRules.enableHitFreeze === true;
+            case 'BARRICADES':
+                return this.gameRules.enableBarricades === true;
             default:
                 return false;
         }
