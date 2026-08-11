@@ -8,7 +8,7 @@ const logger = require("firebase-functions/logger");
  * preventing browser key exposure, enabling rate limiting & input truncation,
  * and forwarding requests to Google AI Studio models.
  */
-exports.generateNarration = onRequest({ cors: true }, async (req, res) => {
+exports.generateNarration = onRequest({ cors: [/viper-hunt\.firebaseapp\.com$/, /viper-hunt\.web\.app$/, /localhost:/, /127\.0\.0\.1:/] }, async (req, res) => {
     // 1. Enforce HTTP POST
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed. Use POST.' });

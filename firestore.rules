@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Read-only configurations.
+    match /configs/{configId} {
+      allow read: if true;
+      allow write: if false; // Must be updated via Firebase Console or Admin SDK
+    }
+    
+    // Players can save high scores, but schema is validated.
+    match /profiles/{profileId} {
+      allow read: if true;
+      allow write: if request.resource.data.name is string 
+                   && request.resource.data.highScore is number;
+    }
+  }
+}
