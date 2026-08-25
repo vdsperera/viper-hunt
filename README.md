@@ -58,6 +58,11 @@ node init-db.js
   - Directional Movement: Tap Virtual D-Pad buttons on screen overlay (`▲`, `▼`, `◄`, `►`)
   - Attack Selector: Tap HUD Attack Method Buttons (`[1] 👮`, `[2] 🔒`, `[3] 🎯`, `[4] 🪓`)
 
+### Developer Cheats (Local Testing Only)
+*Note: These cheats are securely restricted and will only function when playing the game locally via `localhost` or `127.0.0.1`.*
+- **`G`** — Toggle God Mode (Invincibility against hazards and walls)
+- **`L`** — Skip Level (Instantly captures all remaining targets and advances)
+
 ---
 
 ## Repository Structure
