@@ -29,8 +29,8 @@ export class CriminalRecord {
         if (typeof Conviction_Status !== 'boolean') {
             throw new TypeError("CriminalRecord validation failed: 'Conviction_Status' must be a boolean.");
         }
-        if (!Number.isInteger(Computed_Value) || Computed_Value < 0 || Computed_Value > 100) {
-            throw new TypeError("CriminalRecord validation failed: 'Computed_Value' must be an integer between 0 and 100.");
+        if (!Number.isInteger(Computed_Value) || Computed_Value < 0 || Computed_Value > 1000) {
+            throw new TypeError("CriminalRecord validation failed: 'Computed_Value' must be an integer between 0 and 1000.");
         }
         if (Incident !== undefined && typeof Incident !== 'string') {
             throw new TypeError("CriminalRecord validation failed: 'Incident' must be a string.");
