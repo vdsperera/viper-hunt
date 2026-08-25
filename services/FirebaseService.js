@@ -34,6 +34,12 @@ export class FirebaseService {
             return;
         }
 
+        // Check if explicitly disabled for local testing
+        if (this.config.useCloudConfig === false) {
+            console.warn("[FirebaseService] useCloudConfig is set to false. Running in LOCAL fallback mode. Scores will not be saved to production.");
+            return;
+        }
+
         try {
             const app = this.sdk.initializeApp(this.config);
             this.db = this.sdk.getFirestore(app);
