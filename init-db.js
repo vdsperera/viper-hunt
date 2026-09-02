@@ -15,34 +15,52 @@ async function init() {
             fps: { integerValue: "12" },
             targetsPerLevel: { integerValue: "5" },
             maxSimultaneousTargets: { integerValue: "3" },
-            maxLevels: { integerValue: "3" },
+            maxLevels: { integerValue: "10" },
             levelTargetSpecs: {
                 arrayValue: {
                     values: [
-                        {
-                            mapValue: {
-                                fields: {
-                                    level: { integerValue: "1" },
-                                    targetValues: { arrayValue: { values: [ { integerValue: "20" }, { integerValue: "20" }, { integerValue: "50" }, { integerValue: "70" }, { integerValue: "100" } ] } }
-                                }
-                            }
-                        },
-                        {
-                            mapValue: {
-                                fields: {
-                                    level: { integerValue: "2" },
-                                    targetValues: { arrayValue: { values: [ { integerValue: "30" }, { integerValue: "40" }, { integerValue: "60" }, { integerValue: "80" }, { integerValue: "100" } ] } }
-                                }
-                            }
-                        },
-                        {
-                            mapValue: {
-                                fields: {
-                                    level: { integerValue: "3" },
-                                    targetValues: { arrayValue: { values: [ { integerValue: "50" }, { integerValue: "60" }, { integerValue: "75" }, { integerValue: "90" }, { integerValue: "100" } ] } }
-                                }
-                            }
-                        }
+                        { mapValue: { fields: { level: { integerValue: "1" }, targetValues: { arrayValue: { values: [ { integerValue: "20" }, { integerValue: "20" }, { integerValue: "50" }, { integerValue: "70" }, { integerValue: "100" } ] } } } } },
+                        { mapValue: { fields: { level: { integerValue: "2" }, targetValues: { arrayValue: { values: [ { integerValue: "30" }, { integerValue: "40" }, { integerValue: "60" }, { integerValue: "80" }, { integerValue: "100" } ] } } } } },
+                        { mapValue: { fields: { level: { integerValue: "3" }, targetValues: { arrayValue: { values: [ { integerValue: "50" }, { integerValue: "60" }, { integerValue: "75" }, { integerValue: "90" }, { integerValue: "100" } ] } } } } },
+                        { mapValue: { fields: { level: { integerValue: "4" }, targetValues: { arrayValue: { values: [ { integerValue: "40" }, { integerValue: "50" }, { integerValue: "70" }, { integerValue: "90" }, { integerValue: "120" } ] } } } } },
+                        { mapValue: { fields: { level: { integerValue: "5" }, targetValues: { arrayValue: { values: [ { integerValue: "50" }, { integerValue: "60" }, { integerValue: "80" }, { integerValue: "100" }, { integerValue: "130" } ] } } } } },
+                        { mapValue: { fields: { level: { integerValue: "6" }, targetValues: { arrayValue: { values: [ { integerValue: "60" }, { integerValue: "70" }, { integerValue: "90" }, { integerValue: "110" }, { integerValue: "140" } ] } } } } },
+                        { mapValue: { fields: { level: { integerValue: "7" }, targetValues: { arrayValue: { values: [ { integerValue: "60" }, { integerValue: "75" }, { integerValue: "95" }, { integerValue: "120" }, { integerValue: "150" } ] } } } } },
+                        { mapValue: { fields: { level: { integerValue: "8" }, targetValues: { arrayValue: { values: [ { integerValue: "70" }, { integerValue: "80" }, { integerValue: "100" }, { integerValue: "130" }, { integerValue: "160" } ] } } } } },
+                        { mapValue: { fields: { level: { integerValue: "9" }, targetValues: { arrayValue: { values: [ { integerValue: "80" }, { integerValue: "90" }, { integerValue: "110" }, { integerValue: "150" }, { integerValue: "180" } ] } } } } },
+                        { mapValue: { fields: { level: { integerValue: "10" }, targetValues: { arrayValue: { values: [ { integerValue: "100" }, { integerValue: "120" }, { integerValue: "140" }, { integerValue: "170" }, { integerValue: "200" } ] } } } } }
+                    ]
+                }
+            },
+            levelTargetCounts: {
+                arrayValue: {
+                    values: [
+                        { mapValue: { fields: { level: { integerValue: "1" }, count: { integerValue: "5" } } } },
+                        { mapValue: { fields: { level: { integerValue: "2" }, count: { integerValue: "5" } } } },
+                        { mapValue: { fields: { level: { integerValue: "3" }, count: { integerValue: "5" } } } },
+                        { mapValue: { fields: { level: { integerValue: "4" }, count: { integerValue: "6" } } } },
+                        { mapValue: { fields: { level: { integerValue: "5" }, count: { integerValue: "6" } } } },
+                        { mapValue: { fields: { level: { integerValue: "6" }, count: { integerValue: "7" } } } },
+                        { mapValue: { fields: { level: { integerValue: "7" }, count: { integerValue: "7" } } } },
+                        { mapValue: { fields: { level: { integerValue: "8" }, count: { integerValue: "8" } } } },
+                        { mapValue: { fields: { level: { integerValue: "9" }, count: { integerValue: "8" } } } },
+                        { mapValue: { fields: { level: { integerValue: "10" }, count: { integerValue: "10" } } } }
+                    ]
+                }
+            },
+            levelSpeedMultipliers: {
+                arrayValue: {
+                    values: [
+                        { mapValue: { fields: { level: { integerValue: "1" }, multiplier: { doubleValue: 1.0 } } } },
+                        { mapValue: { fields: { level: { integerValue: "2" }, multiplier: { doubleValue: 1.0 } } } },
+                        { mapValue: { fields: { level: { integerValue: "3" }, multiplier: { doubleValue: 1.0 } } } },
+                        { mapValue: { fields: { level: { integerValue: "4" }, multiplier: { doubleValue: 1.1 } } } },
+                        { mapValue: { fields: { level: { integerValue: "5" }, multiplier: { doubleValue: 1.15 } } } },
+                        { mapValue: { fields: { level: { integerValue: "6" }, multiplier: { doubleValue: 1.2 } } } },
+                        { mapValue: { fields: { level: { integerValue: "7" }, multiplier: { doubleValue: 1.25 } } } },
+                        { mapValue: { fields: { level: { integerValue: "8" }, multiplier: { doubleValue: 1.3 } } } },
+                        { mapValue: { fields: { level: { integerValue: "9" }, multiplier: { doubleValue: 1.35 } } } },
+                        { mapValue: { fields: { level: { integerValue: "10" }, multiplier: { doubleValue: 1.4 } } } }
                     ]
                 }
             },

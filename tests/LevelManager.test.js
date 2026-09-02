@@ -26,7 +26,7 @@ test('LevelManager Test Suite', async (t) => {
         }
     };
     const mockTargetManager = { spawnTarget: () => ({ ID: 'T1' }) };
-    const mockGameLoop = { stop: () => {} };
+    const mockGameLoop = { stop: () => {}, setSpeedMultiplier: () => {} };
 
     t.beforeEach(() => {
         mockGridState.hunter = {
@@ -125,6 +125,7 @@ test('LevelManager Test Suite', async (t) => {
         let completedLevelCount = 0;
         const testGameLoop = {
             stop: () => { gameLoopStopped = true; },
+            setSpeedMultiplier: () => {},
             victory: false,
             scoreManager: {
                 completeLevel: () => { completedLevelCount++; return 100; }

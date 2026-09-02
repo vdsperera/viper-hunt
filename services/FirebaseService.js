@@ -34,6 +34,12 @@ export class FirebaseService {
             return;
         }
 
+        // Check if explicitly disabled for local testing
+        if (this.config.useCloudConfig === false) {
+            console.warn("[FirebaseService] useCloudConfig is set to false. Running in LOCAL fallback mode. Scores will not be saved to production.");
+            return;
+        }
+
         try {
             const app = this.sdk.initializeApp(this.config);
             this.db = this.sdk.getFirestore(app);
@@ -167,6 +173,8 @@ export class FirebaseService {
                         maxSimultaneousTargets: typeof data.maxSimultaneousTargets === 'number' ? data.maxSimultaneousTargets : undefined,
                         maxLevels: typeof data.maxLevels === 'number' ? data.maxLevels : undefined,
                         levelTargetSpecs: Array.isArray(data.levelTargetSpecs) ? data.levelTargetSpecs : (typeof data.levelTargetSpecs === 'object' ? data.levelTargetSpecs : undefined),
+                        levelTargetCounts: Array.isArray(data.levelTargetCounts) ? data.levelTargetCounts : undefined,
+                        levelSpeedMultipliers: Array.isArray(data.levelSpeedMultipliers) ? data.levelSpeedMultipliers : undefined,
                         growthLow: typeof data.growthLow === 'number' ? data.growthLow : undefined,
                         growthMedium: typeof data.growthMedium === 'number' ? data.growthMedium : undefined,
                         growthHigh: typeof data.growthHigh === 'number' ? data.growthHigh : undefined,

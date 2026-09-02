@@ -11,11 +11,42 @@ export class ConfigManager {
             fps: 12,
             targetsPerLevel: 5,
             maxSimultaneousTargets: 3,
-            maxLevels: 1,
+            maxLevels: 10,
             levelTargetSpecs: [
                 { level: 1, targetValues: [20, 20, 50, 70, 100] },
                 { level: 2, targetValues: [30, 40, 60, 80, 100] },
-                { level: 3, targetValues: [50, 60, 75, 90, 100] }
+                { level: 3, targetValues: [50, 60, 75, 90, 100] },
+                { level: 4, targetValues: [40, 50, 70, 90, 120] },
+                { level: 5, targetValues: [50, 60, 80, 100, 130] },
+                { level: 6, targetValues: [60, 70, 90, 110, 140] },
+                { level: 7, targetValues: [60, 75, 95, 120, 150] },
+                { level: 8, targetValues: [70, 80, 100, 130, 160] },
+                { level: 9, targetValues: [80, 90, 110, 150, 180] },
+                { level: 10, targetValues: [100, 120, 140, 170, 200] }
+            ],
+            levelTargetCounts: [
+                { level: 1, count: 5 },
+                { level: 2, count: 5 },
+                { level: 3, count: 5 },
+                { level: 4, count: 6 },
+                { level: 5, count: 6 },
+                { level: 6, count: 7 },
+                { level: 7, count: 7 },
+                { level: 8, count: 8 },
+                { level: 9, count: 8 },
+                { level: 10, count: 10 }
+            ],
+            levelSpeedMultipliers: [
+                { level: 1, multiplier: 1.0 },
+                { level: 2, multiplier: 1.0 },
+                { level: 3, multiplier: 1.0 },
+                { level: 4, multiplier: 1.1 },
+                { level: 5, multiplier: 1.15 },
+                { level: 6, multiplier: 1.2 },
+                { level: 7, multiplier: 1.25 },
+                { level: 8, multiplier: 1.3 },
+                { level: 9, multiplier: 1.35 },
+                { level: 10, multiplier: 1.4 }
             ],
             growthLow: 1,
             growthMedium: 2,
@@ -114,7 +145,14 @@ export class ConfigManager {
             levelHazards: [
                 { level: 1, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }] },
                 { level: 2, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }] },
-                { level: 3, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }] }
+                { level: 3, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 1 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }] },
+                { level: 4, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 2 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 1 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }] },
+                { level: 5, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 2 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 2 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 1 }] },
+                { level: 6, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 2 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 2 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 2 }] },
+                { level: 7, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 2 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 2 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 2 }] },
+                { level: 8, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 3 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 3 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 2 }] },
+                { level: 9, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 3 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 3 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 3 }] },
+                { level: 10, hazards: [{ type: 'crime_boss', name: 'Crime Boss', icon: '🦹', color: '#ff0055', count: 4 }, { type: 'police_patrol', name: 'Police Patrol', icon: '🚔', color: '#0088ff', count: 4 }, { type: 'death_reaper', name: 'Death Reaper', icon: '💀', color: '#aa00ff', count: 3 }] }
             ],
             enableGeminiAI: true,
             enableWeatherSystem: true,
