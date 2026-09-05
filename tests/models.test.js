@@ -84,9 +84,9 @@ test('Models Test Suite', async (t) => {
                 Interpol_Red_Notice: true,
                 FBI_Most_Wanted: false,
                 Conviction_Status: true,
-                Computed_Value: 150 // Out of bounds
+                Computed_Value: 1500 // Out of bounds
             });
-        }, { name: 'TypeError', message: /'Computed_Value' must be an integer between 0 and 100/ });
+        }, { name: 'TypeError', message: /'Computed_Value' must be an integer between 0 and 1000/ });
     });
 
     /*

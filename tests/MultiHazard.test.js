@@ -53,7 +53,7 @@ describe('Multi-Hazard System Test Suite', () => {
         const grid = new GridState(20, 20);
         grid.setPlayMode('mode1');
         const dummyTargetManager = { spawnTarget: () => ({ ID: 't1', Computed_Value: 50 }) };
-        const dummyGameLoop = { running: true, stop: () => {} };
+        const dummyGameLoop = { running: true, stop: () => {}, setSpeedMultiplier: () => {} };
 
         const levelManager = new LevelManager(
             grid, dummyTargetManager, dummyGameLoop, 5, 3, 3, null, null, [

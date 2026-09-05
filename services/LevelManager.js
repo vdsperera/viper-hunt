@@ -93,6 +93,13 @@ export class LevelManager {
         this.capturedThisLevel = 0;
         let activeCount = this.targetsPerLevel;
         
+        // Apply per-level target count from config
+        const targetCountConfig = configManager.get('levelTargetCounts') || [];
+        const tcEntry = targetCountConfig.find(t => t.level === this.currentLevelIndex);
+        if (tcEntry && typeof tcEntry.count === 'number') {
+            activeCount = tcEntry.count;
+        }
+
         // Allocate level target pool based on mode
         if (this.gridState.playMode === 'mode3') {
             const qList = this.emotionalQuestions || [];
@@ -125,7 +132,7 @@ export class LevelManager {
         } else if (this.targetManager && this.targetManager.registryService && typeof this.targetManager.registryService.getRecordsForLevel === 'function') {
             const recordsForLevel = this.targetManager.registryService.getRecordsForLevel(
                 this.currentLevelIndex, 
-                this.targetsPerLevel,
+                activeCount,
                 this.levelTargetSpecs
             );
             if (recordsForLevel && recordsForLevel.length > 0) {
@@ -195,6 +202,15 @@ export class LevelManager {
             for (let p = 0; p < extraPoliceCount; p++) {
                 this.gridState.addHazard('police_patrol');
             }
+        }
+
+        // Apply per-level speed multiplier from config
+        const speedConfig = configManager.get('levelSpeedMultipliers') || [];
+        const speedEntry = speedConfig.find(s => s.level === this.currentLevelIndex);
+        if (speedEntry && typeof speedEntry.multiplier === 'number' && this.gameLoop) {
+            this.gameLoop.setSpeedMultiplier(speedEntry.multiplier);
+        } else if (this.gameLoop) {
+            this.gameLoop.setSpeedMultiplier(1.0);
         }
         
         if (!spawnedAny) {

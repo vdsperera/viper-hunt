@@ -127,7 +127,7 @@ export class GameLoop {
             : this.gridState.bossPosition;
 
         const isCollided = this.collisionDetector.checkCollision(head, bounds, body, hazardsOrBoss, this.gridState.barricades);
-        if (isCollided) {
+        if (isCollided && !(typeof window !== 'undefined' && window.CHEAT_GOD_MODE)) {
             const lastRes = this.collisionDetector.lastResult || {};
             this.lastCollisionReason = lastRes.reason || 'Tactical Operation Failed';
             this.lastHazardName = lastRes.hazardName || null;

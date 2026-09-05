@@ -131,12 +131,37 @@ export class App {
             this.uiController.setOfflineWeatherBadge();
         }
 
-        // Developer Helper
+        // Developer Helpers & Cheats
         window.setWeatherOverride = (weatherType) => {
             weatherService.setOverrideWeather(weatherType);
             renderer.setWeatherState(weatherService.currentWeather);
             this.uiController.updateWeatherBadge(weatherService.getWeatherBadgeInfo(), null);
         };
+
+        window.CHEAT_GOD_MODE = false;
+        window.CHEAT_NEXT_LEVEL = () => {
+            if (this.levelManager) {
+                this.levelManager.capturedThisLevel = 999;
+                this.levelManager.handleCapture();
+            }
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (!this.gameLoop || !this.gameLoop.running) return;
+
+            // SECURITY: Only allow cheats when running on localhost / dev environment
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (!isLocal) return;
+
+            if (e.key.toLowerCase() === 'g') {
+                window.CHEAT_GOD_MODE = !window.CHEAT_GOD_MODE;
+                console.log(`[CHEAT] God Mode: ${window.CHEAT_GOD_MODE ? 'ON (Invincible)' : 'OFF'}`);
+            }
+            if (e.key.toLowerCase() === 'l') {
+                console.log(`[CHEAT] Skipping to next level...`);
+                window.CHEAT_NEXT_LEVEL();
+            }
+        });
 
         this.uiController.bindThreatLevel(adaptiveDifficultyService);
 
