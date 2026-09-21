@@ -155,6 +155,7 @@ export class UIController {
         if (this.profileDropdown) {
             this.profileDropdown.addEventListener('change', (e) => {
                 this.selectedProfile = e.target.value;
+                localStorage.setItem('viper_hunt_last_profile', this.selectedProfile);
                 this.updateStartBtnState();
             });
         }
@@ -193,13 +194,15 @@ export class UIController {
         this.createProfileBtn.disabled = true;
 
         const profiles = await this.firebaseService.getProfiles();
+        
+        let targetSelectName = autoSelectName || localStorage.getItem('viper_hunt_last_profile') || '';
 
         this.profileDropdown.innerHTML = '<option value="">-- Select Player --</option>';
         profiles.forEach(p => {
             const opt = document.createElement('option');
             opt.value = p.name;
             opt.innerText = `${p.name} (High Score: ${p.highScore})`;
-            if (autoSelectName && p.name === autoSelectName) {
+            if (targetSelectName && p.name === targetSelectName) {
                 opt.selected = true;
             }
             this.profileDropdown.appendChild(opt);
@@ -218,6 +221,7 @@ export class UIController {
         const trimmed = name.trim();
         this.createProfileBtn.disabled = true;
         await this.firebaseService.saveProfile(trimmed);
+        localStorage.setItem('viper_hunt_last_profile', trimmed);
         await this.loadProfiles(trimmed);
     }
 
