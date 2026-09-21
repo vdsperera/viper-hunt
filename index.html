@@ -160,18 +160,27 @@
                         </div>
 
                         <div class="profile-card-group">
-                            <div class="profile-create">
+                            <div class="profile-create" style="display: flex; gap: 8px;">
                                 <input type="text" id="new-profile-name" placeholder="Enter player callsign..."
-                                    maxlength="16" autocomplete="off">
+                                    maxlength="16" autocomplete="off" style="flex: 1;">
+                                <input type="password" id="new-profile-pin" placeholder="PIN (4 digits)"
+                                    maxlength="4" pattern="\d{4}" autocomplete="off" style="width: 120px;">
                                 <button id="create-profile-btn" class="cyber-btn secondary"><span>+
                                         CREATE</span></button>
                             </div>
-                            <div class="profile-select">
+                            <div class="profile-select" style="margin-top: 10px;">
                                 <select id="profile-dropdown">
                                     <option value="">-- Select Callsign --</option>
                                 </select>
                             </div>
-
+                            <div id="pin-auth-container" class="hidden" style="margin-top: 10px; padding: 10px; border: 1px solid rgba(0, 240, 255, 0.3); background: rgba(0, 0, 0, 0.5); border-radius: 4px; display: flex; flex-direction: column; align-items: center;">
+                                <div id="pin-auth-message" style="color: var(--primary-cyan); font-size: 0.85rem; margin-bottom: 8px; font-weight: bold; text-transform: uppercase;">ENTER PIN TO UNLOCK</div>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="password" id="auth-profile-pin" placeholder="****" maxlength="4" style="width: 100px; text-align: center; letter-spacing: 5px; font-size: 1.2rem;">
+                                    <button id="auth-profile-btn" class="cyber-btn primary" style="padding: 10px 20px;"><span>UNLOCK</span></button>
+                                </div>
+                                <div id="pin-auth-error" class="hidden" style="color: var(--accent-red); font-size: 0.8rem; margin-top: 8px;">INVALID PIN. ACCESS DENIED.</div>
+                            </div>
                         </div>
 
                         <!-- Google Gemini API Status Badge (Admin Configured) -->

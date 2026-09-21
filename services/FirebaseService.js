@@ -68,7 +68,8 @@ export class FirebaseService {
                 if (data && data.name) {
                     profiles.push({
                         name: data.name,
-                        highScore: data.highScore || 0
+                        highScore: data.highScore || 0,
+                        hasPin: !!data.pinHash
                     });
                 }
             });
@@ -84,32 +85,108 @@ export class FirebaseService {
         }
     }
 
+    async hashPin(pin) {
+        if (!pin) return null;
+        const msgUint8 = new TextEncoder().encode(pin.toString());
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
     /**
      * Saves a new player profile.
      * @param {string} name
+     * @param {string} pin - Optional 4-digit PIN
      * @returns {Promise<void>}
      */
-    async saveProfile(name) {
+    async saveProfile(name, pin = null) {
         if (!name || !name.trim()) return;
         const trimmedName = name.trim();
+        
+        let pinHash = null;
+        if (pin) {
+            pinHash = await this.hashPin(pin);
+        }
 
         if (!this.isInitialized) {
-            this.saveLocalProfile(trimmedName);
+            this.saveLocalProfile(trimmedName, pinHash);
             return;
         }
 
         try {
             const docRef = this.sdk.doc(this.db, 'profiles', trimmedName);
-            await this.sdk.setDoc(docRef, {
+            const dataToSave = {
                 name: trimmedName,
                 highScore: 0,
                 updatedAt: new Date().toISOString()
-            }, { merge: true });
+            };
+            if (pinHash) dataToSave.pinHash = pinHash;
 
-            this.saveLocalProfile(trimmedName);
+            await this.sdk.setDoc(docRef, dataToSave, { merge: true });
+
+            this.saveLocalProfile(trimmedName, pinHash);
         } catch (error) {
             console.warn("[FirebaseService] Firestore saveProfile failed, falling back to local storage.", error);
-            this.saveLocalProfile(trimmedName);
+            this.saveLocalProfile(trimmedName, pinHash);
+        }
+    }
+
+    /**
+     * Validates a PIN for an existing profile.
+     * @param {string} name 
+     * @param {string} pin 
+     * @returns {Promise<boolean>}
+     */
+    async validatePin(name, pin) {
+        if (!name || !pin || !this.isInitialized) {
+            // Local mode bypass
+            if (!this.isInitialized) return true;
+            return false;
+        }
+        
+        try {
+            const docRef = this.sdk.doc(this.db, 'profiles', name);
+            const docSnap = await this.sdk.getDoc(docRef);
+            if (docSnap && docSnap.exists()) {
+                const data = docSnap.data();
+                if (!data.pinHash) return true; // Legacy profile with no PIN
+                
+                const inputHash = await this.hashPin(pin);
+                return data.pinHash === inputHash;
+            }
+            return false;
+        } catch (error) {
+            console.error("[FirebaseService] Failed to validate PIN", error);
+            return false;
+        }
+    }
+
+    /**
+     * Claims a profile by setting a PIN if one does not exist.
+     * @param {string} name 
+     * @param {string} pin 
+     * @returns {Promise<boolean>}
+     */
+    async claimProfile(name, pin) {
+        if (!name || !pin || !this.isInitialized) return false;
+        try {
+            const docRef = this.sdk.doc(this.db, 'profiles', name);
+            const docSnap = await this.sdk.getDoc(docRef);
+            if (docSnap && docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.pinHash) return false; // Already claimed
+                
+                const pinHash = await this.hashPin(pin);
+                await this.sdk.setDoc(docRef, {
+                    pinHash: pinHash,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("[FirebaseService] Failed to claim profile", error);
+            return false;
         }
     }
 
@@ -207,14 +284,15 @@ export class FirebaseService {
         }
     }
 
-    saveLocalProfile(name) {
+    saveLocalProfile(name, pinHash = null) {
         if (typeof localStorage === 'undefined') return;
         try {
             const profiles = this.getLocalProfiles();
             if (!profiles.find(p => p.name === name)) {
-                profiles.push({ name, highScore: 0 });
+                profiles.push({ name, highScore: 0, hasPin: !!pinHash, pinHash: pinHash });
                 localStorage.setItem('viperHuntProfiles', JSON.stringify(profiles));
             }
+
         } catch (e) {
             console.error("[FirebaseService] Local storage save profile failed:", e);
         }
