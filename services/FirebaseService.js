@@ -186,6 +186,43 @@ export class FirebaseService {
     }
 
     /**
+     * Retrieves the top players for the global leaderboard.
+     * @param {number} limitCount 
+     * @returns {Promise<Array<{name: string, highScore: number, isAnonymous: boolean}>>}
+     */
+    async getTopProfiles(limitCount = 10) {
+        if (!this.isInitialized) {
+            const local = this.getLocalProfiles();
+            return local.sort((a, b) => b.highScore - a.highScore).slice(0, limitCount);
+        }
+
+        try {
+            const q = this.sdk.query(
+                this.sdk.collection(this.db, 'profiles'),
+                this.sdk.orderBy('highScore', 'desc'),
+                this.sdk.limit(limitCount)
+            );
+            const querySnapshot = await this.sdk.getDocs(q);
+            const profiles = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data && data.name) {
+                    profiles.push({
+                        name: data.name,
+                        highScore: data.highScore || 0,
+                        isAnonymous: data.isAnonymous !== false
+                    });
+                }
+            });
+            return profiles;
+        } catch (error) {
+            console.warn("[FirebaseService] Firestore getTopProfiles failed, falling back to local storage.", error);
+            const local = this.getLocalProfiles();
+            return local.sort((a, b) => b.highScore - a.highScore).slice(0, limitCount);
+        }
+    }
+
+    /**
      * Saves a new player profile.
      * @param {string} name
      * @returns {Promise<void>}

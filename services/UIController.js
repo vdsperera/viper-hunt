@@ -277,6 +277,40 @@ export class UIController {
         }
         
         this.updateStartBtnState();
+        this.renderLeaderboard();
+    }
+    
+    async renderLeaderboard() {
+        const container = document.getElementById('leaderboard-container');
+        const list = document.getElementById('leaderboard-list');
+        if (!container || !list) return;
+        
+        container.style.display = 'block';
+        list.innerHTML = '<div style="text-align: center; font-style: italic;">Loading...</div>';
+        
+        try {
+            const profiles = await this.firebaseService.getTopProfiles(10);
+            if (!profiles || profiles.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #888;">No high scores yet!</div>';
+                return;
+            }
+            
+            let html = '';
+            profiles.forEach((p, index) => {
+                const isMe = p.name === this.selectedProfile;
+                const style = isMe ? 'color: var(--primary-cyan); font-weight: bold; background: rgba(0, 240, 255, 0.1);' : '';
+                const verifiedTag = p.isAnonymous ? '' : '<span style="color: #00ff88; font-size: 0.7rem; margin-left: 5px;">✓</span>';
+                
+                html += `<div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); ${style}">
+                    <span>${index + 1}. ${p.name}${verifiedTag}</span>
+                    <span style="font-family: monospace;">${p.highScore.toLocaleString()} pts</span>
+                </div>`;
+            });
+            list.innerHTML = html;
+        } catch (e) {
+            console.error("Failed to render leaderboard", e);
+            list.innerHTML = '<div style="text-align: center; color: var(--accent-red);">Failed to load leaderboard</div>';
+        }
     }
 
     async saveProfile(name) {

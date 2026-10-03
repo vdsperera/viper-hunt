@@ -53,11 +53,16 @@ export class App {
                     doc: firestoreModule.doc,
                     getDoc: firestoreModule.getDoc,
                     setDoc: firestoreModule.setDoc,
+                    query: firestoreModule.query,
+                    orderBy: firestoreModule.orderBy,
+                    limit: firestoreModule.limit,
                     getAuth: authModule.getAuth,
                     signInAnonymously: authModule.signInAnonymously,
                     onAuthStateChanged: authModule.onAuthStateChanged,
                     GoogleAuthProvider: authModule.GoogleAuthProvider,
-                    linkWithPopup: authModule.linkWithPopup
+                    linkWithPopup: authModule.linkWithPopup,
+                    signInWithPopup: authModule.signInWithPopup,
+                    signOut: authModule.signOut
                 };
             } catch (e) {
                 console.warn("[App] Firebase setup skipped/failed.", e);
