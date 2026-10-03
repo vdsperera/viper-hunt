@@ -160,18 +160,17 @@
                         </div>
 
                         <div class="profile-card-group">
-                            <div class="profile-create">
+                            <div id="auth-status-container" style="text-align: center; margin-bottom: 10px; padding: 10px; border: 1px solid rgba(0, 240, 255, 0.3); background: rgba(0, 0, 0, 0.5); border-radius: 4px; display: flex; flex-direction: column; align-items: center;">
+                                <div id="auth-status-message" style="color: var(--primary-cyan); font-size: 0.85rem; margin-bottom: 8px; font-weight: bold; text-transform: uppercase;">AUTHENTICATING GUEST SESSION...</div>
+                                <button id="oauth-link-btn" class="cyber-btn secondary hidden" style="padding: 10px 20px;"><span>🔗 LINK GOOGLE ACCOUNT</span></button>
+                                <div id="auth-error-msg" class="hidden" style="color: var(--accent-red); font-size: 0.8rem; margin-top: 8px;">ERROR AUTHENTICATING</div>
+                            </div>
+                            
+                            <div class="profile-create hidden" id="callsign-setup-container" style="display: flex; gap: 8px; margin-top: 10px;">
                                 <input type="text" id="new-profile-name" placeholder="Enter player callsign..."
-                                    maxlength="16" autocomplete="off">
-                                <button id="create-profile-btn" class="cyber-btn secondary"><span>+
-                                        CREATE</span></button>
+                                    maxlength="16" autocomplete="off" style="flex: 1; min-width: 0;">
+                                <button id="create-profile-btn" class="cyber-btn primary" style="width: auto; flex-shrink: 0; padding: 0 20px;"><span>SET CALLSIGN</span></button>
                             </div>
-                            <div class="profile-select">
-                                <select id="profile-dropdown">
-                                    <option value="">-- Select Callsign --</option>
-                                </select>
-                            </div>
-
                         </div>
 
                         <!-- Google Gemini API Status Badge (Admin Configured) -->

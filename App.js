@@ -39,9 +39,10 @@ export class App {
 
         if (firebaseConfig) {
             try {
-                const [appModule, firestoreModule] = await Promise.all([
+                const [appModule, firestoreModule, authModule] = await Promise.all([
                     import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js'),
-                    import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js')
+                    import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js'),
+                    import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js')
                 ]);
 
                 firebaseSdk = {
@@ -51,7 +52,12 @@ export class App {
                     getDocs: firestoreModule.getDocs,
                     doc: firestoreModule.doc,
                     getDoc: firestoreModule.getDoc,
-                    setDoc: firestoreModule.setDoc
+                    setDoc: firestoreModule.setDoc,
+                    getAuth: authModule.getAuth,
+                    signInAnonymously: authModule.signInAnonymously,
+                    onAuthStateChanged: authModule.onAuthStateChanged,
+                    GoogleAuthProvider: authModule.GoogleAuthProvider,
+                    linkWithPopup: authModule.linkWithPopup
                 };
             } catch (e) {
                 console.warn("[App] Firebase setup skipped/failed.", e);

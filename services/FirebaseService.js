@@ -13,6 +13,8 @@ export class FirebaseService {
         this.sdk = sdk;
         this.config = config;
         this.db = null;
+        this.auth = null;
+        this.currentUser = null;
         this.isInitialized = false;
 
         this.init();
@@ -43,6 +45,7 @@ export class FirebaseService {
         try {
             const app = this.sdk.initializeApp(this.config);
             this.db = this.sdk.getFirestore(app);
+            this.auth = this.sdk.getAuth(app);
             this.isInitialized = true;
             console.log("[FirebaseService] Firebase initialized successfully.");
         } catch (error) {
@@ -52,7 +55,76 @@ export class FirebaseService {
     }
 
     /**
-     * Retrieves all player profiles, falling back to local storage if offline/unconfigured.
+     * Signs in anonymously and returns the user
+     */
+    async signIn() {
+        if (!this.isInitialized) return null;
+        try {
+            return new Promise((resolve, reject) => {
+                this.sdk.onAuthStateChanged(this.auth, async (user) => {
+                    if (user) {
+                        this.currentUser = user;
+                        resolve(user);
+                    } else {
+                        try {
+                            const result = await this.sdk.signInAnonymously(this.auth);
+                            this.currentUser = result.user;
+                            resolve(result.user);
+                        } catch (err) {
+                            console.error("[FirebaseService] Failed anonymous sign in:", err);
+                            resolve(null);
+                        }
+                    }
+                });
+            });
+        } catch (e) {
+            console.error("[FirebaseService] Error during signIn:", e);
+            return null;
+        }
+    }
+
+    /**
+     * Links the current anonymous account with Google OAuth
+     */
+    async linkGoogleAccount() {
+        if (!this.isInitialized || !this.currentUser) return false;
+        try {
+            const provider = new this.sdk.GoogleAuthProvider();
+            const result = await this.sdk.linkWithPopup(this.currentUser, provider);
+            this.currentUser = result.user;
+            
+            // Update profile to note it's no longer anonymous
+            if (this.currentUser.uid) {
+                const docRef = this.sdk.doc(this.db, 'profiles', this.currentUser.uid);
+                await this.sdk.setDoc(docRef, { isAnonymous: false }, { merge: true });
+            }
+            return true;
+        } catch (error) {
+            console.error("[FirebaseService] Failed to link Google account:", error);
+            return false;
+        }
+    }
+
+    /**
+     * Gets the current user's profile
+     */
+    async getCurrentProfile() {
+        if (!this.isInitialized || !this.currentUser) return null;
+        try {
+            const docRef = this.sdk.doc(this.db, 'profiles', this.currentUser.uid);
+            const docSnap = await this.sdk.getDoc(docRef);
+            if (docSnap && docSnap.exists()) {
+                return docSnap.data();
+            }
+            return null;
+        } catch (error) {
+            console.error("[FirebaseService] Failed to get profile:", error);
+            return null;
+        }
+    }
+
+    /**
+     * Retrieves all player profiles for leaderboard, falling back to local storage if offline/unconfigured.
      * @returns {Promise<Array<{name: string, highScore: number}>>}
      */
     async getProfiles() {
@@ -68,12 +140,12 @@ export class FirebaseService {
                 if (data && data.name) {
                     profiles.push({
                         name: data.name,
-                        highScore: data.highScore || 0
+                        highScore: data.highScore || 0,
+                        isAnonymous: data.isAnonymous !== false
                     });
                 }
             });
 
-            // Sync local storage so it has the latest offline copy
             if (typeof localStorage !== 'undefined') {
                 localStorage.setItem('viperHuntProfiles', JSON.stringify(profiles));
             }
@@ -93,19 +165,22 @@ export class FirebaseService {
         if (!name || !name.trim()) return;
         const trimmedName = name.trim();
 
-        if (!this.isInitialized) {
+        if (!this.isInitialized || !this.currentUser) {
             this.saveLocalProfile(trimmedName);
             return;
         }
 
         try {
-            const docRef = this.sdk.doc(this.db, 'profiles', trimmedName);
-            await this.sdk.setDoc(docRef, {
+            const docRef = this.sdk.doc(this.db, 'profiles', this.currentUser.uid);
+            const dataToSave = {
+                uid: this.currentUser.uid,
                 name: trimmedName,
                 highScore: 0,
+                isAnonymous: this.currentUser.isAnonymous,
                 updatedAt: new Date().toISOString()
-            }, { merge: true });
+            };
 
+            await this.sdk.setDoc(docRef, dataToSave, { merge: true });
             this.saveLocalProfile(trimmedName);
         } catch (error) {
             console.warn("[FirebaseService] Firestore saveProfile failed, falling back to local storage.", error);
@@ -115,7 +190,7 @@ export class FirebaseService {
 
     /**
      * Updates high score for a player if the new score is higher.
-     * @param {string} name
+     * @param {string} name (kept for local storage compatibility)
      * @param {number} score
      * @returns {Promise<void>}
      */
@@ -123,13 +198,13 @@ export class FirebaseService {
         if (!name || !name.trim()) return;
         const trimmedName = name.trim();
 
-        if (!this.isInitialized) {
+        if (!this.isInitialized || !this.currentUser) {
             this.updateLocalHighScore(trimmedName, score);
             return;
         }
 
         try {
-            const docRef = this.sdk.doc(this.db, 'profiles', trimmedName);
+            const docRef = this.sdk.doc(this.db, 'profiles', this.currentUser.uid);
             const docSnap = await this.sdk.getDoc(docRef);
             let currentHighScore = 0;
 
@@ -212,9 +287,10 @@ export class FirebaseService {
         try {
             const profiles = this.getLocalProfiles();
             if (!profiles.find(p => p.name === name)) {
-                profiles.push({ name, highScore: 0 });
+                profiles.push({ name, highScore: 0, isAnonymous: true });
                 localStorage.setItem('viperHuntProfiles', JSON.stringify(profiles));
             }
+
         } catch (e) {
             console.error("[FirebaseService] Local storage save profile failed:", e);
         }
