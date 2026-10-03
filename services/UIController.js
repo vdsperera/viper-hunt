@@ -285,8 +285,8 @@ export class UIController {
         const list = document.getElementById('leaderboard-list');
         if (!container || !list) return;
         
-        container.style.display = 'block';
-        list.innerHTML = '<div style="text-align: center; font-style: italic;">Loading...</div>';
+        container.classList.remove('hidden');
+        list.innerHTML = '<div style="text-align: center; font-style: italic; padding: 20px; color: rgba(255,255,255,0.5);">Loading data link...</div>';
         
         try {
             const profiles = await this.firebaseService.getTopProfiles(10);
@@ -298,12 +298,15 @@ export class UIController {
             let html = '';
             profiles.forEach((p, index) => {
                 const isMe = p.name === this.selectedProfile;
-                const style = isMe ? 'color: var(--primary-cyan); font-weight: bold; background: rgba(0, 240, 255, 0.1);' : '';
-                const verifiedTag = p.isAnonymous ? '' : '<span style="color: #00ff88; font-size: 0.7rem; margin-left: 5px;">✓</span>';
+                const rowClass = isMe ? 'leaderboard-row is-me' : 'leaderboard-row';
+                const verifiedTag = p.isAnonymous ? '' : '<span style="color: #00ff88; font-size: 0.7rem; margin-left: 6px; padding: 2px 4px; background: rgba(0, 255, 136, 0.1); border-radius: 4px;">✓</span>';
                 
-                html += `<div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); ${style}">
-                    <span>${index + 1}. ${p.name}${verifiedTag}</span>
-                    <span style="font-family: monospace;">${p.highScore.toLocaleString()} pts</span>
+                html += `<div class="${rowClass}">
+                    <div class="leaderboard-rank-name">
+                        <span class="leaderboard-rank">${index + 1}.</span>
+                        <span>${p.name}${verifiedTag}</span>
+                    </div>
+                    <span class="leaderboard-score">${p.highScore.toLocaleString()} pts</span>
                 </div>`;
             });
             list.innerHTML = html;
