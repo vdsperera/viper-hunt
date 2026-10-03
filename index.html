@@ -181,23 +181,21 @@
                         <div class="gemini-config-bar">
                             <span class="config-bar-label">AI NARRATOR MODE:</span>
                             <span id="gemini-status-badge" class="badge-status">⚙️ PROCEDURAL ENGINE</span>
-                        </div>
-                    </div>
-
                     <div id="score-breakdown-container" class="hidden"></div>
-                    <div id="leaderboard-container" style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid rgba(0, 255, 136, 0.3); background: rgba(0, 0, 0, 0.4); border-radius: 4px; display: none;">
-                        <div style="color: var(--primary-cyan); font-weight: bold; text-align: center; margin-bottom: 10px; text-transform: uppercase;">GLOBAL LEADERBOARD</div>
-                        <div id="leaderboard-list" style="max-height: 150px; overflow-y: auto; font-size: 0.85rem; color: #ccc;">
-                            <div style="text-align: center; font-style: italic;">Loading...</div>
-                        </div>
-                    </div>
-
                     <button id="start-btn" class="cyber-btn primary" disabled><span>START SESSION</span></button>
 
                     <!-- Support Developer -->
                     <div class="donation-bar" style="margin-top: 20px; text-align: center; font-size: 0.8rem; color: #a0a0a0; padding: 10px; background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 4px;">
                         <span>SUPPORT DEVELOPMENT (ETH)</span><br>
                         <span style="color: #00ff88; font-family: monospace; user-select: all; font-size: 0.85rem; letter-spacing: 0.5px; cursor: text;">0x32f6f912133d4c36879c79a1415f2e1fb39432ee</span>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Side Panel -->
+                <div id="leaderboard-container" class="leaderboard-panel hidden">
+                    <div class="leaderboard-header">GLOBAL LEADERBOARD</div>
+                    <div id="leaderboard-list" class="leaderboard-list">
+                        <div style="text-align: center; font-style: italic; padding: 20px; color: rgba(255,255,255,0.5);">Loading data link...</div>
                     </div>
                 </div>
             </div>
