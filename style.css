@@ -2289,3 +2289,111 @@ select option {
  } 
   
  
+
+
+.overlay {
+    gap: 24px;
+}
+@media (max-width: 900px) {
+    .overlay {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+    }
+}
+.overlay-card {
+    margin: 0 !important;
+}
+
+.leaderboard-panel {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    animation: cardAppear 0.35s ease-out 0.1s both;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.leaderboard-panel.hidden {
+    display: none !important;
+}
+
+.leaderboard-header {
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--primary-cyan);
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.leaderboard-list {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-cyan) transparent;
+}
+.leaderboard-list::-webkit-scrollbar {
+    width: 4px;
+}
+.leaderboard-list::-webkit-scrollbar-thumb {
+    background: var(--primary-cyan);
+    border-radius: 4px;
+}
+
+.leaderboard-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+    color: #a0c0d0;
+    transition: background 0.2s;
+}
+.leaderboard-row:hover {
+    background: rgba(0, 240, 255, 0.08);
+}
+.leaderboard-row:last-child {
+    border-bottom: none;
+}
+
+.leaderboard-row.is-me {
+    background: rgba(0, 255, 136, 0.1);
+    color: #00ff88;
+    font-weight: bold;
+    border-left: 3px solid #00ff88;
+    padding-left: 13px;
+}
+
+.leaderboard-rank-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.leaderboard-rank {
+    color: rgba(255, 255, 255, 0.3);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    width: 22px;
+    text-align: right;
+}
+
+.leaderboard-score {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+.leaderboard-row.is-me .leaderboard-score {
+    color: #00ff88;
+}
