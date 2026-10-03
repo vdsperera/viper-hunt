@@ -20,6 +20,8 @@ export class UIController {
         
         this.authStatusMsg = document.getElementById('auth-status-message');
         this.oauthLinkBtn = document.getElementById('oauth-link-btn');
+        this.oauthSigninBtn = document.getElementById('oauth-signin-btn');
+        this.oauthSignoutBtn = document.getElementById('oauth-signout-btn');
         this.callsignSetupContainer = document.getElementById('callsign-setup-container');
         this.authErrorMsg = document.getElementById('auth-error-msg');
 
@@ -164,6 +166,8 @@ export class UIController {
                 const success = await this.firebaseService.linkGoogleAccount();
                 if (success) {
                     this.oauthLinkBtn.classList.add('hidden');
+                    this.oauthSigninBtn.classList.add('hidden');
+                    this.oauthSignoutBtn.classList.remove('hidden');
                     if (this.authStatusMsg) this.authStatusMsg.innerText = `WELCOME, ${this.selectedProfile} (VERIFIED)`;
                 } else {
                     if (this.authErrorMsg) {
@@ -171,6 +175,27 @@ export class UIController {
                         this.authErrorMsg.classList.remove('hidden');
                     }
                 }
+            });
+        }
+        
+        if (this.oauthSigninBtn) {
+            this.oauthSigninBtn.addEventListener('click', async () => {
+                const success = await this.firebaseService.signInWithGoogle();
+                if (success) {
+                    window.location.reload(); // Reload to re-initialize profile state
+                } else {
+                    if (this.authErrorMsg) {
+                        this.authErrorMsg.innerText = "FAILED TO SIGN IN";
+                        this.authErrorMsg.classList.remove('hidden');
+                    }
+                }
+            });
+        }
+        
+        if (this.oauthSignoutBtn) {
+            this.oauthSignoutBtn.addEventListener('click', async () => {
+                await this.firebaseService.signOut();
+                window.location.reload(); // Reload to spawn a new guest session
             });
         }
 
@@ -222,21 +247,30 @@ export class UIController {
             }
         } else {
             const profile = await this.firebaseService.getCurrentProfile();
+            const isAnon = user.isAnonymous;
+            
+            if (isAnon) {
+                if (this.oauthLinkBtn) this.oauthLinkBtn.classList.remove('hidden');
+                if (this.oauthSigninBtn) this.oauthSigninBtn.classList.remove('hidden');
+                if (this.oauthSignoutBtn) this.oauthSignoutBtn.classList.add('hidden');
+            } else {
+                if (this.oauthLinkBtn) this.oauthLinkBtn.classList.add('hidden');
+                if (this.oauthSigninBtn) this.oauthSigninBtn.classList.add('hidden');
+                if (this.oauthSignoutBtn) this.oauthSignoutBtn.classList.remove('hidden');
+            }
+            
             if (profile && profile.name) {
                 this.selectedProfile = profile.name;
                 this.isProfileUnlocked = true;
-                
-                if (this.authStatusMsg) this.authStatusMsg.innerText = `WELCOME, ${this.selectedProfile}`;
                 if (this.callsignSetupContainer) this.callsignSetupContainer.classList.add('hidden');
                 
-                if (profile.isAnonymous !== false && this.oauthLinkBtn) {
-                    this.oauthLinkBtn.classList.remove('hidden');
-                } else if (this.oauthLinkBtn) {
-                    this.oauthLinkBtn.classList.add('hidden');
+                if (!isAnon) {
                     if (this.authStatusMsg) this.authStatusMsg.innerText = `WELCOME, ${this.selectedProfile} (VERIFIED)`;
+                } else {
+                    if (this.authStatusMsg) this.authStatusMsg.innerText = `WELCOME, ${this.selectedProfile}`;
                 }
             } else {
-                if (this.authStatusMsg) this.authStatusMsg.innerText = "GUEST ACCOUNT CREATED";
+                if (this.authStatusMsg) this.authStatusMsg.innerText = isAnon ? "GUEST ACCOUNT CREATED" : "ACCOUNT VERIFIED. SET CALLSIGN.";
                 if (this.callsignSetupContainer) this.callsignSetupContainer.classList.remove('hidden');
                 this.isProfileUnlocked = false;
             }

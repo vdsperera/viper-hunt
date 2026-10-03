@@ -160,10 +160,14 @@
                         </div>
 
                         <div class="profile-card-group">
-                            <div id="auth-status-container" style="text-align: center; margin-bottom: 10px; padding: 10px; border: 1px solid rgba(0, 240, 255, 0.3); background: rgba(0, 0, 0, 0.5); border-radius: 4px; display: flex; flex-direction: column; align-items: center;">
-                                <div id="auth-status-message" style="color: var(--primary-cyan); font-size: 0.85rem; margin-bottom: 8px; font-weight: bold; text-transform: uppercase;">AUTHENTICATING GUEST SESSION...</div>
-                                <button id="oauth-link-btn" class="cyber-btn secondary hidden" style="padding: 10px 20px;"><span>🔗 LINK GOOGLE ACCOUNT</span></button>
-                                <div id="auth-error-msg" class="hidden" style="color: var(--accent-red); font-size: 0.8rem; margin-top: 8px;">ERROR AUTHENTICATING</div>
+                            <div id="auth-status-container" style="text-align: center; margin-bottom: 10px; padding: 10px; border: 1px solid rgba(0, 240, 255, 0.3); background: rgba(0, 0, 0, 0.5); border-radius: 4px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                <div id="auth-status-message" style="color: var(--primary-cyan); font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">AUTHENTICATING GUEST SESSION...</div>
+                                <div id="auth-buttons-group" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                                    <button id="oauth-link-btn" class="cyber-btn secondary hidden" style="padding: 8px 15px; font-size: 0.8rem;"><span>🔗 UPGRADE ACCOUNT</span></button>
+                                    <button id="oauth-signin-btn" class="cyber-btn secondary hidden" style="padding: 8px 15px; font-size: 0.8rem;"><span>LOGIN (EXISTING)</span></button>
+                                    <button id="oauth-signout-btn" class="cyber-btn secondary hidden" style="padding: 8px 15px; font-size: 0.8rem;"><span>SIGN OUT</span></button>
+                                </div>
+                                <div id="auth-error-msg" class="hidden" style="color: var(--accent-red); font-size: 0.8rem; margin-top: 5px;">ERROR AUTHENTICATING</div>
                             </div>
                             
                             <div class="profile-create hidden" id="callsign-setup-container" style="display: flex; gap: 8px; margin-top: 10px;">

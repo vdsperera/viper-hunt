@@ -106,6 +106,35 @@ export class FirebaseService {
     }
 
     /**
+     * Signs in with an existing Google account
+     */
+    async signInWithGoogle() {
+        if (!this.isInitialized) return false;
+        try {
+            const provider = new this.sdk.GoogleAuthProvider();
+            const result = await this.sdk.signInWithPopup(this.auth, provider);
+            this.currentUser = result.user;
+            return true;
+        } catch (error) {
+            console.error("[FirebaseService] Failed to sign in with Google:", error);
+            return false;
+        }
+    }
+
+    /**
+     * Signs out the current user
+     */
+    async signOut() {
+        if (!this.isInitialized) return;
+        try {
+            await this.sdk.signOut(this.auth);
+            this.currentUser = null;
+        } catch (error) {
+            console.error("[FirebaseService] Failed to sign out:", error);
+        }
+    }
+
+    /**
      * Gets the current user's profile
      */
     async getCurrentProfile() {
