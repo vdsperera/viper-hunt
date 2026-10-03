@@ -187,12 +187,21 @@
                     <div id="score-breakdown-container" class="hidden"></div>
                     <button id="start-btn" class="cyber-btn primary" disabled><span>START SESSION</span></button>
                 </div>
+                <!-- Donation Footer (Bottom Left) -->
+                <div class="donation-footer" style="position: fixed; bottom: 15px; left: 15px; font-size: 0.7rem; color: rgba(255,255,255,0.4); z-index: 101;">
+                    SUPPORT DEV (ETH): <span style="font-family: monospace; color: rgba(0, 255, 136, 0.6); user-select: all; letter-spacing: 0.5px;">0x32f6f912133d4c36879c79a1415f2e1fb39432ee</span>
+                </div>
 
-                <!-- Leaderboard Side Panel -->
-                <div id="leaderboard-container" class="leaderboard-panel hidden">
-                    <div class="leaderboard-header">GLOBAL LEADERBOARD</div>
-                    <div id="leaderboard-list" class="leaderboard-list">
-                        <div style="text-align: center; font-style: italic; padding: 20px; color: rgba(255,255,255,0.5);">Loading data link...</div>
+                <!-- Leaderboard Drawer (Right Edge) -->
+                <div id="leaderboard-drawer" class="leaderboard-drawer hidden">
+                    <button id="leaderboard-toggle-btn" class="leaderboard-toggle-btn">
+                        <span style="writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 3px; font-weight: bold; padding: 10px 0;">🏆 LEADERBOARD</span>
+                    </button>
+                    <div id="leaderboard-container" class="leaderboard-panel" style="margin: 0; border-radius: 0 0 0 12px; border-right: none;">
+                        <div class="leaderboard-header">GLOBAL LEADERBOARD</div>
+                        <div id="leaderboard-list" class="leaderboard-list" style="max-height: 80vh;">
+                            <div style="text-align: center; font-style: italic; padding: 20px; color: rgba(255,255,255,0.5);">Loading data link...</div>
+                        </div>
                     </div>
                 </div>
             </div>

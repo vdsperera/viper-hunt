@@ -2398,3 +2398,41 @@ select option {
 .leaderboard-row.is-me .leaderboard-score {
     color: #00ff88;
 }
+
+.leaderboard-drawer {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%) translateX(100%);
+    display: flex;
+    align-items: center;
+    z-index: 200;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.leaderboard-drawer.open {
+    transform: translateY(-50%) translateX(0);
+}
+.leaderboard-drawer.hidden {
+    display: none !important;
+}
+
+.leaderboard-toggle-btn {
+    background: rgba(0, 20, 30, 0.9);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    color: var(--primary-cyan);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+    transition: all 0.2s;
+    backdrop-filter: blur(8px);
+}
+.leaderboard-toggle-btn:hover {
+    background: rgba(0, 240, 255, 0.1);
+    color: #fff;
+    box-shadow: -5px 0 20px rgba(0, 240, 255, 0.2);
+}
