@@ -79,6 +79,14 @@ export class UIController {
         if (this.startBtn) {
             this.startBtn.addEventListener('click', () => this.handleStartClick());
         }
+        
+        const leaderboardToggleBtn = document.getElementById('leaderboard-toggle-btn');
+        const leaderboardDrawer = document.getElementById('leaderboard-drawer');
+        if (leaderboardToggleBtn && leaderboardDrawer) {
+            leaderboardToggleBtn.addEventListener('click', () => {
+                leaderboardDrawer.classList.toggle('open');
+            });
+        }
 
         if (this.renderEngineDropdown) {
             const savedEngineMode = localStorage.getItem('viper_hunt_render_mode') || '2d';
@@ -281,11 +289,11 @@ export class UIController {
     }
     
     async renderLeaderboard() {
-        const container = document.getElementById('leaderboard-container');
+        const drawer = document.getElementById('leaderboard-drawer');
         const list = document.getElementById('leaderboard-list');
-        if (!container || !list) return;
+        if (!drawer || !list) return;
         
-        container.classList.remove('hidden');
+        drawer.classList.remove('hidden');
         list.innerHTML = '<div style="text-align: center; font-style: italic; padding: 20px; color: rgba(255,255,255,0.5);">Loading data link...</div>';
         
         try {
