@@ -168,12 +168,14 @@ _Last updated: 2026-07-23_
 ### PlayerProfile
 | Field | Type | Constraints | Notes |
 |-------|------|-------------|-------|
-| name | string | PK, Unique | Document ID in Firestore / unique username |
+| uid | string | PK, Unique | Firebase Auth UID (Anonymous or Google linked) |
+| name | string | Required | Player Callsign for leaderboard |
 | highScore | integer | >= 0 | Highest score attained by this user |
+| isAnonymous | boolean | True/False| Whether the account is linked to an OAuth provider |
 | updatedAt | string | ISO Timestamp | Records last update check |
 
-**Storage:** Cloud Firestore (Collection `profiles`) with fallback to local `localStorage` key `viperHuntProfiles`.  
-**Owned by:** FirebaseService
+**Storage:** Cloud Firestore (Collection `profiles` keyed by `uid`) with fallback to local `localStorage`.  
+**Owned by:** FirebaseService (integrated with Firebase Authentication)
 
 ---
 
@@ -258,4 +260,10 @@ _Last updated: 2026-07-23_
 - **Context:** Higher gameplay difficulty requires dynamic moving hazards on the grid.
 - **Decision:** Add autonomous boss position state to `GridState` and evaluate boss collisions in `CollisionDetector`. `LevelManager` triggers boss spawning based on level progression thresholds, and `Renderer` handles glowing boss graphics.
 - **Consequences:** Adds strategic depth to gameplay while reusing spatial collision physics.
+
+### ADR-008 — Authentication Strategy: Anonymous Auth with OAuth Upgrade
+- **Status:** Accepted
+- **Context:** Leaderboards require secure profiles to prevent botting, but forcing users to create an account immediately creates high friction.
+- **Decision:** Implement Firebase Anonymous Authentication upon game load to instantly generate a secure session without friction. Allow players to enter a display name (Callsign) tied to this session. Offer an optional "Link Google Account" OAuth upgrade path to persist their profile across devices.
+- **Consequences:** Low friction onboarding, robust protection against simple bots (Firebase Auth backend), and seamless cross-device saving for invested players. Replaces the legacy 4-digit PIN system.
 

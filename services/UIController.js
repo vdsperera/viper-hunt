@@ -15,15 +15,13 @@ export class UIController {
         // Profile UI Elements
         this.profileSection = document.getElementById('profile-section');
         this.newProfileName = document.getElementById('new-profile-name');
-        this.newProfilePin = document.getElementById('new-profile-pin');
         this.createProfileBtn = document.getElementById('create-profile-btn');
-        this.profileDropdown = document.getElementById('profile-dropdown');
         this.modeDropdown = document.getElementById('mode-dropdown');
-        this.pinAuthContainer = document.getElementById('pin-auth-container');
-        this.pinAuthMessage = document.getElementById('pin-auth-message');
-        this.authProfilePin = document.getElementById('auth-profile-pin');
-        this.authProfileBtn = document.getElementById('auth-profile-btn');
-        this.pinAuthError = document.getElementById('pin-auth-error');
+        
+        this.authStatusMsg = document.getElementById('auth-status-message');
+        this.oauthLinkBtn = document.getElementById('oauth-link-btn');
+        this.callsignSetupContainer = document.getElementById('callsign-setup-container');
+        this.authErrorMsg = document.getElementById('auth-error-msg');
 
         // HUD Elements
         this.hud = document.getElementById('hud');
@@ -160,18 +158,22 @@ export class UIController {
                 this.newProfileName.value = '';
             });
         }
-        if (this.profileDropdown) {
-            this.profileDropdown.addEventListener('change', (e) => {
-                this.selectedProfile = e.target.value;
-                localStorage.setItem('viper_hunt_last_profile', this.selectedProfile);
-                this.handleProfileSelectionChange();
+        
+        if (this.oauthLinkBtn) {
+            this.oauthLinkBtn.addEventListener('click', async () => {
+                const success = await this.firebaseService.linkGoogleAccount();
+                if (success) {
+                    this.oauthLinkBtn.classList.add('hidden');
+                    if (this.authStatusMsg) this.authStatusMsg.innerText = `WELCOME, ${this.selectedProfile} (VERIFIED)`;
+                } else {
+                    if (this.authErrorMsg) {
+                        this.authErrorMsg.innerText = "FAILED TO LINK ACCOUNT";
+                        this.authErrorMsg.classList.remove('hidden');
+                    }
+                }
             });
         }
-        if (this.authProfileBtn) {
-            this.authProfileBtn.addEventListener('click', async () => {
-                await this.handlePinAuth();
-            });
-        }
+
         if (this.modeDropdown) {
             this.modeDropdown.addEventListener('change', (e) => {
                 this.selectedMode = e.target.value;
@@ -200,113 +202,57 @@ export class UIController {
         }
     }
 
-    async loadProfiles(autoSelectName = '') {
+    async loadProfiles() {
         if (!this.firebaseService) return;
 
-        this.profileDropdown.disabled = true;
-        this.createProfileBtn.disabled = true;
-
-        const profiles = await this.firebaseService.getProfiles();
-        this.loadedProfiles = profiles;
+        this.updateStartBtnState();
+        if (this.authStatusMsg) this.authStatusMsg.innerText = "AUTHENTICATING...";
         
-        let targetSelectName = autoSelectName || localStorage.getItem('viper_hunt_last_profile') || '';
-
-        this.profileDropdown.innerHTML = '<option value="">-- Select Player --</option>';
-        profiles.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p.name;
-            opt.innerText = `${p.name} (High Score: ${p.highScore})`;
-            if (targetSelectName && p.name === targetSelectName) {
-                opt.selected = true;
+        const user = await this.firebaseService.signIn();
+        
+        if (!user) {
+            if (this.authStatusMsg) this.authStatusMsg.innerText = "OFFLINE MODE";
+            const profiles = this.firebaseService.getLocalProfiles();
+            if (profiles.length > 0) {
+                this.selectedProfile = profiles[0].name;
+                this.isProfileUnlocked = true;
+                if (this.authStatusMsg) this.authStatusMsg.innerText = `OFFLINE GUEST: ${this.selectedProfile}`;
+            } else {
+                if (this.callsignSetupContainer) this.callsignSetupContainer.classList.remove('hidden');
             }
-            this.profileDropdown.appendChild(opt);
-        });
-
-        this.profileDropdown.disabled = false;
-        this.createProfileBtn.disabled = false;
-
-        this.selectedProfile = this.profileDropdown.value;
-        this.selectedMode = this.modeDropdown ? (this.modeDropdown.value || 'mode1') : 'mode1';
-        this.handleProfileSelectionChange();
+        } else {
+            const profile = await this.firebaseService.getCurrentProfile();
+            if (profile && profile.name) {
+                this.selectedProfile = profile.name;
+                this.isProfileUnlocked = true;
+                
+                if (this.authStatusMsg) this.authStatusMsg.innerText = `WELCOME, ${this.selectedProfile}`;
+                if (this.callsignSetupContainer) this.callsignSetupContainer.classList.add('hidden');
+                
+                if (profile.isAnonymous !== false && this.oauthLinkBtn) {
+                    this.oauthLinkBtn.classList.remove('hidden');
+                } else if (this.oauthLinkBtn) {
+                    this.oauthLinkBtn.classList.add('hidden');
+                    if (this.authStatusMsg) this.authStatusMsg.innerText = `WELCOME, ${this.selectedProfile} (VERIFIED)`;
+                }
+            } else {
+                if (this.authStatusMsg) this.authStatusMsg.innerText = "GUEST ACCOUNT CREATED";
+                if (this.callsignSetupContainer) this.callsignSetupContainer.classList.remove('hidden');
+                this.isProfileUnlocked = false;
+            }
+        }
+        
+        this.updateStartBtnState();
     }
 
     async saveProfile(name) {
         if (!name || !name.trim()) return;
         const trimmed = name.trim();
-        const pin = this.newProfilePin ? this.newProfilePin.value : null;
         
-        this.createProfileBtn.disabled = true;
-        await this.firebaseService.saveProfile(trimmed, pin);
-        localStorage.setItem('viper_hunt_last_profile', trimmed);
-        await this.loadProfiles(trimmed);
+        if (this.createProfileBtn) this.createProfileBtn.disabled = true;
+        await this.firebaseService.saveProfile(trimmed);
         
-        if (this.newProfilePin) this.newProfilePin.value = '';
-    }
-
-    handleProfileSelectionChange() {
-        this.isProfileUnlocked = false;
-        this.updateStartBtnState();
-        
-        if (!this.selectedProfile || !this.loadedProfiles) {
-            if (this.pinAuthContainer) this.pinAuthContainer.classList.add('hidden');
-            return;
-        }
-        
-        const profile = this.loadedProfiles.find(p => p.name === this.selectedProfile);
-        if (this.pinAuthContainer) {
-            this.pinAuthContainer.classList.remove('hidden');
-            this.authProfilePin.value = '';
-            this.pinAuthError.classList.add('hidden');
-            
-            if (profile && profile.hasPin) {
-                this.pinAuthMessage.innerText = "ENTER PIN TO UNLOCK";
-                this.authProfileBtn.querySelector('span').innerText = "UNLOCK";
-            } else {
-                this.pinAuthMessage.innerText = "CREATE 4-DIGIT PIN TO CLAIM PROFILE";
-                this.authProfileBtn.querySelector('span').innerText = "CLAIM";
-            }
-        }
-    }
-
-    async handlePinAuth() {
-        if (!this.selectedProfile) return;
-        const pin = this.authProfilePin.value;
-        if (!pin || pin.length !== 4) {
-            this.pinAuthError.innerText = "PIN MUST BE 4 DIGITS.";
-            this.pinAuthError.classList.remove('hidden');
-            return;
-        }
-
-        const profile = this.loadedProfiles.find(p => p.name === this.selectedProfile);
-        let success = false;
-        
-        this.authProfileBtn.disabled = true;
-        
-        if (profile && profile.hasPin) {
-            success = await this.firebaseService.validatePin(this.selectedProfile, pin);
-            if (!success) {
-                this.pinAuthError.innerText = "INVALID PIN. ACCESS DENIED.";
-            }
-        } else {
-            success = await this.firebaseService.claimProfile(this.selectedProfile, pin);
-            if (!success) {
-                this.pinAuthError.innerText = "FAILED TO CLAIM PROFILE.";
-            } else {
-                profile.hasPin = true;
-            }
-        }
-        
-        this.authProfileBtn.disabled = false;
-        
-        if (success) {
-            this.isProfileUnlocked = true;
-            this.pinAuthContainer.classList.add('hidden');
-            this.pinAuthError.classList.add('hidden');
-            this.updateStartBtnState();
-        } else {
-            this.pinAuthError.classList.remove('hidden');
-            this.authProfilePin.value = '';
-        }
+        await this.loadProfiles();
     }
 
     handleStartClick() {

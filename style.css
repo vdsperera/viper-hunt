@@ -703,6 +703,8 @@ body {
 }
 
 input, select {
+    user-select: auto;
+    -webkit-user-select: auto;
     padding: 10px 14px;
     font-family: var(--font-body);
     font-size: 0.95rem;
