@@ -2293,6 +2293,7 @@ select option {
 
 .overlay {
     gap: 24px;
+    flex-wrap: wrap;
 }
 @media (max-width: 900px) {
     .overlay {
