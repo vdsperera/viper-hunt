@@ -185,22 +185,58 @@
                     </div>
 
                     <div id="score-breakdown-container" class="hidden"></div>
-                    <button id="start-btn" class="cyber-btn primary" disabled><span>START SESSION</span></button>
+                    <!-- Game Over Mini Leaderboard -->
+                    <div id="game-over-leaderboard" class="mini-leaderboard hidden">
+                        <div class="mini-lb-header">YOUR RANKING</div>
+                        <div id="mini-lb-list" class="mini-lb-list">
+                            <!-- Dynamic rows go here -->
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px;">
+                        <button id="start-btn" class="cyber-btn primary" disabled><span>START SESSION</span></button>
+                        <button id="open-leaderboard-btn" class="cyber-btn secondary"><span>🏆 LEADERBOARD</span></button>
+                    </div>
                 </div>
                 <!-- Donation Footer (Bottom Left) -->
                 <div class="donation-footer" style="position: fixed; bottom: 15px; left: 15px; font-size: 0.7rem; color: rgba(255,255,255,0.4); z-index: 101;">
                     SUPPORT DEV (ETH): <span style="font-family: monospace; color: rgba(0, 255, 136, 0.6); user-select: all; letter-spacing: 0.5px;">0x32f6f912133d4c36879c79a1415f2e1fb39432ee</span>
                 </div>
 
-                <!-- Leaderboard Drawer (Right Edge) -->
-                <div id="leaderboard-drawer" class="leaderboard-drawer hidden">
-                    <button id="leaderboard-toggle-btn" class="leaderboard-toggle-btn">
-                        <span style="writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 3px; font-weight: bold; padding: 10px 0;">🏆 LEADERBOARD</span>
-                    </button>
-                    <div id="leaderboard-container" class="leaderboard-panel" style="margin: 0; border-radius: 0 0 0 12px; border-right: none;">
-                        <div class="leaderboard-header">GLOBAL LEADERBOARD</div>
-                        <div id="leaderboard-list" class="leaderboard-list" style="max-height: 80vh;">
-                            <div style="text-align: center; font-style: italic; padding: 20px; color: rgba(255,255,255,0.5);">Loading data link...</div>
+                <!-- Leaderboard Bottom Sheet -->
+                <div id="leaderboard-sheet" class="bottom-sheet hidden" aria-modal="true" role="dialog">
+                    <div class="sheet-header">
+                        <div class="drag-handle"></div>
+                        <h2 class="sheet-title">GLOBAL LEADERBOARD</h2>
+                        <button id="close-leaderboard-btn" class="close-btn" aria-label="Close">×</button>
+                    </div>
+                    <div class="sheet-tabs">
+                        <button class="tab-btn active" data-tab="daily">DAILY</button>
+                        <button class="tab-btn" data-tab="weekly">WEEKLY</button>
+                        <button class="tab-btn" data-tab="all-time">ALL-TIME</button>
+                    </div>
+                    <div class="sheet-content">
+                        <div id="leaderboard-list-main" class="leaderboard-list">
+                            <!-- Skeleton Loading State -->
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                        </div>
+                        
+                        <!-- Pinned You Row -->
+                        <div id="leaderboard-pinned-you" class="pinned-you-row">
+                            <div class="lb-row-content">
+                                <div class="lb-rank">--</div>
+                                <div class="lb-callsign">Play a round to get ranked.</div>
+                                <div class="lb-score">-</div>
+                            </div>
+                        </div>
+
+                        <!-- Guest Prompt -->
+                        <div id="leaderboard-guest-prompt" class="guest-prompt">
+                            <span>Sign in to keep your rank.</span>
+                            <button id="lb-upgrade-btn" class="cyber-btn secondary small-btn">UPGRADE</button>
                         </div>
                     </div>
                 </div>
