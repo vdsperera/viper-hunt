@@ -80,11 +80,33 @@ export class UIController {
             this.startBtn.addEventListener('click', () => this.handleStartClick());
         }
         
-        const leaderboardToggleBtn = document.getElementById('leaderboard-toggle-btn');
-        const leaderboardDrawer = document.getElementById('leaderboard-drawer');
-        if (leaderboardToggleBtn && leaderboardDrawer) {
-            leaderboardToggleBtn.addEventListener('click', () => {
-                leaderboardDrawer.classList.toggle('open');
+        // New Leaderboard Sheet Logic
+        const openLbBtn = document.getElementById('open-leaderboard-btn');
+        const closeLbBtn = document.getElementById('close-leaderboard-btn');
+        const lbSheet = document.getElementById('leaderboard-sheet');
+        const lbTabs = document.querySelectorAll('.tab-btn');
+
+        if (openLbBtn && lbSheet) {
+            openLbBtn.addEventListener('click', () => {
+                lbSheet.classList.remove('hidden');
+                setTimeout(() => lbSheet.classList.add('open'), 10);
+            });
+        }
+
+        if (closeLbBtn && lbSheet) {
+            closeLbBtn.addEventListener('click', () => {
+                lbSheet.classList.remove('open');
+                setTimeout(() => lbSheet.classList.add('hidden'), 400);
+            });
+        }
+
+        if (lbTabs) {
+            lbTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    lbTabs.forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    // Future: this.renderLeaderboard(e.target.dataset.tab);
+                });
             });
         }
 
@@ -289,38 +311,41 @@ export class UIController {
     }
     
     async renderLeaderboard() {
-        const drawer = document.getElementById('leaderboard-drawer');
-        const list = document.getElementById('leaderboard-list');
-        if (!drawer || !list) return;
+        const list = document.getElementById('leaderboard-list-main');
+        if (!list) return;
         
-        drawer.classList.remove('hidden');
-        list.innerHTML = '<div style="text-align: center; font-style: italic; padding: 20px; color: rgba(255,255,255,0.5);">Loading data link...</div>';
+        list.innerHTML = `
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+        `;
         
         try {
             const profiles = await this.firebaseService.getTopProfiles(10);
             if (!profiles || profiles.length === 0) {
-                list.innerHTML = '<div style="text-align: center; color: #888;">No high scores yet!</div>';
+                list.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">No scores yet. Be the first.</div>';
                 return;
             }
             
             let html = '';
             profiles.forEach((p, index) => {
                 const isMe = p.name === this.selectedProfile;
-                const rowClass = isMe ? 'leaderboard-row is-me' : 'leaderboard-row';
+                const top3Class = index < 3 ? 'top-3' : '';
+                const rowClass = isMe ? 'lb-row-content is-me' : 'lb-row-content ' + top3Class;
                 const verifiedTag = p.isAnonymous ? '' : '<span style="color: #00ff88; font-size: 0.7rem; margin-left: 6px; padding: 2px 4px; background: rgba(0, 255, 136, 0.1); border-radius: 4px;">✓</span>';
                 
                 html += `<div class="${rowClass}">
-                    <div class="leaderboard-rank-name">
-                        <span class="leaderboard-rank">${index + 1}.</span>
-                        <span>${p.name}${verifiedTag}</span>
-                    </div>
-                    <span class="leaderboard-score">${p.highScore.toLocaleString()} pts</span>
+                    <div class="lb-rank">${index + 1}</div>
+                    <div class="lb-callsign">${p.name}${verifiedTag}</div>
+                    <div class="lb-score">${p.highScore.toLocaleString()}</div>
                 </div>`;
             });
             list.innerHTML = html;
         } catch (e) {
             console.error("Failed to render leaderboard", e);
-            list.innerHTML = '<div style="text-align: center; color: var(--accent-red);">Failed to load leaderboard</div>';
+            list.innerHTML = '<div style="text-align: center; color: var(--accent-red); padding: 20px;">Couldn\'t load scores<br><button class="cyber-btn secondary small-btn" style="margin-top:10px;" onclick="window.location.reload()">RETRY</button></div>';
         }
     }
 
