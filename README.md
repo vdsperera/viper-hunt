@@ -20,6 +20,13 @@ Built using native **HTML5 Canvas 2D**, **ES6+ Vanilla JavaScript**, **CSS3**, a
 - 💥 **Cyberpunk Glowing UI & FX:** Neon vector rendering engine, dynamic canvas scaling, spark particle bursts, and floating score popups.
 - ☁️ **Cloud & Offline Local Persistence:** Firebase Firestore profile sync with transparent `localStorage` fallback.
 - 🛡️ **XSS Protection:** Input sanitization on remote CSV fields and canvas-level safe image rendering.
+- 🏆 **Global Leaderboards:** Real-time ranking with Daily/Weekly/All-Time tabs backed by Firebase.
+- 🎶 **Dynamic Audio System:** Configurable SFX, BGM (background music tracks), and Voice narration styles.
+- 🤖 **Gemini AI Narrator:** Procedural engine for generating dynamic criminal confessions and narrative flavor.
+- 🌧️ **Dynamic Weather & Threat Levels:** Live sector weather effects and adaptive AI difficulty scaling.
+- ⚡ **Kill Streak System:** Chain captures to build a streak multiplier for bonus points.
+- 🔒 **Authentication:** Anonymous guest sessions with the ability to upgrade and link Google OAuth accounts.
+- ☕ **Support the Dev Integration:** Built-in interactive donation modal with Ko-fi and EVM multi-network crypto support.
 
 ---
 
@@ -79,17 +86,27 @@ viper-hunt/
 ├── data/                        # Local fallback data (fallback_registry.json)
 ├── models/                      # Domain entities (CriminalRecord, HunterEntity)
 ├── services/                    # Game engine services
+│   ├── AdaptiveDifficultyService.js # Scales AI threat level and entity speed
 │   ├── AttackManager.js         # Tactical attack inventory, selection, multipliers, and story phrasing
+│   ├── AudioService.js          # Manages BGM, SFX, and Voice narration settings
 │   ├── CollisionDetector.js     # Grid boundary, self, multi-hazard collision detection, and cause of death tracking
+│   ├── ConfigManager.js         # Global configuration and constants
+│   ├── EventBus.js              # Centralized event publishing/subscription system
 │   ├── FirebaseService.js       # Firestore cloud sync & local storage persistence
 │   ├── GameLoop.js              # Fixed delta requestAnimationFrame loop orchestrator
 │   ├── GridState.js             # Spatial grid matrix, hunter segments, targets, multi-hazard entity management
 │   ├── InputHandler.js          # WASD / Arrow key queueing, number keys (1-9), & Virtual D-Pad touch controls
 │   ├── LevelManager.js          # Target spawning, level progression, per-level hazard scaling, recentering
+│   ├── LLMService.js            # Gemini AI procedural generation for narrative flavor
+│   ├── Pathfinder.js            # AI pathfinding and hazard navigation
 │   ├── RegistryService.js       # Google Sheets CSV fetcher, XSS sanitizer, play mode provider
 │   ├── Renderer.js              # Canvas 2D renderer, cyberpunk glow FX, floating target badges, multi-hazard icons
+│   ├── Renderer3D.js            # Experimental Three.js WebGL 3D renderer
 │   ├── ScoreManager.js          # Level & session score calculators with criminal capture logging
-│   └── TargetManager.js         # Random unoccupied grid cell target spawner
+│   ├── StreakManager.js         # Kill streak tracking and score multipliers
+│   ├── TargetManager.js         # Random unoccupied grid cell target spawner
+│   ├── UIController.js          # Orchestrator for HUD, overlays, and UI event bindings
+│   └── WeatherService.js        # Dynamic sector weather conditions
 ├── tests/                       # Unit & integration test suites (including MultiHazard and AttackManager)
 ├── docs/                        # Living project documents (01-requirements, 02-user-stories, 03-architecture, 04-tasks, 05-deployment)
 └── prompts/                     # Source prompts for AI development pipeline
