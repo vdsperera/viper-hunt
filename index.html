@@ -195,13 +195,9 @@
                     <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px;">
                         <button id="start-btn" class="cyber-btn primary" disabled><span>START SESSION</span></button>
                         <button id="open-leaderboard-btn" class="cyber-btn secondary"><span>🏆 LEADERBOARD</span></button>
+                        <button id="open-donation-btn" class="cyber-btn secondary text-only" style="min-height: 44px; border-color: transparent; background: transparent; opacity: 0.8;"><span>SUPPORT THE DEV</span></button>
                     </div>
                 </div>
-                <!-- Donation Footer (Bottom Left) -->
-                <div class="donation-footer" style="position: fixed; bottom: 15px; left: 15px; font-size: 0.7rem; color: rgba(255,255,255,0.4); z-index: 101;">
-                    SUPPORT DEV (ETH): <span style="font-family: monospace; color: rgba(0, 255, 136, 0.6); user-select: all; letter-spacing: 0.5px;">0x32f6f912133d4c36879c79a1415f2e1fb39432ee</span>
-                </div>
-
                 <!-- Leaderboard Bottom Sheet -->
                 <div id="leaderboard-sheet" class="bottom-sheet hidden" aria-modal="true" role="dialog">
                     <div class="sheet-header">
@@ -237,6 +233,45 @@
                         <div id="leaderboard-guest-prompt" class="guest-prompt">
                             <span>Sign in to keep your rank.</span>
                             <button id="lb-upgrade-btn" class="cyber-btn secondary small-btn">UPGRADE</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Donation Bottom Sheet -->
+                <div id="donation-sheet" class="bottom-sheet hidden" aria-modal="true" role="dialog">
+                    <div class="sheet-header">
+                        <div class="drag-handle"></div>
+                        <h2 class="sheet-title">SUPPORT THE DEV</h2>
+                        <button id="close-donation-btn" class="close-btn" aria-label="Close" style="min-height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center;">×</button>
+                    </div>
+                    <div class="sheet-content donation-content">
+                        <p class="donation-desc">Optional. Donations help pay for hosting and new levels.</p>
+                        
+                        <a href="https://ko-fi.com/ciegescitone" target="_blank" rel="noopener noreferrer" class="cyber-btn primary kofi-btn" style="min-height: 48px; display: flex; text-decoration: none; align-items: center; justify-content: center; margin-bottom: 20px;">
+                            <span>SUPPORT ON KO-FI <small style="font-size: 0.65em; opacity: 0.8; margin-left: 5px;">(opens in new tab)</small></span>
+                        </a>
+
+                        <div class="quiet-divider"><span>OR</span></div>
+
+                        <div class="crypto-section">
+                            <h3 class="crypto-title">DONATE WITH CRYPTO</h3>
+                            <div class="crypto-network-info">
+                                <span class="network-badge">EVM Networks</span>
+                                <span class="tokens-badge">ETH, USDT, USDC</span>
+                            </div>
+                            <div class="crypto-address-box">
+                                <span id="crypto-address" class="mono-address">0xa641c3c59f00db6f6f976eb6dc1219e7b8279509</span>
+                                <button id="copy-address-btn" class="cyber-btn secondary copy-btn" title="Copy Address">COPY</button>
+                            </div>
+                            <div id="copy-toast" class="copy-toast hidden">COPIED!</div>
+                            
+                            <div class="crypto-warning" style="color: var(--snake-green); background: rgba(0, 255, 136, 0.1);">
+                                ✅ Supports Ethereum, Polygon, Arbitrum, Base, and other EVM networks.
+                            </div>
+                            
+                            <div class="qr-container">
+                                <img src="assets/eth_qr.svg" alt="Ethereum Address QR Code" class="qr-image" />
+                            </div>
                         </div>
                     </div>
                 </div>
