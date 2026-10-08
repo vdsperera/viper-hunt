@@ -69,6 +69,7 @@
                         title="Toggle 2D / 3D Render Engine">
                         <button id="render-mode-toggle-btn" class="hud-toggle-btn"><span>👁️ VIEW: 2D</span></button>
                     </div>
+                    <button id="hud-htp-btn" class="cyber-btn secondary" aria-label="How to play" style="min-width: 44px; min-height: 44px; padding: 0;"><span>?</span></button>
                 </div>
 
                 <div id="streak-badge" class="hud-badge streak-badge hidden" title="Kill Streak Multiplier">
@@ -137,6 +138,7 @@
                                     title="Toggle Background Music"><span>🎵 BGM: ON</span></button>
                                 <button id="voice-toggle-btn" class="cyber-btn audio-btn"
                                     title="Toggle Tactical Voice Comms"><span>🎙 VOICE: ON</span></button>
+                                <button id="settings-htp-btn" class="cyber-btn secondary" aria-label="How to play" style="min-width: 44px; min-height: 44px; padding: 0; margin-left: auto;"><span>?</span></button>
                             </div>
                             <div class="audio-sliders-group">
                                 <div class="slider-row">
@@ -215,6 +217,10 @@
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px;">
                         <button id="start-btn" class="cyber-btn primary" disabled><span>START SESSION</span></button>
+                        <button id="open-htp-btn" class="cyber-btn text-only" style="min-height: 44px; position: relative;">
+                            <span>HOW TO PLAY</span>
+                            <span id="htp-new-badge" class="new-badge hidden">New</span>
+                        </button>
                         <button id="open-leaderboard-btn" class="cyber-btn secondary"><span>🏆
                                 LEADERBOARD</span></button>
                         <button id="open-donation-btn" class="cyber-btn secondary text-only"
@@ -316,6 +322,53 @@
                 <span class="roster-title">WANTED TARGETS</span>
             </div>
             <div id="wanted-targets-container" class="wanted-targets-list"></div>
+        </div>
+
+        <!-- First Time Hint Toast -->
+        <div id="first-time-hint" class="toast-hint hidden">Swipe or use arrows to move</div>
+
+        <!-- How To Play Modal -->
+        <div id="htp-modal" class="bottom-sheet hidden" aria-modal="true" role="dialog" aria-labelledby="htp-title">
+            <div class="sheet-header">
+                <div class="drag-handle"></div>
+                <h2 id="htp-title" class="sheet-title">HOW TO PLAY</h2>
+                <button id="close-htp-btn" class="close-btn" aria-label="Close" style="min-height: 44px; min-width: 44px;">×</button>
+            </div>
+            <div class="sheet-content htp-content">
+                <div class="htp-cards-container">
+                    <div class="htp-card active" data-index="0">
+                        <svg class="htp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <h3>THE GOAL</h3>
+                        <p>Play as a bounty hunter. Capture wanted targets before time runs out to maximize your time bonus!</p>
+                    </div>
+                    <div class="htp-card" data-index="1">
+                        <svg class="htp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                        <h3>CONTROLS</h3>
+                        <p>Desktop: Use WASD/Arrows to move. Press 1-4 to select tactical attacks.<br/>Mobile: Swipe or use the D-Pad to move. Tap HUD buttons to select attacks.</p>
+                    </div>
+                    <div class="htp-card" data-index="2">
+                        <svg class="htp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                        <h3>SCORING & STREAKS</h3>
+                        <p>Chain captures quickly to build your multiplier streak. Your capture value plus your time bonus equals your final score.</p>
+                    </div>
+                    <div class="htp-card" data-index="3">
+                        <svg class="htp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4m0 4h.01"></path></svg>
+                        <h3>DANGERS</h3>
+                        <p>Don't crash into walls, barricades, or your own tail. Evade roaming Crime Bosses, Police Patrols, and the Death Reaper!</p>
+                    </div>
+                </div>
+                <div class="htp-footer">
+                    <button id="htp-skip-btn" class="cyber-btn secondary text-only" style="min-height: 44px;">SKIP</button>
+                    <div class="htp-dots">
+                        <span class="htp-dot active"></span>
+                        <span class="htp-dot"></span>
+                        <span class="htp-dot"></span>
+                        <span class="htp-dot"></span>
+                    </div>
+                    <button id="htp-next-btn" class="cyber-btn primary" style="min-height: 44px;">NEXT</button>
+                    <button id="htp-gotit-btn" class="cyber-btn primary hidden" style="min-height: 44px;">GOT IT</button>
+                </div>
+            </div>
         </div>
     </div>
     <script type="module" src="main.js"></script>
