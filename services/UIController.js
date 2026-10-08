@@ -109,6 +109,57 @@ export class UIController {
                 });
             });
         }
+        
+        // Donation Sheet Logic
+        const openDonationBtn = document.getElementById('open-donation-btn');
+        const closeDonationBtn = document.getElementById('close-donation-btn');
+        const donationSheet = document.getElementById('donation-sheet');
+        
+        if (openDonationBtn && donationSheet) {
+            openDonationBtn.addEventListener('click', () => {
+                donationSheet.classList.remove('hidden');
+                setTimeout(() => donationSheet.classList.add('open'), 10);
+            });
+        }
+
+        if (closeDonationBtn && donationSheet) {
+            closeDonationBtn.addEventListener('click', () => {
+                donationSheet.classList.remove('open');
+                setTimeout(() => donationSheet.classList.add('hidden'), 400);
+            });
+        }
+
+        // Copy Address Logic
+        const copyAddressBtn = document.getElementById('copy-address-btn');
+        const copyToast = document.getElementById('copy-toast');
+        const cryptoAddress = document.getElementById('crypto-address');
+        
+        if (copyAddressBtn && cryptoAddress) {
+            copyAddressBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(cryptoAddress.innerText);
+                    if (copyToast) {
+                        copyToast.classList.remove('hidden');
+                        setTimeout(() => copyToast.classList.add('hidden'), 2000);
+                    }
+                } catch (err) {
+                    console.error('Failed to copy', err);
+                    // Fallback
+                    const textArea = document.createElement("textarea");
+                    textArea.value = cryptoAddress.innerText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        if (copyToast) {
+                            copyToast.classList.remove('hidden');
+                            setTimeout(() => copyToast.classList.add('hidden'), 2000);
+                        }
+                    } catch (e) {}
+                    document.body.removeChild(textArea);
+                }
+            });
+        }
 
         if (this.renderEngineDropdown) {
             const savedEngineMode = localStorage.getItem('viper_hunt_render_mode') || '2d';
