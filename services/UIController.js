@@ -75,6 +75,7 @@ export class UIController {
     initMainUI() {
         this.bindAudioSettings();
         this.bindProfileSettings();
+        this.bindHTP();
 
         if (this.startBtn) {
             this.startBtn.addEventListener('click', () => this.handleStartClick());
@@ -168,6 +169,110 @@ export class UIController {
                 localStorage.setItem('viper_hunt_render_mode', e.target.value);
             });
         }
+    }
+
+    bindHTP() {
+        const openHtpBtn = document.getElementById('open-htp-btn');
+        const htpNewBadge = document.getElementById('htp-new-badge');
+        const hudHtpBtn = document.getElementById('hud-htp-btn');
+        const settingsHtpBtn = document.getElementById('settings-htp-btn');
+        const closeHtpBtn = document.getElementById('close-htp-btn');
+        const htpModal = document.getElementById('htp-modal');
+        const htpCardsContainer = document.querySelector('.htp-cards-container');
+        const htpCards = document.querySelectorAll('.htp-card');
+        const htpDots = document.querySelectorAll('.htp-dot');
+        const htpSkipBtn = document.getElementById('htp-skip-btn');
+        const htpNextBtn = document.getElementById('htp-next-btn');
+        const htpGotItBtn = document.getElementById('htp-gotit-btn');
+
+        let currentCardIndex = 0;
+        let wasPaused = false;
+        let lastFocusedElement = null;
+
+        try {
+            if (!localStorage.getItem('seenHowToPlay') && htpNewBadge) {
+                htpNewBadge.classList.remove('hidden');
+            }
+        } catch(e) {}
+
+        const updateCards = () => {
+            htpCards.forEach((c, idx) => {
+                c.classList.toggle('active', idx === currentCardIndex);
+                if (htpDots[idx]) htpDots[idx].classList.toggle('active', idx === currentCardIndex);
+            });
+            if (currentCardIndex === htpCards.length - 1) {
+                if (htpNextBtn) htpNextBtn.classList.add('hidden');
+                if (htpSkipBtn) htpSkipBtn.classList.add('hidden');
+                if (htpGotItBtn) htpGotItBtn.classList.remove('hidden');
+            } else {
+                if (htpNextBtn) htpNextBtn.classList.remove('hidden');
+                if (htpSkipBtn) htpSkipBtn.classList.remove('hidden');
+                if (htpGotItBtn) htpGotItBtn.classList.add('hidden');
+            }
+            if (htpCardsContainer) {
+                htpCardsContainer.scrollTo({ left: currentCardIndex * htpCardsContainer.offsetWidth, behavior: 'smooth' });
+            }
+        };
+
+        const openModal = () => {
+            try {
+                if (!localStorage.getItem('seenHowToPlay')) {
+                    localStorage.setItem('seenHowToPlay', 'true');
+                }
+            } catch(e) {}
+            if (htpNewBadge) htpNewBadge.classList.add('hidden');
+            
+            lastFocusedElement = document.activeElement;
+            if (htpModal) {
+                htpModal.classList.remove('hidden');
+                setTimeout(() => htpModal.classList.add('open'), 10);
+            }
+            
+            if (htpSkipBtn && !htpSkipBtn.classList.contains('hidden')) htpSkipBtn.focus();
+            else if (htpGotItBtn) htpGotItBtn.focus();
+            
+            if (this.app && this.app.gameLoop && this.app.gameLoop.running) {
+                wasPaused = true;
+                this.app.gameLoop.stop();
+            }
+        };
+
+        const closeModal = () => {
+            if (htpModal) {
+                htpModal.classList.remove('open');
+                setTimeout(() => htpModal.classList.add('hidden'), 400);
+            }
+            if (lastFocusedElement) {
+                setTimeout(() => lastFocusedElement.focus(), 450);
+            }
+            
+            if (wasPaused && this.app && this.app.gameLoop && !this.app.gameLoop.running) {
+                wasPaused = false;
+                this.app.gameLoop.start();
+            }
+        };
+
+        if (openHtpBtn) openHtpBtn.addEventListener('click', openModal);
+        if (hudHtpBtn) hudHtpBtn.addEventListener('click', openModal);
+        if (settingsHtpBtn) settingsHtpBtn.addEventListener('click', openModal);
+        if (closeHtpBtn) closeHtpBtn.addEventListener('click', closeModal);
+        if (htpSkipBtn) htpSkipBtn.addEventListener('click', closeModal);
+        if (htpGotItBtn) htpGotItBtn.addEventListener('click', closeModal);
+
+        if (htpNextBtn) {
+            htpNextBtn.addEventListener('click', () => {
+                if (currentCardIndex < htpCards.length - 1) {
+                    currentCardIndex++;
+                    updateCards();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && htpModal && !htpModal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
     }
 
     bindAudioSettings() {
@@ -632,6 +737,17 @@ export class UIController {
     }
 
     startGameHUDLoop(gameLoop, scoreManager, selectedMode, gridState, attackManager) {
+        try {
+            if (!localStorage.getItem('firstRoundHintShown')) {
+                const hintToast = document.getElementById('first-time-hint');
+                if (hintToast) {
+                    hintToast.classList.remove('hidden');
+                    setTimeout(() => hintToast.classList.add('hidden'), 4000);
+                }
+                localStorage.setItem('firstRoundHintShown', 'true');
+            }
+        } catch(e) {}
+
         this.hudInterval = setInterval(() => {
             if (gameLoop.running) {
                 if (this.hudScore) this.hudScore.innerText = scoreManager.getSessionScore();
