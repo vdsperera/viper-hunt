@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
+
     <!-- Primary Meta Tags -->
     <title>Viper Hunt - Cyberpunk Tactical Arcade</title>
     <meta name="title" content="Viper Hunt - Cyberpunk Tactical Arcade">
-    <meta name="description" content="A cyberpunk-themed browser-based arcade snake game with bounty hunting targets, treasure vault loot extraction, and a dynamic Gemini AI narrator.">
+    <meta name="description"
+        content="A cyberpunk-themed browser-based arcade snake game with bounty hunting targets, treasure vault loot extraction, and a dynamic Gemini AI narrator.">
     <meta name="keywords" content="cyberpunk, arcade, snake game, html5 canvas, webgl, gemini ai, browser game">
     <meta name="author" content="Vidumini Sulochana Perera">
 
@@ -17,7 +18,8 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://viper-hunt.firebaseapp.com/">
     <meta property="og:title" content="Viper Hunt - Cyberpunk Tactical Arcade">
-    <meta property="og:description" content="A cyberpunk-themed browser-based arcade snake game with bounty hunting targets, treasure vault loot extraction, and a dynamic Gemini AI narrator.">
+    <meta property="og:description"
+        content="A cyberpunk-themed browser-based arcade snake game with bounty hunting targets, treasure vault loot extraction, and a dynamic Gemini AI narrator.">
     <!-- Replace this placeholder with an actual image in your assets folder -->
     <meta property="og:image" content="https://viper-hunt.firebaseapp.com/assets/og-image.jpg">
 
@@ -25,7 +27,8 @@
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://viper-hunt.firebaseapp.com/">
     <meta property="twitter:title" content="Viper Hunt - Cyberpunk Tactical Arcade">
-    <meta property="twitter:description" content="A cyberpunk-themed browser-based arcade snake game with bounty hunting targets, treasure vault loot extraction, and a dynamic Gemini AI narrator.">
+    <meta property="twitter:description"
+        content="A cyberpunk-themed browser-based arcade snake game with bounty hunting targets, treasure vault loot extraction, and a dynamic Gemini AI narrator.">
     <!-- Replace this placeholder with an actual image in your assets folder -->
     <meta property="twitter:image" content="https://viper-hunt.firebaseapp.com/assets/og-image.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,13 +57,16 @@
                     </div>
                     <div id="ai-threat-badge" class="hud-badge threat-badge" title="Dynamic AI Threat Level">
                         <span class="hud-label">AI THREAT</span>
-                        <span id="hud-threat-level" class="hud-value threat-value" style="color: #00ff88;">🎯 STANDARD</span>
+                        <span id="hud-threat-level" class="hud-value threat-value" style="color: #00ff88;">🎯
+                            STANDARD</span>
                     </div>
                     <div id="weather-badge" class="hud-badge weather-badge" title="Live Sector Weather Status">
                         <span class="hud-label">WEATHER</span>
-                        <span id="hud-weather-level" class="hud-value weather-value" style="color: #00f0ff;">🌧️ CYBER RAIN</span>
+                        <span id="hud-weather-level" class="hud-value weather-value" style="color: #00f0ff;">🌧️ CYBER
+                            RAIN</span>
                     </div>
-                    <div id="render-mode-badge" class="hud-badge render-mode-badge" title="Toggle 2D / 3D Render Engine">
+                    <div id="render-mode-badge" class="hud-badge render-mode-badge"
+                        title="Toggle 2D / 3D Render Engine">
                         <button id="render-mode-toggle-btn" class="hud-toggle-btn"><span>👁️ VIEW: 2D</span></button>
                     </div>
                 </div>
@@ -68,7 +74,8 @@
                 <div id="streak-badge" class="hud-badge streak-badge hidden" title="Kill Streak Multiplier">
                     <span class="hud-label">STREAK</span>
                     <span id="hud-streak-count" class="hud-value streak-value" style="color: #ff3366;">1</span>
-                    <span id="hud-streak-mult" class="hud-value streak-mult" style="color: #ffaa00; font-size: 0.8em; margin-left: 5px;">(x1.0)</span>
+                    <span id="hud-streak-mult" class="hud-value streak-mult"
+                        style="color: #ffaa00; font-size: 0.8em; margin-left: 5px;">(x1.0)</span>
                     <div class="streak-progress-container">
                         <div id="streak-progress-bar" class="streak-progress"></div>
                     </div>
@@ -160,20 +167,34 @@
                         </div>
 
                         <div class="profile-card-group">
-                            <div id="auth-status-container" style="text-align: center; margin-bottom: 10px; padding: 10px; border: 1px solid rgba(0, 240, 255, 0.3); background: rgba(0, 0, 0, 0.5); border-radius: 4px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                                <div id="auth-status-message" style="color: var(--primary-cyan); font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">AUTHENTICATING GUEST SESSION...</div>
-                                <div id="auth-buttons-group" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                                    <button id="oauth-link-btn" class="cyber-btn secondary hidden" style="padding: 8px 15px; font-size: 0.8rem;"><span>🔗 UPGRADE ACCOUNT</span></button>
-                                    <button id="oauth-signin-btn" class="cyber-btn secondary hidden" style="padding: 8px 15px; font-size: 0.8rem;"><span>LOGIN (EXISTING)</span></button>
-                                    <button id="oauth-signout-btn" class="cyber-btn secondary hidden" style="padding: 8px 15px; font-size: 0.8rem;"><span>SIGN OUT</span></button>
+                            <div id="auth-status-container"
+                                style="text-align: center; margin-bottom: 10px; padding: 10px; border: 1px solid rgba(0, 240, 255, 0.3); background: rgba(0, 0, 0, 0.5); border-radius: 4px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                <div id="auth-status-message"
+                                    style="color: var(--primary-cyan); font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">
+                                    AUTHENTICATING GUEST SESSION...</div>
+                                <div id="auth-buttons-group"
+                                    style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                                    <button id="oauth-link-btn" class="cyber-btn secondary hidden"
+                                        style="padding: 8px 15px; font-size: 0.8rem;"><span>🔗 UPGRADE
+                                            ACCOUNT</span></button>
+                                    <button id="oauth-signin-btn" class="cyber-btn secondary hidden"
+                                        style="padding: 8px 15px; font-size: 0.8rem;"><span>LOGIN
+                                            (EXISTING)</span></button>
+                                    <button id="oauth-signout-btn" class="cyber-btn secondary hidden"
+                                        style="padding: 8px 15px; font-size: 0.8rem;"><span>SIGN OUT</span></button>
                                 </div>
-                                <div id="auth-error-msg" class="hidden" style="color: var(--accent-red); font-size: 0.8rem; margin-top: 5px;">ERROR AUTHENTICATING</div>
+                                <div id="auth-error-msg" class="hidden"
+                                    style="color: var(--accent-red); font-size: 0.8rem; margin-top: 5px;">ERROR
+                                    AUTHENTICATING</div>
                             </div>
-                            
-                            <div class="profile-create hidden" id="callsign-setup-container" style="display: flex; gap: 8px; margin-top: 10px;">
+
+                            <div class="profile-create hidden" id="callsign-setup-container"
+                                style="display: flex; gap: 8px; margin-top: 10px;">
                                 <input type="text" id="new-profile-name" placeholder="Enter player callsign..."
                                     maxlength="16" autocomplete="off" style="flex: 1; min-width: 0;">
-                                <button id="create-profile-btn" class="cyber-btn primary" style="width: auto; flex-shrink: 0; padding: 0 20px;"><span>SET CALLSIGN</span></button>
+                                <button id="create-profile-btn" class="cyber-btn primary"
+                                    style="width: auto; flex-shrink: 0; padding: 0 20px;"><span>SET
+                                        CALLSIGN</span></button>
                             </div>
                         </div>
 
@@ -194,8 +215,11 @@
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px;">
                         <button id="start-btn" class="cyber-btn primary" disabled><span>START SESSION</span></button>
-                        <button id="open-leaderboard-btn" class="cyber-btn secondary"><span>🏆 LEADERBOARD</span></button>
-                        <button id="open-donation-btn" class="cyber-btn secondary text-only" style="min-height: 44px; border-color: transparent; background: transparent; opacity: 0.8;"><span>SUPPORT THE DEV</span></button>
+                        <button id="open-leaderboard-btn" class="cyber-btn secondary"><span>🏆
+                                LEADERBOARD</span></button>
+                        <button id="open-donation-btn" class="cyber-btn secondary text-only"
+                            style="min-height: 44px; border-color: transparent; background: transparent; opacity: 0.8;"><span>SUPPORT
+                                THE DEV</span></button>
                     </div>
                 </div>
                 <!-- Leaderboard Bottom Sheet -->
@@ -219,7 +243,7 @@
                             <div class="skeleton-row"></div>
                             <div class="skeleton-row"></div>
                         </div>
-                        
+
                         <!-- Pinned You Row -->
                         <div id="leaderboard-pinned-you" class="pinned-you-row">
                             <div class="lb-row-content">
@@ -242,13 +266,18 @@
                     <div class="sheet-header">
                         <div class="drag-handle"></div>
                         <h2 class="sheet-title">SUPPORT THE DEV</h2>
-                        <button id="close-donation-btn" class="close-btn" aria-label="Close" style="min-height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center;">×</button>
+                        <button id="close-donation-btn" class="close-btn" aria-label="Close"
+                            style="min-height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center;">×</button>
                     </div>
                     <div class="sheet-content donation-content">
                         <p class="donation-desc">Optional. Donations help pay for hosting and new levels.</p>
-                        
-                        <a href="https://ko-fi.com/ciegescitone" target="_blank" rel="noopener noreferrer" class="cyber-btn primary kofi-btn" style="min-height: 48px; display: flex; text-decoration: none; align-items: center; justify-content: center; margin-bottom: 20px;">
-                            <span>SUPPORT ON KO-FI <small style="font-size: 0.65em; opacity: 0.8; margin-left: 5px;">(opens in new tab)</small></span>
+
+                        <a href="https://ko-fi.com/ciegescitone" target="_blank" rel="noopener noreferrer"
+                            class="cyber-btn primary kofi-btn"
+                            style="min-height: 48px; display: flex; text-decoration: none; align-items: center; justify-content: center; margin-bottom: 20px;">
+                            <span>SUPPORT ON KO-FI <small
+                                    style="font-size: 0.65em; opacity: 0.8; margin-left: 5px;">(opens in new
+                                    tab)</small></span>
                         </a>
 
                         <div class="quiet-divider"><span>OR</span></div>
@@ -260,15 +289,18 @@
                                 <span class="tokens-badge">ETH, USDT, USDC</span>
                             </div>
                             <div class="crypto-address-box">
-                                <span id="crypto-address" class="mono-address">0xa641c3c59f00db6f6f976eb6dc1219e7b8279509</span>
-                                <button id="copy-address-btn" class="cyber-btn secondary copy-btn" title="Copy Address">COPY</button>
+                                <span id="crypto-address"
+                                    class="mono-address">0xa641c3c59f00db6f6f976eb6dc1219e7b8279509</span>
+                                <button id="copy-address-btn" class="cyber-btn secondary copy-btn"
+                                    title="Copy Address">COPY</button>
                             </div>
                             <div id="copy-toast" class="copy-toast hidden">COPIED!</div>
-                            
-                            <div class="crypto-warning" style="color: var(--snake-green); background: rgba(0, 255, 136, 0.1);">
+
+                            <div class="crypto-warning"
+                                style="color: var(--snake-green); background: rgba(0, 255, 136, 0.1);">
                                 ✅ Supports Ethereum, Polygon, Arbitrum, Base, and other EVM networks.
                             </div>
-                            
+
                             <div class="qr-container">
                                 <img src="assets/eth_qr.svg" alt="Ethereum Address QR Code" class="qr-image" />
                             </div>
