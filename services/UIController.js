@@ -323,15 +323,15 @@ export class UIController {
     syncAudioUi() {
         if (this.sfxToggleBtn) {
             this.sfxToggleBtn.classList.toggle('off', !this.audioService.sfxEnabled);
-            this.sfxToggleBtn.querySelector('span').innerText = this.audioService.sfxEnabled ? '🔊 SFX: ON' : '🔇 SFX: OFF';
+            this.sfxToggleBtn.setAttribute('aria-pressed', this.audioService.sfxEnabled ? 'true' : 'false');
         }
         if (this.bgmToggleBtn) {
             this.bgmToggleBtn.classList.toggle('off', !this.audioService.bgmEnabled);
-            this.bgmToggleBtn.querySelector('span').innerText = this.audioService.bgmEnabled ? '🎵 BGM: ON' : '🔇 BGM: OFF';
+            this.bgmToggleBtn.setAttribute('aria-pressed', this.audioService.bgmEnabled ? 'true' : 'false');
         }
         if (this.voiceToggleBtn) {
             this.voiceToggleBtn.classList.toggle('off', !this.audioService.voiceEnabled);
-            this.voiceToggleBtn.querySelector('span').innerText = this.audioService.voiceEnabled ? '🎙 VOICE: ON' : '🔇 VOICE: OFF';
+            this.voiceToggleBtn.setAttribute('aria-pressed', this.audioService.voiceEnabled ? 'true' : 'false');
         }
         if (this.sfxVolSlider) this.sfxVolSlider.value = this.audioService.sfxVolume;
         if (this.bgmVolSlider) this.bgmVolSlider.value = this.audioService.bgmVolume;
