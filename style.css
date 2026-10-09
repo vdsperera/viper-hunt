@@ -790,6 +790,26 @@ select option {
     transform: none;
 }
 
+.icon-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+}
+
+.audio-btn.off {
+    opacity: 0.5;
+    background: rgba(255, 0, 85, 0.1);
+    border: 1px solid rgba(255, 0, 85, 0.4);
+}
+.audio-btn.off span {
+    filter: grayscale(100%);
+    opacity: 0.6;
+}
+
 /* Virtual Cyber D-Pad Controls for Mobile */
 #dpad-controls {
     position: absolute;
