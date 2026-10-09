@@ -1,6 +1,6 @@
 # Viper Hunt 🐍⚡
 
-A cyberpunk-themed browser-based arcade snake game with bounty hunting targets, treasure vault loot extraction, roaming boss hazards, mobile virtual D-Pad controls, and cloud/local persistence.
+A cyberpunk-themed browser-based arcade snake game with bounty hunting targets, roaming boss hazards, mobile virtual D-Pad controls, and cloud/local persistence.
 
 Built using native **HTML5 Canvas 2D**, **ES6+ Vanilla JavaScript**, **CSS3**, and **Firebase Firestore** with local storage fallbacks.
 
@@ -10,8 +10,8 @@ Built using native **HTML5 Canvas 2D**, **ES6+ Vanilla JavaScript**, **CSS3**, a
 
 - 🎮 **Multiple Play Modes:**
   - **Mode 1 — Viper Bounty Hunter:** Capture criminal targets loaded via Google Sheets CSV API or local JSON fallback.
-  - **Mode 2 — Treasure Vault:** Extract glowing vector loot items (chests, gems, ingots) with custom visual shapes.
-  - **Mode 3 — Emotional Death Quest:** Answer philosophical soul questions while evading the Death entity.
+  - **Mode 2 — Treasure Vault:** (Planned Feature) Extract glowing vector loot items (chests, gems, ingots) with custom visual shapes.
+  - **Mode 3 — Emotional Death Quest:** (Planned Feature) Answer philosophical soul questions while evading the Death entity.
 - 🎯 **Target Identity Badges & Wanted Roster:** Floating canvas name badges above targets and a live Wanted Targets Roster HUD bar.
 - ⚔️ **Configurable Attack & Punishment System:** Select tactical attack methods using keys `1`-`4` (`Handed to Police`, `Brutally Caged`, `Shot Down in Action`, `Ruthlessly Butchered`) with score multipliers and limited inventory.
 - 🚨 **Configurable Multi-Hazard Engine:** Escalating per-level risk featuring 🦹 Crime Bosses, 🚔 Police Patrols (flashing lights), and 💀 Death Reapers, complete with specific cause of death tracking.
