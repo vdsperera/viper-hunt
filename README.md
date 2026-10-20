@@ -8,24 +8,22 @@ Built using native **HTML5 Canvas 2D**, **ES6+ Vanilla JavaScript**, **CSS3**, a
 
 ## Key Features
 
-- 🎮 **Multiple Play Modes:**
-  - **Mode 1 — Viper Bounty Hunter:** Capture criminal targets loaded via Google Sheets CSV API or local JSON fallback.
-  - **Mode 2 — Treasure Vault:** (Planned Feature) Extract glowing vector loot items (chests, gems, ingots) with custom visual shapes.
-  - **Mode 3 — Emotional Death Quest:** (Planned Feature) Answer philosophical soul questions while evading the Death entity.
+- 🎮 **Tactical Bounty Hunter Mode:** Capture criminal targets loaded dynamically via Google Sheets CSV API or offline local JSON fallback *(future modes such as Treasure Vault and Emotional Death Quest are on the roadmap)*.
 - 🎯 **Target Identity Badges & Wanted Roster:** Floating canvas name badges above targets and a live Wanted Targets Roster HUD bar.
 - ⚔️ **Configurable Attack & Punishment System:** Select tactical attack methods using keys `1`-`4` (`Handed to Police`, `Brutally Caged`, `Shot Down in Action`, `Ruthlessly Butchered`) with score multipliers and limited inventory.
 - 🚨 **Configurable Multi-Hazard Engine:** Escalating per-level risk featuring 🦹 Crime Bosses, 🚔 Police Patrols (flashing lights), and 💀 Death Reapers, complete with specific cause of death tracking.
+- 📖 **Interactive "How to Play" Guide & Hints:** Multi-card carousel onboarding modal covering mission goals, controls, scoring streaks, and hazard evasion, plus first-time directional swipe hints.
+- 🎛️ **Compact Audio Control Bar:** Start-screen control bar with instant one-tap toggles for SFX, BGM, and tactical Voice comms, plus dedicated volume sliders, BGM track selectors, and voice personality styles.
+- 🏆 **Global Leaderboards & Sliding Bottom Sheet:** Real-time sliding bottom-sheet ranking with Daily, Weekly, and All-Time tabs, skeleton loading states, pinned player ranking, and guest upgrade prompts.
+- 🔒 **Authentication & Callsign System:** Guest sessions with persistent player callsigns, 4-digit PIN protection, `localStorage` profile memory, and upgrade path to Google OAuth.
+- 📱 **Mobile Virtual D-Pad & Gesture Controls:** Responsive on-screen directional D-Pad and touch swipe gesture support, paired with unobscured auto-dimming HUD elements.
 - 📋 **End-of-Game Criminal Punishment Log:** Post-game breakdown modal presenting an itemized summary card table of every criminal captured, punishment used, and bounty payout.
-- 📱 **Mobile Virtual D-Pad & Unobscured Layout:** Responsive touch controls with transparent auto-dimming HUD elements for clear target visibility.
 - 💥 **Cyberpunk Glowing UI & FX:** Neon vector rendering engine, dynamic canvas scaling, spark particle bursts, and floating score popups.
 - ☁️ **Cloud & Offline Local Persistence:** Firebase Firestore profile sync with transparent `localStorage` fallback.
 - 🛡️ **XSS Protection:** Input sanitization on remote CSV fields and canvas-level safe image rendering.
-- 🏆 **Global Leaderboards:** Real-time ranking with Daily/Weekly/All-Time tabs backed by Firebase.
-- 🎶 **Dynamic Audio System:** Configurable SFX, BGM (background music tracks), and Voice narration styles.
-- 🤖 **Gemini AI Narrator:** Procedural engine for generating dynamic criminal confessions and narrative flavor.
+- 🤖 **Procedural & AI Narrative Engine:** Generates dynamic criminal confessions, hazard radio taunts, and post-match rap sheets via an internal procedural generator (with optional Google Gemini AI proxy integration).
 - 🌧️ **Dynamic Weather & Threat Levels:** Live sector weather effects and adaptive AI difficulty scaling.
 - ⚡ **Kill Streak System:** Chain captures to build a streak multiplier for bonus points.
-- 🔒 **Authentication:** Anonymous guest sessions with the ability to upgrade and link Google OAuth accounts.
 - ☕ **Support the Dev Integration:** Built-in interactive donation modal with Ko-fi and EVM multi-network crypto support.
 
 ---
@@ -62,7 +60,7 @@ node init-db.js
   - Directional Movement: `Arrow Keys` or `W`, `A`, `S`, `D`
   - Attack / Punishment Selector: Number Keys `1`, `2`, `3`, `4`
 - **Mobile Touch Devices:**
-  - Directional Movement: Tap Virtual D-Pad buttons on screen overlay (`▲`, `▼`, `◄`, `►`)
+  - Directional Movement: Swipe across the screen or tap Virtual D-Pad buttons on screen overlay (`▲`, `▼`, `◄`, `►`)
   - Attack Selector: Tap HUD Attack Method Buttons (`[1] 👮`, `[2] 🔒`, `[3] 🎯`, `[4] 🪓`)
 
 ### Developer Cheats (Local Testing Only)
@@ -77,18 +75,22 @@ node init-db.js
 ```
 viper-hunt/
 ├── index.html                   # Game HTML shell, mode overlay, start/game-over screens, wanted roster & attack HUD
-├── main.js                      # Core entry point, mode selection, Firebase init, UI event wiring
+├── main.js                      # Application entry point (initializes App)
+├── App.js                       # Core application bootstrapper, mode selection, Firebase init, and subsystem orchestration
 ├── style.css                    # Cyberpunk design system, glowing UI, responsive overlays, mobile D-Pad
 ├── init-db.js                   # Firestore initial database seed script
 ├── firebase-config.js           # Live Firebase configuration parameters
 ├── firebase-config.example.js   # Example configuration template
-├── assets/                      # Graphic assets (avatars, icons, audio)
+├── firebase.json                # Firebase hosting and project deployment configuration
+├── firestore.rules              # Firestore security rules
+├── assets/                      # Graphic assets (avatars, crypto QR code)
 ├── data/                        # Local fallback data (fallback_registry.json)
+├── functions/                   # Firebase Cloud Functions (backend proxies / endpoints)
 ├── models/                      # Domain entities (CriminalRecord, HunterEntity)
 ├── services/                    # Game engine services
 │   ├── AdaptiveDifficultyService.js # Scales AI threat level and entity speed
 │   ├── AttackManager.js         # Tactical attack inventory, selection, multipliers, and story phrasing
-│   ├── AudioService.js          # Manages BGM, SFX, and Voice narration settings
+│   ├── AudioService.js          # Procedural Web Audio synthesizer (BGM, SFX, and tactical voice styles)
 │   ├── CollisionDetector.js     # Grid boundary, self, multi-hazard collision detection, and cause of death tracking
 │   ├── ConfigManager.js         # Global configuration and constants
 │   ├── EventBus.js              # Centralized event publishing/subscription system
@@ -100,6 +102,7 @@ viper-hunt/
 │   ├── LLMService.js            # Gemini AI procedural generation for narrative flavor
 │   ├── Pathfinder.js            # AI pathfinding and hazard navigation
 │   ├── RegistryService.js       # Google Sheets CSV fetcher, XSS sanitizer, play mode provider
+│   ├── RenderManager.js         # Render mode coordinator (2D / 3D) and weather propagation
 │   ├── Renderer.js              # Canvas 2D renderer, cyberpunk glow FX, floating target badges, multi-hazard icons
 │   ├── Renderer3D.js            # Experimental Three.js WebGL 3D renderer
 │   ├── ScoreManager.js          # Level & session score calculators with criminal capture logging
@@ -108,7 +111,14 @@ viper-hunt/
 │   ├── UIController.js          # Orchestrator for HUD, overlays, and UI event bindings
 │   └── WeatherService.js        # Dynamic sector weather conditions
 ├── tests/                       # Unit & integration test suites (including MultiHazard and AttackManager)
-├── docs/                        # Living project documents (01-requirements, 02-user-stories, 03-architecture, 04-tasks, 05-deployment)
+├── docs/                        # Living project documents and design proposals
+│   ├── 00-hierarchy-breakdown.md# Architecture hierarchy and module dependency map
+│   ├── 01-requirements.md       # Product requirements and specifications
+│   ├── 02-user-stories.md       # User stories and Gherkin acceptance criteria
+│   ├── 03-architecture.md       # System design and component interactions
+│   ├── 04-tasks.md              # Task backlog and implementation progress
+│   ├── 05-deployment.md         # Deployment and release workflows
+│   └── proposals/               # Future mechanics proposals (bribe, respect, level expansion)
 └── prompts/                     # Source prompts for AI development pipeline
 ```
 
@@ -130,6 +140,6 @@ prompts/
 └── 08-test-generator.md
 ```
 
-Documentation files in `docs/` (`01-requirements.md`, `02-user-stories.md`, `03-architecture.md`, `04-tasks.md`, `05-deployment.md`) are kept strictly in sync with codebase features and task completions.
+Documentation files in `docs/` (`00-hierarchy-breakdown.md`, `01-requirements.md`, `02-user-stories.md`, `03-architecture.md`, `04-tasks.md`, `05-deployment.md`, and `docs/proposals/`) are kept strictly in sync with codebase features and task completions.
 
 
