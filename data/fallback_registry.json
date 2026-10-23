@@ -107,6 +107,376 @@
         "FBI_Most_Wanted": true,
         "Conviction_Status": true,
         "Computed_Value": 90,
-        "Incident": "On September 12, 2015, four-year-old Seya Sadewmi went missing overnight from her family home. Her body was discovered the following day near a canal close to her house. Autopsy reports confirmed that she had been sexually assaulted and strangled."
+        "Incident": "High Court of Negombo capital conviction case (Kotadeniyawa, Sep 2015)"
+    },
+    {
+        "ID": "fb-012",
+        "Name": "Eddie 'Fingers' Malone",
+        "Avatar_Asset_Path": "assets/avatars/slugworth.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": false,
+        "Conviction_Status": true,
+        "Computed_Value": 20,
+        "Incident": "Commercial grand larceny and dockside freight tampering"
+    },
+    {
+        "ID": "fb-013",
+        "Name": "Nikolai Rostov",
+        "Avatar_Asset_Path": "assets/avatars/salazar.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": false,
+        "Conviction_Status": true,
+        "Computed_Value": 30,
+        "Incident": "Counterfeit customs documentation and offshore fuel smuggling"
+    },
+    {
+        "ID": "fb-014",
+        "Name": "Silas Chen",
+        "Avatar_Asset_Path": "assets/avatars/cipher.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": false,
+        "Conviction_Status": false,
+        "Computed_Value": 40,
+        "Incident": "Unauthorized surveillance of metropolitan police telemetry"
+    },
+    {
+        "ID": "fb-015",
+        "Name": "Maya Lin",
+        "Avatar_Asset_Path": "assets/avatars/vance.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 40,
+        "Incident": "High-frequency algorithmic flash-crash manipulation"
+    },
+    {
+        "ID": "fb-016",
+        "Name": "Vincent 'Ironclad' Vance",
+        "Avatar_Asset_Path": "assets/avatars/soze.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 50,
+        "Incident": "Underground syndicate gambling and racketeering network"
+    },
+    {
+        "ID": "fb-017",
+        "Name": "Marcus Brody",
+        "Avatar_Asset_Path": "assets/avatars/gekko.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": false,
+        "Conviction_Status": true,
+        "Computed_Value": 50,
+        "Incident": "Subprime municipal bond forgery and offshore shell routing"
+    },
+    {
+        "ID": "fb-018",
+        "Name": "Elena Rostova",
+        "Avatar_Asset_Path": "assets/avatars/vance.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": false,
+        "Conviction_Status": false,
+        "Computed_Value": 50,
+        "Incident": "Diplomatic pouch smuggling and classified telemetry brokerage"
+    },
+    {
+        "ID": "fb-019",
+        "Name": "Jaxx 'Zero' Mercer",
+        "Avatar_Asset_Path": "assets/avatars/cipher.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 60,
+        "Incident": "Federal reserve clearing server breach and cyber extortion"
+    },
+    {
+        "ID": "fb-020",
+        "Name": "Viktor Kozlov",
+        "Avatar_Asset_Path": "assets/avatars/salazar.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 60,
+        "Incident": "Armored transit convoy ambush and military ordnance theft"
+    },
+    {
+        "ID": "fb-021",
+        "Name": "Dr. Anton Krieger",
+        "Avatar_Asset_Path": "assets/avatars/blofeld.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": false,
+        "Conviction_Status": true,
+        "Computed_Value": 60,
+        "Incident": "Prohibited biochemical weapon synthesis and distribution"
+    },
+    {
+        "ID": "fb-022",
+        "Name": "Celine Fontaine",
+        "Avatar_Asset_Path": "assets/avatars/carmen.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 60,
+        "Incident": "Private museum vault penetration and Renaissance art laundering"
+    },
+    {
+        "ID": "fb-023",
+        "Name": "Carlos Ortega",
+        "Avatar_Asset_Path": "assets/avatars/salazar.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 70,
+        "Incident": "Transnational maritime contraband smuggling corridor"
+    },
+    {
+        "ID": "fb-024",
+        "Name": "Raymond 'Redline' Cross",
+        "Avatar_Asset_Path": "assets/avatars/cooper.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 70,
+        "Incident": "Commercial aircraft telemetry spoofing and cargo interception"
+    },
+    {
+        "ID": "fb-025",
+        "Name": "Dominic Torrez",
+        "Avatar_Asset_Path": "assets/avatars/gruber.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 75,
+        "Incident": "Subterranean federal bullion repository breach"
+    },
+    {
+        "ID": "fb-026",
+        "Name": "Sterling Vance",
+        "Avatar_Asset_Path": "assets/avatars/gekko.png",
+        "Interpol_Red_Notice": false,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 80,
+        "Incident": "Sovereign debt default triggers and predatory credit defaults"
+    },
+    {
+        "ID": "fb-027",
+        "Name": "Natasha Volkova",
+        "Avatar_Asset_Path": "assets/avatars/vance.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 80,
+        "Incident": "National power grid SCADA ransomware lockdown"
+    },
+    {
+        "ID": "fb-028",
+        "Name": "Boris 'The Anvil' Grigorov",
+        "Avatar_Asset_Path": "assets/avatars/luthor.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 90,
+        "Incident": "Surface-to-air missile proliferation across restricted airspace"
+    },
+    {
+        "ID": "fb-029",
+        "Name": "Gabriel Thorne",
+        "Avatar_Asset_Path": "assets/avatars/blofeld.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": false,
+        "Conviction_Status": false,
+        "Computed_Value": 90,
+        "Incident": "Transnational antiquities auction money laundering ring"
+    },
+    {
+        "ID": "fb-030",
+        "Name": "Kenji Takanashi",
+        "Avatar_Asset_Path": "assets/avatars/takanashi.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 95,
+        "Incident": "Metropolitan harbor extortion and illicit container racketeering"
+    },
+    {
+        "ID": "fb-031",
+        "Name": "Damian Drake",
+        "Avatar_Asset_Path": "assets/avatars/soze.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 100,
+        "Incident": "Classified defense satellite telemetry exfiltration"
+    },
+    {
+        "ID": "fb-032",
+        "Name": "Elara Vance",
+        "Avatar_Asset_Path": "assets/avatars/vance.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 100,
+        "Incident": "International luxury syndicate smuggling and high-value heist conspiracy"
+    },
+    {
+        "ID": "fb-033",
+        "Name": "Lord Alistair Blackwood",
+        "Avatar_Asset_Path": "assets/avatars/blofeld.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 100,
+        "Incident": "Private military consortium price-fixing and conflict procurement"
+    },
+    {
+        "ID": "fb-034",
+        "Name": "Mateo Salazar",
+        "Avatar_Asset_Path": "assets/avatars/salazar.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 110,
+        "Incident": "Cross-border heavy arms cartel distribution network"
+    },
+    {
+        "ID": "fb-035",
+        "Name": "Dr. Hannelore Weber",
+        "Avatar_Asset_Path": "assets/avatars/carmen.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 110,
+        "Incident": "Autonomous drone weaponization and industrial sabotage"
+    },
+    {
+        "ID": "fb-036",
+        "Name": "Dmitry 'Onyx' Volkov",
+        "Avatar_Asset_Path": "assets/avatars/gruber.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 120,
+        "Incident": "Enriched radioisotope black-market transport"
+    },
+    {
+        "ID": "fb-037",
+        "Name": "Cassandra 'Mirage' Kane",
+        "Avatar_Asset_Path": "assets/avatars/vance.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 120,
+        "Incident": "Quantum encryption cipher compromise and interbank siphon"
+    },
+    {
+        "ID": "fb-038",
+        "Name": "General Hector Morales",
+        "Avatar_Asset_Path": "assets/avatars/luthor.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 130,
+        "Incident": "Sovereign coup financing and conflict mineral smuggling"
+    },
+    {
+        "ID": "fb-039",
+        "Name": "Kaelen Voss",
+        "Avatar_Asset_Path": "assets/avatars/cipher.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 130,
+        "Incident": "Global oceanic communication cable sabotage"
+    },
+    {
+        "ID": "fb-040",
+        "Name": "Shinzo Morimoto",
+        "Avatar_Asset_Path": "assets/avatars/takanashi.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 140,
+        "Incident": "Pacific container fleet interception and maritime piracy"
+    },
+    {
+        "ID": "fb-041",
+        "Name": "Lucian 'The Chemist' Rossi",
+        "Avatar_Asset_Path": "assets/avatars/blofeld.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 140,
+        "Incident": "Undetectable neurotoxin synthesis and covert cartel supply"
+    },
+    {
+        "ID": "fb-042",
+        "Name": "Maximillian Kane",
+        "Avatar_Asset_Path": "assets/avatars/gekko.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 150,
+        "Incident": "Global commodities futures sabotage and sovereign plunder"
+    },
+    {
+        "ID": "fb-043",
+        "Name": "Valeria Steele",
+        "Avatar_Asset_Path": "assets/avatars/vance.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 150,
+        "Incident": "High-altitude covert transport smuggling and airspace breach"
+    },
+    {
+        "ID": "fb-044",
+        "Name": "Yuri Zakharov",
+        "Avatar_Asset_Path": "assets/avatars/salazar.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 160,
+        "Incident": "Arctic mineral exploration facility armed takeover"
+    },
+    {
+        "ID": "fb-045",
+        "Name": "Tiberius Stone",
+        "Avatar_Asset_Path": "assets/avatars/luthor.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": true,
+        "Computed_Value": 170,
+        "Incident": "Orbital defense telemetry exfiltration and guidance sabotage"
+    },
+    {
+        "ID": "fb-046",
+        "Name": "Severus Thorne",
+        "Avatar_Asset_Path": "assets/avatars/blofeld.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 180,
+        "Incident": "Darknet shadow syndicate supreme financial coordinator"
+    },
+    {
+        "ID": "fb-047",
+        "Name": "The Archon",
+        "Avatar_Asset_Path": "assets/avatars/soze.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 190,
+        "Incident": "Master intermediary broker for transcontinental syndicates"
+    },
+    {
+        "ID": "fb-048",
+        "Name": "Viper Prime",
+        "Avatar_Asset_Path": "assets/avatars/viper.png",
+        "Interpol_Red_Notice": true,
+        "FBI_Most_Wanted": true,
+        "Conviction_Status": false,
+        "Computed_Value": 200,
+        "Incident": "Supreme architect and elusive head of the global Viper Syndicate"
     }
 ]

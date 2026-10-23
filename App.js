@@ -100,6 +100,9 @@ export class App {
     }
 
     startGame(selectedMode, selectedProfile) {
+        if (this.registryService) {
+            this.registryService.resetSessionPool();
+        }
         const gameRules = configManager.getAll();
         const isGeminiEnabled = configManager.isFeatureEnabled('GEMINI');
         const activeProxyUrl = isGeminiEnabled ? configManager.getGeminiProxyUrl() : '';

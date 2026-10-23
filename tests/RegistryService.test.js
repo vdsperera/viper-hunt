@@ -211,4 +211,58 @@ test('RegistryService Test Suite', async (t) => {
         assert.deepStrictEqual(lvl2.map(r => r.Computed_Value), [75, 75, 90]);
     });
 
+    await t.test('TC-008: getRecordsForLevel ensures no criminal profiles repeat across consecutive levels in the same session', async () => {
+        const service = new RegistryService(null, 'dummy.json');
+        await service.loadRegistry();
+
+        const lvl1 = service.getRecordsForLevel(1, 5);
+        const lvl2 = service.getRecordsForLevel(2, 5);
+        const lvl3 = service.getRecordsForLevel(3, 5);
+
+        assert.strictEqual(lvl1.length, 5);
+        assert.strictEqual(lvl2.length, 5);
+        assert.strictEqual(lvl3.length, 5);
+
+        const allIds = [...lvl1.map(r => r.ID), ...lvl2.map(r => r.ID), ...lvl3.map(r => r.ID)];
+        const uniqueIds = new Set(allIds);
+
+        // Guarantees zero duplicate suspects across levels in a session
+        assert.strictEqual(uniqueIds.size, allIds.length);
+    });
+
+    await t.test('TC-009: resetSessionPool clears level allocations and restores full criminal pool for fresh session', async () => {
+        const service = new RegistryService(null, 'dummy.json');
+        await service.loadRegistry();
+
+        const session1Lvl1 = service.getRecordsForLevel(1, 5);
+        service.getRecordsForLevel(2, 5);
+
+        // Start a new session
+        service.resetSessionPool();
+
+        const session2Lvl1 = service.getRecordsForLevel(1, 5);
+        assert.strictEqual(session2Lvl1.length, 5);
+        assert.deepStrictEqual(session1Lvl1.map(r => r.ID), session2Lvl1.map(r => r.ID));
+    });
+
+    await t.test('TC-010: getRecordsForLevel with levelTargetSpecs excludes earlier level suspects from later levels', async () => {
+        const service = new RegistryService(null, 'dummy.json');
+        await service.loadRegistry();
+
+        const specs = [
+            { level: 1, targetValues: [20, 50, 100] },
+            { level: 2, targetValues: [50, 70, 100] }
+        ];
+
+        const lvl1 = service.getRecordsForLevel(1, 3, specs);
+        const lvl2 = service.getRecordsForLevel(2, 3, specs);
+
+        const lvl1Ids = new Set(lvl1.map(r => r.ID));
+        const overlap = lvl2.filter(r => lvl1Ids.has(r.ID));
+
+        // Guarantees no criminal from Level 1 is reused in Level 2 even when requesting same values
+        assert.strictEqual(overlap.length, 0);
+    });
+
 });
+
